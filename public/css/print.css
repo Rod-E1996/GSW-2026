@@ -1,0 +1,166 @@
+/*==============================================================
+ * IMPRESION / EXPORTACION A PDF
+ *--------------------------------------------------------------
+ * La impresion siempre sale en CLARO, este cual sea el tema de
+ * pantalla: tinta oscura sobre papel blanco gasta toner y suele
+ * salir ilegible.
+ *
+ * Se carga con media="print", asi que estas reglas no afectan
+ * la pantalla en ningun momento.
+ *
+ * Nota: hoy el proyecto no genera PDFs ni llama a window.print().
+ * Esto queda como blindaje para cuando se agregue.
+ *============================================================*/
+
+/* Se reasignan los tokens a sus valores claros. Como todos los
+   componentes consumen tokens, con esto basta para devolver
+   toda la interfaz a modo claro. */
+html[data-theme="dark"],
+html[data-theme="light"],
+:root {
+    color-scheme: light !important;
+
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-elevated: #ffffff;
+    --color-surface-sunken: #ffffff;
+    --color-code-bg: #f1f1f1;
+
+    --color-text: #000000;
+    --color-text-muted: #444444;
+    --color-text-subtle: #444444;
+    --color-heading: #000000;
+    --color-text-inverse: #ffffff;
+
+    --color-border: #cccccc;
+    --color-border-strong: #999999;
+
+    --color-primary: #1a3ad6;
+    --color-primary-hover: #1a3ad6;
+    --color-primary-contrast: #ffffff;
+    --color-primary-soft: #eef1ff;
+    --color-primary-on-soft: #1a3ad6;
+
+    --color-success: #14713f;
+    --color-success-soft: #e8f5ee;
+    --color-success-on-soft: #14713f;
+    --color-success-contrast: #ffffff;
+
+    --color-warning: #8a6100;
+    --color-warning-soft: #fdf6e3;
+    --color-warning-on-soft: #8a6100;
+    --color-warning-contrast: #ffffff;
+
+    --color-danger: #b02a37;
+    --color-danger-soft: #fdeaec;
+    --color-danger-on-soft: #b02a37;
+    --color-danger-contrast: #ffffff;
+
+    --color-info: #0b6b80;
+    --color-info-soft: #e7f6fa;
+    --color-info-on-soft: #0b6b80;
+    --color-info-contrast: #ffffff;
+
+    --color-shadow: transparent;
+    --color-shadow-strong: transparent;
+    --color-shadow-neutral: transparent;
+    --color-soft-shadow: transparent;
+    --color-overlay: transparent;
+
+    --color-link: #1a3ad6;
+    --color-chip-bg: #eeeeee;
+    --color-chip-border: #999999;
+    --color-chip-text: #000000;
+    --color-chip-remove: #666666;
+    --color-chip-remove-hover: #000000;
+
+    --color-logout-bg: transparent;
+    --color-logout-bg-hover: transparent;
+    --color-logout-text: #b02a37;
+    --color-logout-border: #b02a37;
+    --color-logout-border-hover: #b02a37;
+
+    --color-stat-amber: #8a6100;
+    --color-stat-amber-contrast: #ffffff;
+    --color-stat-cyan: #0b6b80;
+    --color-stat-cyan-contrast: #ffffff;
+    --color-pill-success-bg: #e8f5ee;
+    --color-pill-success-text: #14713f;
+    --color-pill-danger-bg: #fdeaec;
+    --color-pill-danger-text: #b02a37;
+
+    --img-adjust: none;
+    --logo-adjust: none;
+    --theme-transition: 0ms;
+}
+
+/* Refuerzo directo: los selectores de style.css que traen el
+   color escrito a mano no leen tokens, asi que se fuerzan. */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .card-footer,
+html[data-theme="dark"] .card-body,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .table,
+html[data-theme="dark"] .table > :not(caption) > * > *,
+html[data-theme="dark"] .accordion-item,
+html[data-theme="dark"] .accordion-button,
+html[data-theme="dark"] .accordion-body,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .header,
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .footer,
+html[data-theme="dark"] .navbar {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .pagetitle h1,
+html[data-theme="dark"] .card-title {
+    color: #000000 !important;
+}
+
+html[data-theme="dark"] img {
+    filter: none !important;
+}
+
+/* Elementos que no aportan nada en papel. */
+.theme-toggle-item,
+.theme-toggle-btn,
+.back-to-top,
+#sidebar,
+.toggle-sidebar-btn,
+.toast,
+#toast-container {
+    display: none !important;
+}
+
+/* El main deja de compensar el ancho del sidebar oculto. */
+#main {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Bordes visibles en papel aunque el tema los haya quitado. */
+.card,
+.table,
+.table th,
+.table td {
+    border: 1px solid #cccccc !important;
+}
+
+/* Evita cortar filas y tarjetas entre paginas. */
+tr,
+.card {
+    page-break-inside: avoid;
+}

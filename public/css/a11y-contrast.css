@@ -1,0 +1,147 @@
+/*==============================================================
+ * CORRECCIONES DE CONTRASTE  (WCAG AA)
+ *--------------------------------------------------------------
+ * NiceAdmin y Bootstrap 5.1 traen varias combinaciones que no
+ * alcanzan AA. Estas reglas las corrigen en LOS DOS temas: no
+ * llevan el prefijo html[data-theme="dark"], sino que consumen
+ * tokens, que ya resuelven al valor correcto en cada tema.
+ *
+ * Se carga DESPUES de style.css y custom_styles.css (a los que
+ * pisa) y ANTES de dark-mode.css (que sigue mandando en oscuro).
+ *
+ * Cada bloque anota el ratio que tenia y el que tiene ahora.
+ *============================================================*/
+
+/*--------------------------------------------------------------
+# 1. Texto atenuado del tema
+   #899bbd sobre blanco daba 2.80:1. El token da 5.02:1.
+--------------------------------------------------------------*/
+
+.sidebar-nav .nav-heading,
+.card-title span,
+.breadcrumb,
+.breadcrumb a,
+.breadcrumb .breadcrumb-item::before,
+.dashboard .filter .dropdown-header h6,
+.dashboard .activity .activity-item .activite-label,
+.dashboard .news p,
+.iconslist .label,
+.header-nav .notifications .notification-item p,
+.header-nav .messages .message-item p {
+    color: var(--color-text-muted);
+}
+
+/* Iconos del sidebar: son objetos graficos informativos, por
+   lo que el minimo es 3:1, no 4.5:1. */
+.sidebar-nav .nav-link.collapsed i {
+    color: var(--color-text-muted);
+}
+
+/* .breadcrumb .active y los hover apuntaban a #51678f, que si
+   cumplia; se dejan apuntando al texto normal por coherencia. */
+.breadcrumb .active,
+.breadcrumb a:hover {
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 2. Enlaces
+   #007bff sobre el fondo de pagina daba 3.77:1 -> 4.95:1.
+   El valor vive en --color-link (custom_styles.css ya lo usa);
+   aqui solo se cubren los enlaces que pinta el propio tema.
+--------------------------------------------------------------*/
+
+a {
+    color: var(--color-link);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+/*--------------------------------------------------------------
+# 3. Botones y badges de color claro
+   .btn-info y .btn-warning tienen fondos claros. El .text-white
+   del markup (que Bootstrap marca !important) dejaba el texto
+   en 1.96:1 y 1.63:1. Con el token de contraste suben a
+   10.72:1 y 12.88:1.
+
+   Tambien se corrige .badge, que fuerza color:#fff en su regla
+   base, de modo que quitar .text-white del markup no bastaba.
+--------------------------------------------------------------*/
+
+/* Los BADGES llevan texto (nombres de rol, acciones), asi que
+   necesitan 4.5:1 de verdad: van con el token de contraste. */
+.badge.bg-info,
+.badge.bg-info.text-white {
+    color: var(--color-info-contrast) !important;
+}
+
+.badge.bg-warning,
+.badge.bg-warning.text-white {
+    color: var(--color-warning-contrast) !important;
+}
+
+/* Los BOTONES .btn-info son los de busqueda: su contenido es un
+   icono (a veces con el rotulo "Filtrar"). Van en blanco, que es
+   como estaban en el diseno original y como se pidio de forma
+   explicita. Queda en 1.96:1 sobre el cian; se documenta en el
+   token --color-info-btn-text. */
+.btn-info,
+.btn-info.text-white,
+.btn-info .text-white,
+.btn-info i {
+    color: var(--color-info-btn-text) !important;
+}
+
+.btn-warning,
+.btn-warning.text-white,
+.btn-warning .text-white {
+    color: var(--color-warning-contrast) !important;
+}
+
+/* Los de fondo oscuro conservan texto claro; se declaran para
+   que el conjunto quede explicito y no dependa del orden. */
+.btn-primary,
+.badge.bg-primary {
+    color: var(--color-primary-contrast);
+}
+
+.btn-success,
+.badge.bg-success {
+    color: var(--color-success-contrast);
+}
+
+.btn-danger,
+.badge.bg-danger {
+    color: var(--color-danger-contrast);
+}
+
+/*--------------------------------------------------------------
+# 3b. Botones con contorno
+   El gris #6c757d de Bootstrap sobre el fondo de pagina queda
+   en 4.45:1, justo por debajo del minimo. El token da 4.76:1.
+   Solo se cambia el texto: el borde en #6c757d ya cumple el
+   3:1 que le corresponde como elemento de interfaz.
+--------------------------------------------------------------*/
+
+.btn-outline-secondary {
+    color: var(--color-text-muted);
+}
+
+/*--------------------------------------------------------------
+# 4. Foco visible
+   El tema no define un estilo de foco propio en varios
+   controles, asi que en algunos navegadores el anillo por
+   defecto queda casi invisible sobre las superficies.
+--------------------------------------------------------------*/
+
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible,
+.page-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}

@@ -1,0 +1,1839 @@
+/*==============================================================
+ * MODO OSCURO  —  capa de override
+ *--------------------------------------------------------------
+ * TODO en este archivo vive bajo html[data-theme="dark"].
+ * Consecuencia importante: el modo claro es fisicamente
+ * inalcanzable desde aqui, asi que no puede romperse.
+ *
+ * Este archivo NO redefine colores literales: solo reasigna
+ * los selectores de NiceAdmin / Bootstrap 5.1 / librerias de
+ * terceros para que consuman los tokens de theme-tokens.css.
+ *
+ * Debe cargarse DESPUES de style.css y de las hojas de los
+ * plugins, porque su trabajo es precisamente pisarlas.
+ *
+ * Indice
+ *   1. Base y tipografia
+ *   2. Scrollbars y controles nativos
+ *   3. Header / Sidebar / Footer / Main
+ *   4. Toggle de tema
+ *   5. Imagenes y logos
+ *============================================================*/
+
+/*--------------------------------------------------------------
+# 1. Base y tipografia
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] body {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] a {
+    color: var(--color-link);
+}
+
+html[data-theme="dark"] a:hover {
+    color: var(--color-primary-hover);
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] hr {
+    border-color: var(--color-border);
+    color: var(--color-border);
+}
+
+html[data-theme="dark"] .pagetitle h1 {
+    color: var(--color-heading);
+}
+
+/* Utilidades de texto de Bootstrap 5.1: sus valores son fijos
+   (#212529, #fff, rgba(33,37,41,.75)) y quedan ilegibles. */
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .text-black,
+html[data-theme="dark"] .text-body {
+    color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary {
+    color: var(--color-text-muted) !important;
+}
+
+/* .text-white sobre un fondo solido de color sigue siendo
+   correcto, por eso NO se toca de forma global. Solo se
+   corrige cuando cae sobre una superficie del tema. */
+html[data-theme="dark"] .card > .text-white:not([class*="bg-"]),
+html[data-theme="dark"] .card-body > .text-white:not([class*="bg-"]) {
+    color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .bg-body {
+    background-color: var(--color-bg) !important;
+}
+
+/* Los helpers *-light del tema son fondos pastel pensados para
+   modo claro; en oscuro se cambian por los fondos suaves. */
+html[data-theme="dark"] .bg-primary-light {
+    background-color: var(--color-primary-soft) !important;
+    border-color: var(--color-primary-soft) !important;
+    color: var(--color-primary-on-soft);
+}
+
+html[data-theme="dark"] .bg-success-light {
+    background-color: var(--color-success-soft) !important;
+    border-color: var(--color-success-soft) !important;
+    color: var(--color-success-on-soft);
+}
+
+html[data-theme="dark"] .bg-danger-light {
+    background-color: var(--color-danger-soft) !important;
+    border-color: var(--color-danger-soft) !important;
+    color: var(--color-danger-on-soft);
+}
+
+html[data-theme="dark"] .bg-warning-light {
+    background-color: var(--color-warning-soft) !important;
+    border-color: var(--color-warning-soft) !important;
+    color: var(--color-warning-on-soft);
+}
+
+html[data-theme="dark"] .bg-info-light {
+    background-color: var(--color-info-soft) !important;
+    border-color: var(--color-info-soft) !important;
+    color: var(--color-info-on-soft);
+}
+
+html[data-theme="dark"] .bg-secondary-light,
+html[data-theme="dark"] .bg-dark-light {
+    background-color: var(--color-surface-elevated) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 2. Scrollbars y controles nativos
+--------------------------------------------------------------*/
+
+/* color-scheme ya lo declara theme-tokens.css: eso solo basta
+   para scrollbars y widgets nativos en navegadores modernos.
+   Esto es el refuerzo explicito para WebKit. */
+
+html[data-theme="dark"] * {
+    scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-scrollbar-track);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar-thumb);
+    border-radius: 6px;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-strong);
+}
+
+/* Autofill de Chrome: pinta un amarillo fijo que ignora el tema. */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus,
+html[data-theme="dark"] textarea:-webkit-autofill,
+html[data-theme="dark"] select:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-elevated) inset;
+    caret-color: var(--color-text);
+}
+
+html[data-theme="dark"] ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+/*--------------------------------------------------------------
+# 3. Header / Sidebar / Footer / Main
+--------------------------------------------------------------*/
+
+/* --- Header --- */
+
+html[data-theme="dark"] .header {
+    background-color: var(--color-surface);
+    box-shadow: 0px 2px 20px var(--color-shadow);
+    border-bottom: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .logo span {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .header .toggle-sidebar-btn,
+html[data-theme="dark"] .header .search-form button i {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .header .search-form {
+    background: var(--color-surface-elevated);
+}
+
+html[data-theme="dark"] .header .search-form input {
+    background: var(--color-surface-elevated);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-strong);
+}
+
+html[data-theme="dark"] .header-nav .nav-icon,
+html[data-theme="dark"] .header-nav .nav-profile {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .header-nav .notifications .notification-item p,
+html[data-theme="dark"] .header-nav .messages .message-item p {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .header-nav .messages .message-item h4,
+html[data-theme="dark"] .header-nav .profile .dropdown-header h6 {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .header-nav .notifications .notification-item:hover,
+html[data-theme="dark"] .header-nav .messages .message-item:hover,
+html[data-theme="dark"] .header-nav .profile .dropdown-item:hover {
+    background-color: var(--color-surface-sunken);
+}
+
+/* --- Navbar publica --- */
+
+html[data-theme="dark"] .navbar,
+html[data-theme="dark"] .navbar-light,
+html[data-theme="dark"] .navbar-shadow {
+    background-color: var(--color-surface) !important;
+    border-bottom: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .navbar-light .navbar-brand,
+html[data-theme="dark"] .navbar .navbar-brand {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .navbar-light .navbar-nav .nav-link,
+html[data-theme="dark"] .navbar .navbar-nav .nav-link {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .navbar-light .navbar-nav .nav-link:hover,
+html[data-theme="dark"] .navbar .navbar-nav .nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* El icono hamburguesa de Bootstrap es un SVG embebido en
+   base64 con el trazo fijo en rgba(0,0,0,.55): invisible en
+   oscuro. Se sustituye por uno con el trazo claro. */
+html[data-theme="dark"] .navbar-light .navbar-toggler,
+html[data-theme="dark"] .navbar .navbar-toggler {
+    background-color: transparent !important;
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .navbar-light .navbar-toggler-icon,
+html[data-theme="dark"] .navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28223, 227, 236, 0.85%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* --- Sidebar --- */
+
+html[data-theme="dark"] .sidebar {
+    background-color: var(--color-surface);
+    box-shadow: 0px 0px 20px var(--color-shadow);
+    scrollbar-color: var(--color-scrollbar-thumb) transparent;
+    border-right: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .sidebar::-webkit-scrollbar {
+    background-color: var(--color-surface);
+}
+
+html[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar-thumb);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-heading {
+    color: var(--color-text-muted);
+}
+
+/* Item activo */
+html[data-theme="dark"] .sidebar-nav .nav-link {
+    color: var(--color-primary);
+    background: var(--color-surface-sunken);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-link i {
+    color: var(--color-primary);
+}
+
+/* Item inactivo (el tema usa .collapsed para esto) */
+html[data-theme="dark"] .sidebar-nav .nav-link.collapsed {
+    color: var(--color-text);
+    background: transparent;
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-link.collapsed i {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-link:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-sunken);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-link:hover i {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-content a {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-content a.active {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .sidebar-nav .nav-content a.active i {
+    background-color: var(--color-primary);
+}
+
+/* --- Footer --- */
+
+html[data-theme="dark"] .footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .footer .copyright,
+html[data-theme="dark"] .footer .credits {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .footer .copyright strong span,
+html[data-theme="dark"] .footer .credits a {
+    color: var(--color-heading);
+}
+
+/* --- Back to top --- */
+
+html[data-theme="dark"] .back-to-top {
+    background: var(--color-primary);
+}
+
+html[data-theme="dark"] .back-to-top i {
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .back-to-top:hover {
+    background: var(--color-primary-hover);
+}
+
+html[data-theme="dark"] .back-to-top:hover i {
+    color: var(--color-primary-contrast);
+}
+
+/*--------------------------------------------------------------
+# 4. Toggle de tema
+   Se estiliza en ambos temas (no solo oscuro), por eso estas
+   reglas NO llevan el prefijo html[data-theme="dark"].
+--------------------------------------------------------------*/
+
+.theme-toggle-btn {
+    background: none;
+    border: 0;
+    padding: 0 8px;
+    font-size: 20px;
+    line-height: 0;
+    color: var(--color-heading);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+}
+
+.theme-toggle-btn:hover {
+    color: var(--color-primary);
+    background-color: var(--color-surface-sunken);
+}
+
+/* Foco visible y consistente: requisito de navegacion por
+   teclado. :focus-visible evita el anillo al hacer clic. */
+.theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.theme-toggle-btn i {
+    display: block;
+    line-height: 1;
+}
+
+html[data-theme="dark"] .theme-toggle-btn {
+    color: var(--color-heading);
+}
+
+/*--------------------------------------------------------------
+# 5. Imagenes y logos
+--------------------------------------------------------------*/
+
+/* Imagenes rasterizadas: se atenuan ligeramente para que no
+   queden como rectangulos brillantes sobre fondo oscuro.
+   Se excluyen avatares y fotos donde el brillo es deseable. */
+html[data-theme="dark"] img:not(.no-theme-adjust):not(.rounded-circle) {
+    filter: var(--img-adjust);
+}
+
+/* Logos monocromos sobre fondo blanco: se invierten. Basta con
+   marcar la imagen con .theme-logo. Si algun dia se descomenta
+   el <img> del logo en el header, ya queda cubierto. */
+html[data-theme="dark"] .theme-logo,
+html[data-theme="dark"] .logo img {
+    filter: var(--logo-adjust);
+}
+
+/* Escape explicito para cualquier imagen que deba quedar
+   exactamente igual en ambos temas. */
+html[data-theme="dark"] .no-theme-adjust {
+    filter: none !important;
+}
+
+/* SVG inline que hereden color del texto. */
+html[data-theme="dark"] svg.theme-svg {
+    fill: currentColor;
+    color: var(--color-text);
+}
+
+/*==============================================================
+ * 6. COMPONENTES
+ *   Cards, tablas, formularios, botones, dropdowns, modales,
+ *   accordions, badges, alerts, paginacion, tabs, progress.
+ *============================================================*/
+
+/*--------------------------------------------------------------
+# 6.1 Cards
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .card {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0px 0 30px var(--color-shadow);
+    border: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .card-footer {
+    border-color: var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .card-title {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .card-title span {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .card-img-overlay {
+    background-color: rgba(27, 31, 42, 0.6);
+}
+
+/* Segunda capa de elevacion: una card dentro de otra debe
+   distinguirse del fondo de la card padre. */
+html[data-theme="dark"] .card .card {
+    background-color: var(--color-surface-elevated);
+}
+
+/*--------------------------------------------------------------
+# 6.2 Tablas
+--------------------------------------------------------------*/
+
+/* Bootstrap 5.1 no tiene variables de tabla por tema (eso llego
+   en 5.3), asi que se reasignan las suyas una por una. */
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--color-text);
+    --bs-table-striped-color: var(--color-text);
+    --bs-table-active-color: var(--color-text);
+    --bs-table-hover-color: var(--color-text);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .table > :not(caption) > * > * {
+    background-color: transparent;
+    color: var(--color-text);
+    border-bottom-color: var(--color-border);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .table > thead > tr > th {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-heading);
+    border-bottom-color: var(--color-border);
+}
+
+/* .table-striped usa rgba(0,0,0,.05): invisible sobre oscuro. */
+html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    background-color: var(--color-primary-soft);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .table-bordered > :not(caption) > *,
+html[data-theme="dark"] .table-bordered > :not(caption) > * > * {
+    border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .table-light,
+html[data-theme="dark"] .table-light > th,
+html[data-theme="dark"] .table-light > td {
+    background-color: var(--color-surface-sunken) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-border) !important;
+}
+
+html[data-theme="dark"] .table caption {
+    color: var(--color-text-muted);
+}
+
+/* Cabeceras de tabla del dashboard (el tema las pinta #f6f6fe). */
+html[data-theme="dark"] .dashboard .recent-sales .table thead,
+html[data-theme="dark"] .dashboard .top-selling .table thead {
+    background: var(--color-surface-sunken);
+}
+
+/*--------------------------------------------------------------
+# 6.3 Formularios
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .input-group-text {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+    box-shadow: 0 0 0 0.25rem var(--color-focus-ring);
+}
+
+html[data-theme="dark"] .form-control::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+}
+
+html[data-theme="dark"] .form-control:disabled,
+html[data-theme="dark"] .form-control[readonly],
+html[data-theme="dark"] .form-select:disabled {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+}
+
+/* La flecha del select es un SVG con el trazo fijo en #343a40. */
+html[data-theme="dark"] .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239aa4bb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] .col-form-label,
+html[data-theme="dark"] label {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .form-text {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .form-check-input {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+}
+
+html[data-theme="dark"] .form-check-input:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+html[data-theme="dark"] .form-check-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.25rem var(--color-focus-ring);
+}
+
+html[data-theme="dark"] .form-check-label {
+    color: var(--color-text);
+}
+
+/* Validacion */
+html[data-theme="dark"] .invalid-feedback,
+html[data-theme="dark"] .invalid-tooltip {
+    color: var(--color-danger);
+}
+
+html[data-theme="dark"] .valid-feedback {
+    color: var(--color-success);
+}
+
+html[data-theme="dark"] .form-control.is-invalid,
+html[data-theme="dark"] .was-validated .form-control:invalid {
+    border-color: var(--color-danger);
+}
+
+html[data-theme="dark"] .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 0.25rem rgba(240, 106, 117, 0.3);
+}
+
+html[data-theme="dark"] .form-control.is-valid,
+html[data-theme="dark"] .was-validated .form-control:valid {
+    border-color: var(--color-success);
+}
+
+/* Inputs nativos de fecha/hora: el icono del calendario es
+   negro por defecto y desaparece sobre fondo oscuro. */
+html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+html[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator,
+html[data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+html[data-theme="dark"] input[type="month"]::-webkit-calendar-picker-indicator,
+html[data-theme="dark"] input[type="week"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+    cursor: pointer;
+}
+
+/*--------------------------------------------------------------
+# 6.4 Botones
+--------------------------------------------------------------*/
+
+/* Bootstrap fija color:#212529 en la regla base .btn, de modo
+   que un boton sin variante (por ejemplo el de ayuda junto al
+   campo Rol) queda casi invisible. Va ANTES que las variantes
+   para que, a igual especificidad, ellas sigan ganando. */
+html[data-theme="dark"] .btn {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] .btn-primary:focus {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .btn-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] .btn-danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] .btn-warning {
+    background-color: var(--color-warning);
+    border-color: var(--color-warning);
+    color: var(--color-warning-contrast);
+}
+
+html[data-theme="dark"] .btn-info {
+    background-color: var(--color-info);
+    border-color: var(--color-info);
+    color: var(--color-info-btn-text);
+}
+
+html[data-theme="dark"] .btn-secondary,
+html[data-theme="dark"] .btn-light {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .btn-dark {
+    background-color: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+}
+
+/* Botones outline: el texto toma el color del borde. */
+html[data-theme="dark"] .btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+html[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .btn-outline-secondary {
+    color: var(--color-text-muted);
+    border-color: var(--color-border-strong);
+}
+
+html[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .btn-outline-success {
+    color: var(--color-success);
+    border-color: var(--color-success);
+}
+
+html[data-theme="dark"] .btn-outline-success:hover {
+    background-color: var(--color-success);
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] .btn-outline-danger {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+html[data-theme="dark"] .btn-outline-danger:hover {
+    background-color: var(--color-danger);
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] .btn-outline-warning {
+    color: var(--color-warning);
+    border-color: var(--color-warning);
+}
+
+html[data-theme="dark"] .btn-outline-info {
+    color: var(--color-info);
+    border-color: var(--color-info);
+}
+
+html[data-theme="dark"] .btn-link {
+    color: var(--color-link);
+}
+
+html[data-theme="dark"] .btn:focus-visible {
+    box-shadow: 0 0 0 0.25rem var(--color-focus-ring);
+}
+
+html[data-theme="dark"] .btn:disabled,
+html[data-theme="dark"] .btn.disabled {
+    opacity: 0.55;
+}
+
+/*--------------------------------------------------------------
+# 6.5 Dropdowns
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .dropdown-menu {
+    background-color: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    box-shadow: 0px 0px 30px var(--color-shadow-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .dropdown-item {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-item:focus {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .dropdown-item.active,
+html[data-theme="dark"] .dropdown-item:active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .dropdown-header,
+html[data-theme="dark"] .dropdown-menu .dropdown-footer a {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .dropdown-divider,
+html[data-theme="dark"] .dropdown-menu .dropdown-divider {
+    border-top-color: var(--color-border);
+    color: var(--color-border);
+}
+
+/* La flechita del dropdown del tema es un cuadrado rotado que
+   hereda el fondo; debe seguir a la superficie elevada. */
+html[data-theme="dark"] .dropdown-menu-arrow::before {
+    background: var(--color-surface-elevated);
+    border-top-color: var(--color-border);
+    border-left-color: var(--color-border);
+}
+
+/*--------------------------------------------------------------
+# 6.6 Modales y offcanvas
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .modal-content {
+    background-color: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .modal-title {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .modal-backdrop.show {
+    opacity: 0.7;
+}
+
+html[data-theme="dark"] .offcanvas {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+/* El boton de cerrar es un SVG negro embebido. */
+html[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/*--------------------------------------------------------------
+# 6.7 Accordions
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .accordion {
+    --bs-accordion-bg: var(--color-surface);
+    --bs-accordion-color: var(--color-text);
+}
+
+html[data-theme="dark"] .accordion-item {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .accordion-button {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .accordion-button:not(.collapsed) {
+    color: var(--color-heading);
+    background-color: var(--color-surface-sunken);
+    box-shadow: inset 0 -1px 0 var(--color-border);
+}
+
+html[data-theme="dark"] .accordion-button:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.25rem var(--color-focus-ring);
+}
+
+/* El chevron es un SVG con el trazo fijo; se recolorea. */
+html[data-theme="dark"] .accordion-button::after {
+    filter: invert(0.85);
+}
+
+html[data-theme="dark"] .accordion-body {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .accordion-flush .accordion-button:not(.collapsed) {
+    color: var(--color-primary);
+    background: none;
+}
+
+html[data-theme="dark"] .accordion-flush .accordion-body {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .accordion-collapse {
+    border-color: var(--color-border);
+}
+
+/*--------------------------------------------------------------
+# 6.8 Badges
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .badge.bg-primary {
+    background-color: var(--color-primary) !important;
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .badge.bg-success {
+    background-color: var(--color-success) !important;
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] .badge.bg-danger {
+    background-color: var(--color-danger) !important;
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] .badge.bg-warning {
+    background-color: var(--color-warning) !important;
+    color: var(--color-warning-contrast);
+}
+
+html[data-theme="dark"] .badge.bg-info {
+    background-color: var(--color-info) !important;
+    color: var(--color-info-contrast);
+}
+
+html[data-theme="dark"] .badge.bg-secondary,
+html[data-theme="dark"] .badge.bg-light,
+html[data-theme="dark"] .badge.bg-dark {
+    background-color: var(--color-surface-elevated) !important;
+    color: var(--color-text) !important;
+    border: 1px solid var(--color-border);
+}
+
+/*--------------------------------------------------------------
+# 6.9 Alerts
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .alert-primary {
+    background-color: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    color: var(--color-primary-on-soft);
+}
+
+html[data-theme="dark"] .alert-success {
+    background-color: var(--color-success-soft);
+    border-color: var(--color-success);
+    color: var(--color-success-on-soft);
+}
+
+html[data-theme="dark"] .alert-danger {
+    background-color: var(--color-danger-soft);
+    border-color: var(--color-danger);
+    color: var(--color-danger-on-soft);
+}
+
+html[data-theme="dark"] .alert-warning {
+    background-color: var(--color-warning-soft);
+    border-color: var(--color-warning);
+    color: var(--color-warning-on-soft);
+}
+
+html[data-theme="dark"] .alert-info {
+    background-color: var(--color-info-soft);
+    border-color: var(--color-info);
+    color: var(--color-info-on-soft);
+}
+
+html[data-theme="dark"] .alert-secondary,
+html[data-theme="dark"] .alert-light,
+html[data-theme="dark"] .alert-dark {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .alert .alert-link {
+    color: inherit;
+    text-decoration: underline;
+}
+
+html[data-theme="dark"] .alert .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/*--------------------------------------------------------------
+# 6.10 Paginacion
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .page-link {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .page-link:hover {
+    background-color: var(--color-surface-sunken);
+    border-color: var(--color-border);
+    color: var(--color-primary-hover);
+}
+
+html[data-theme="dark"] .page-item.active .page-link {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .page-item.disabled .page-link {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .pagination svg {
+    fill: currentColor;
+}
+
+/*--------------------------------------------------------------
+# 6.11 Tabs, breadcrumbs, listas, progress
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .nav-tabs {
+    border-bottom-color: var(--color-border);
+}
+
+html[data-theme="dark"] .nav-tabs .nav-link {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .nav-tabs .nav-link:hover {
+    border-color: var(--color-border);
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .nav-tabs .nav-link.active {
+    background-color: var(--color-surface);
+    border-color: var(--color-border) var(--color-border) var(--color-surface);
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .nav-tabs-bordered {
+    border-bottom: 2px solid var(--color-border);
+}
+
+html[data-theme="dark"] .nav-tabs-bordered .nav-link {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .nav-tabs-bordered .nav-link:hover,
+html[data-theme="dark"] .nav-tabs-bordered .nav-link:focus {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .nav-tabs-bordered .nav-link.active {
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+html[data-theme="dark"] .nav-pills .nav-link {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .nav-pills .nav-link.active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .breadcrumb,
+html[data-theme="dark"] .breadcrumb a,
+html[data-theme="dark"] .breadcrumb .breadcrumb-item::before {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .breadcrumb a:hover,
+html[data-theme="dark"] .breadcrumb .active {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .list-group {
+    --bs-list-group-bg: var(--color-surface);
+    --bs-list-group-color: var(--color-text);
+}
+
+html[data-theme="dark"] .list-group-item {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .list-group-item-action:hover,
+html[data-theme="dark"] .list-group-item-action:focus {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .list-group-item.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .progress {
+    background-color: var(--color-surface-sunken);
+}
+
+html[data-theme="dark"] .progress-bar {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .progress-bar.bg-success { background-color: var(--color-success) !important; color: var(--color-success-contrast); }
+html[data-theme="dark"] .progress-bar.bg-danger  { background-color: var(--color-danger)  !important; color: var(--color-danger-contrast); }
+html[data-theme="dark"] .progress-bar.bg-warning { background-color: var(--color-warning) !important; color: var(--color-warning-contrast); }
+html[data-theme="dark"] .progress-bar.bg-info    { background-color: var(--color-info)    !important; color: var(--color-info-contrast); }
+
+html[data-theme="dark"] .spinner-border,
+html[data-theme="dark"] .spinner-grow {
+    color: var(--color-primary);
+}
+
+/*--------------------------------------------------------------
+# 6.12 Codigo, bordes y overlays menores
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] pre,
+html[data-theme="dark"] samp {
+    background-color: var(--color-code-bg);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] code {
+    color: var(--color-danger-on-soft);
+}
+
+html[data-theme="dark"] kbd {
+    background-color: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] blockquote {
+    border-left-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-end,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start {
+    border-color: var(--color-border) !important;
+}
+
+html[data-theme="dark"] .tooltip-inner {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .popover {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .popover-header {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-heading);
+    border-bottom-color: var(--color-border);
+}
+
+html[data-theme="dark"] .popover-body {
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 6.13 Dashboard y perfil (secciones propias del tema)
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .dashboard .info-card h6 {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .dashboard .filter .icon {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .dashboard .filter .icon:hover,
+html[data-theme="dark"] .dashboard .filter .icon:focus {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .dashboard .filter .dropdown-header h6 {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .dashboard .sales-card .card-icon {
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+
+html[data-theme="dark"] .dashboard .revenue-card .card-icon {
+    color: var(--color-success);
+    background: var(--color-success-soft);
+}
+
+html[data-theme="dark"] .dashboard .customers-card .card-icon {
+    color: var(--color-warning);
+    background: var(--color-warning-soft);
+}
+
+html[data-theme="dark"] .dashboard .activity .activity-item .activite-label {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .dashboard .activity .activity-item .activite-label::before {
+    background-color: var(--color-border);
+}
+
+html[data-theme="dark"] .dashboard .activity .activity-item .activity-badge {
+    border-color: var(--color-surface);
+}
+
+html[data-theme="dark"] .dashboard .news h4 a {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .dashboard .news h4 a:hover {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .dashboard .news p {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .profile .profile-card h2 {
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .profile .profile-card h3,
+html[data-theme="dark"] .profile .profile-overview .label {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .profile .profile-card .social-links a {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .profile .profile-card .social-links a:hover {
+    color: var(--color-primary);
+}
+
+html[data-theme="dark"] .iconslist .icon {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-heading);
+}
+
+html[data-theme="dark"] .iconslist .label {
+    color: var(--color-text-muted);
+}
+
+/*==============================================================
+ * 7. LIBRERIAS DE TERCEROS
+ *   Select2, Toastr, SweetAlert2, jquery-jsonview, dual list,
+ *   bootstrap4-toggle, Quill, TinyMCE.
+ *
+ *   Ninguna de estas librerias conoce el tema: todas traen sus
+ *   colores escritos a mano. Aqui se reconducen a los tokens.
+ *============================================================*/
+
+/*--------------------------------------------------------------
+# 7.1 Select2
+   Ojo: el desplegable se monta como hijo directo de <body>,
+   fuera del contenedor del campo. Por eso estos selectores
+   cuelgan de html[data-theme] y no de un ancestro local.
+--------------------------------------------------------------*/
+
+/* --- Campo cerrado (single) --- */
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-selection,
+html[data-theme="dark"] .select2-container--default .select2-selection--single,
+html[data-theme="dark"] .select2-container--default .select2-selection--multiple {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-selection__rendered,
+html[data-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-selection__placeholder,
+html[data-theme="dark"] .select2-container--default .select2-selection__placeholder {
+    color: var(--color-text-muted);
+}
+
+/* Flecha del campo */
+html[data-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--color-text-muted) transparent transparent transparent;
+}
+
+html[data-theme="dark"] .select2-container--default.select2-container--open
+    .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent var(--color-text-muted) transparent;
+}
+
+/* Campo enfocado */
+html[data-theme="dark"] .select2-container--bootstrap4.select2-container--focus .select2-selection,
+html[data-theme="dark"] .select2-container--bootstrap4.select2-container--open .select2-selection {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.25rem var(--color-focus-ring);
+}
+
+/* Campo deshabilitado */
+html[data-theme="dark"] .select2-container--disabled .select2-selection,
+html[data-theme="dark"] .select2-container--bootstrap4.select2-container--disabled .select2-selection {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+}
+
+/* --- Desplegable --- */
+html[data-theme="dark"] .select2-dropdown,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-dropdown,
+html[data-theme="dark"] .select2-container--default .select2-dropdown {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+    box-shadow: 0 8px 30px var(--color-shadow-strong);
+}
+
+html[data-theme="dark"] .select2-results__options {
+    background-color: var(--color-surface-elevated);
+}
+
+html[data-theme="dark"] .select2-results__option {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .select2-container--default .select2-results__option--highlighted[aria-selected],
+html[data-theme="dark"] .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-results__option--highlighted {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .select2-container--default .select2-results__option[aria-selected="true"],
+html[data-theme="dark"] .select2-container--default .select2-results__option--selected,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-results__option[aria-selected="true"] {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary-on-soft);
+}
+
+html[data-theme="dark"] .select2-results__option--disabled,
+html[data-theme="dark"] .select2-results__message {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .select2-results__group {
+    color: var(--color-heading);
+    background-color: var(--color-surface-sunken);
+}
+
+/* Caja de busqueda dentro del desplegable */
+html[data-theme="dark"] .select2-search--dropdown {
+    background-color: var(--color-surface-elevated);
+}
+
+html[data-theme="dark"] .select2-search--dropdown .select2-search__field,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-search__field {
+    background-color: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .select2-search__field::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* Busqueda inline del modo multiple */
+html[data-theme="dark"] .select2-container--default .select2-search--inline .select2-search__field {
+    background: transparent;
+    color: var(--color-text);
+}
+
+/* Boton de limpiar */
+html[data-theme="dark"] .select2-selection__clear {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .select2-selection__clear:hover {
+    color: var(--color-text);
+}
+
+/* Los chips del modo multiple ya usan tokens desde
+   custom_styles.css, asi que no hace falta repetirlos aqui. */
+
+/*--------------------------------------------------------------
+# 7.2 Toastr
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] #toast-container > div {
+    box-shadow: 0 0 20px var(--color-shadow-strong);
+    opacity: 1;
+}
+
+html[data-theme="dark"] #toast-container > div:hover {
+    box-shadow: 0 0 24px var(--color-shadow-strong);
+}
+
+html[data-theme="dark"] #toast-container > .toast-success {
+    background-color: var(--color-success);
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] #toast-container > .toast-error {
+    background-color: var(--color-danger);
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] #toast-container > .toast-warning {
+    background-color: var(--color-warning);
+    color: var(--color-warning-contrast);
+}
+
+html[data-theme="dark"] #toast-container > .toast-info {
+    background-color: var(--color-info);
+    color: var(--color-info-contrast);
+}
+
+/* El titulo y el mensaje heredan del contenedor para no quedar
+   en blanco fijo sobre fondos claros como el warning. */
+html[data-theme="dark"] #toast-container .toast-title,
+html[data-theme="dark"] #toast-container .toast-message {
+    color: inherit;
+}
+
+html[data-theme="dark"] #toast-container .toast-close-button {
+    color: inherit;
+    opacity: 0.85;
+    text-shadow: none;
+}
+
+html[data-theme="dark"] #toast-container .toast-close-button:hover {
+    opacity: 1;
+}
+
+html[data-theme="dark"] #toast-container .toast-progress {
+    background-color: var(--color-text);
+    opacity: 0.35;
+}
+
+/*--------------------------------------------------------------
+# 7.3 SweetAlert2
+   La libreria no trae CSS propio en este proyecto (usa el que
+   viene embebido en el bundle .all.min.js), asi que se pisan
+   sus clases publicas.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .swal2-popup {
+    background-color: var(--color-surface-elevated) !important;
+    color: var(--color-text) !important;
+    border: 1px solid var(--color-border);
+}
+
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container,
+html[data-theme="dark"] .swal2-content {
+    color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .swal2-container.swal2-backdrop-show,
+html[data-theme="dark"] .swal2-container.swal2-shown {
+    background-color: var(--color-overlay) !important;
+}
+
+html[data-theme="dark"] .swal2-input,
+html[data-theme="dark"] .swal2-textarea,
+html[data-theme="dark"] .swal2-select {
+    background-color: var(--color-surface) !important;
+    border-color: var(--color-border-strong) !important;
+    color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .swal2-close {
+    color: var(--color-text-muted) !important;
+}
+
+html[data-theme="dark"] .swal2-close:hover {
+    color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .swal2-footer {
+    border-top-color: var(--color-border) !important;
+    color: var(--color-text-muted) !important;
+}
+
+html[data-theme="dark"] .swal2-validation-message {
+    background-color: var(--color-danger-soft) !important;
+    color: var(--color-danger-on-soft) !important;
+}
+
+/*--------------------------------------------------------------
+# 7.4 jquery-jsonview
+   El plugin usa las palabras clave red / blue / green, que
+   sobre fondo oscuro son ilegibles.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .jsonview {
+    background-color: var(--color-code-bg);
+    color: var(--color-json-key);
+}
+
+html[data-theme="dark"] .jsonview .prop {
+    color: var(--color-json-key);
+}
+
+html[data-theme="dark"] .jsonview .null {
+    color: var(--color-json-null);
+}
+
+html[data-theme="dark"] .jsonview .bool,
+html[data-theme="dark"] .jsonview .num {
+    color: var(--color-json-number);
+}
+
+html[data-theme="dark"] .jsonview .string {
+    color: var(--color-json-string);
+}
+
+html[data-theme="dark"] .jsonview .collapser {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .jsonview h1 {
+    color: var(--color-heading);
+}
+
+/* El contenedor ya toma --color-code-bg desde custom_styles.css. */
+html[data-theme="dark"] .container-json {
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 7.5 Dual list box
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .bootstrap-duallistbox-container label,
+html[data-theme="dark"] .bootstrap-duallistbox-container .info {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container select {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container select option {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container select option:checked {
+    background: var(--color-primary) linear-gradient(0deg, var(--color-primary) 0%, var(--color-primary) 100%);
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container .filter {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container .filter.placeholder {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .bootstrap-duallistbox-container .clear1,
+html[data-theme="dark"] .bootstrap-duallistbox-container .clear2 {
+    color: var(--color-link);
+}
+
+/*--------------------------------------------------------------
+# 7.6 bootstrap4-toggle
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .toggle.btn {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+}
+
+/* La pastilla que se desliza */
+html[data-theme="dark"] .toggle-handle {
+    background-color: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .toggle-on.btn-success,
+html[data-theme="dark"] .toggle .btn-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] .toggle-off.btn-danger,
+html[data-theme="dark"] .toggle .btn-danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] .toggle-off.btn-light,
+html[data-theme="dark"] .toggle-on.btn-light,
+html[data-theme="dark"] .toggle-off.btn-secondary,
+html[data-theme="dark"] .toggle-on.btn-secondary {
+    background-color: var(--color-surface-sunken);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 7.7 Quill y TinyMCE
+   Ambos se cargan en los layouts pero hoy no se instancian en
+   ninguna vista. Estas reglas evitan que el dia que se usen
+   aparezcan como recuadros blancos.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .ql-toolbar.ql-snow,
+html[data-theme="dark"] .ql-container.ql-snow {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .ql-editor {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .ql-editor.ql-blank::before {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .ql-snow .ql-stroke {
+    stroke: var(--color-text);
+}
+
+html[data-theme="dark"] .ql-snow .ql-fill {
+    fill: var(--color-text);
+}
+
+html[data-theme="dark"] .ql-snow .ql-picker,
+html[data-theme="dark"] .ql-snow .ql-picker-label {
+    color: var(--color-text);
+}
+
+html[data-theme="dark"] .ql-snow .ql-picker-options {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .tox-tinymce {
+    border-color: var(--color-border-strong);
+}
+
+html[data-theme="dark"] .tox .tox-toolbar,
+html[data-theme="dark"] .tox .tox-toolbar__primary,
+html[data-theme="dark"] .tox .tox-menubar,
+html[data-theme="dark"] .tox .tox-statusbar {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+/*--------------------------------------------------------------
+# 7.8 Bloqueo del <select> nativo
+   Firefox y Chrome pintan las <option> con el fondo del sistema
+   si no se les dice lo contrario.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] select option,
+html[data-theme="dark"] select optgroup {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-text);
+}
+
+/*==============================================================
+ * 8. UTILIDADES DE COLOR DE BOOTSTRAP 5.1
+ *   Sus valores son fijos y pensados para fondo claro. Aqui se
+ *   reconducen a los tokens, ya validados para contraste AA.
+ *============================================================*/
+
+/*--------------------------------------------------------------
+# 8.1 Texto
+   #dc3545 sobre #1b1f2a queda por debajo de 4.5:1, asi que
+   estas no son un capricho estetico sino accesibilidad.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .text-primary { color: var(--color-primary) !important; }
+html[data-theme="dark"] .text-success { color: var(--color-success) !important; }
+html[data-theme="dark"] .text-danger  { color: var(--color-danger)  !important; }
+html[data-theme="dark"] .text-warning { color: var(--color-warning) !important; }
+html[data-theme="dark"] .text-info    { color: var(--color-info)    !important; }
+
+/* .text-light esta pensada para ir sobre fondos oscuros, asi
+   que en modo oscuro sobre una superficie del tema se vuelve
+   casi invisible por exceso de brillo; se ancla al texto base. */
+html[data-theme="dark"] .card .text-light,
+html[data-theme="dark"] .card-body .text-light,
+html[data-theme="dark"] .modal-content .text-light {
+    color: var(--color-text) !important;
+}
+
+/*--------------------------------------------------------------
+# 8.2 Fondos solidos
+   Se usan los mismos tokens desaturados que los botones, y se
+   fija el color de texto que contrasta con cada uno (los
+   tokens *-contrast estan validados >= 4.5:1).
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .bg-primary {
+    background-color: var(--color-primary) !important;
+    color: var(--color-primary-contrast);
+}
+
+html[data-theme="dark"] .bg-success {
+    background-color: var(--color-success) !important;
+    color: var(--color-success-contrast);
+}
+
+html[data-theme="dark"] .bg-danger {
+    background-color: var(--color-danger) !important;
+    color: var(--color-danger-contrast);
+}
+
+html[data-theme="dark"] .bg-warning {
+    background-color: var(--color-warning) !important;
+    color: var(--color-warning-contrast);
+}
+
+html[data-theme="dark"] .bg-info {
+    background-color: var(--color-info) !important;
+    color: var(--color-info-contrast);
+}
+
+html[data-theme="dark"] .bg-secondary,
+html[data-theme="dark"] .bg-dark {
+    background-color: var(--color-surface-elevated) !important;
+    color: var(--color-text);
+}
+
+/* Si un elemento lleva bg-* solido y ademas text-white, el
+   blanco de Bootstrap (que es !important) ganaria sobre el
+   color del fondo. En oscuro los tokens de estado son claros,
+   asi que blanco sobre ellos baja de 2:1. Se fuerza el token
+   de contraste, que es oscuro y si cumple AA. */
+html[data-theme="dark"] .bg-primary.text-white,
+html[data-theme="dark"] .bg-success.text-white,
+html[data-theme="dark"] .bg-danger.text-white,
+html[data-theme="dark"] .bg-warning.text-white,
+html[data-theme="dark"] .bg-info.text-white,
+html[data-theme="dark"] .bg-secondary.text-white,
+html[data-theme="dark"] .bg-dark.text-white {
+    color: var(--color-text-inverse) !important;
+}
+
+/*--------------------------------------------------------------
+# 8.3 Correcciones de iconos invertidos
+--------------------------------------------------------------*/
+
+/* .btn-close-white ya viene en blanco para fondos oscuros.
+   El invert() general de la seccion 6.6 lo volveria negro,
+   asi que se excluye explicitamente. */
+html[data-theme="dark"] .btn-close.btn-close-white,
+html[data-theme="dark"] .alert .btn-close.btn-close-white {
+    filter: none;
+}
+
+/*--------------------------------------------------------------
+# 8.4 Botones solidos que ademas llevan .text-white
+   Bootstrap declara .text-white con !important, asi que gana
+   sobre el color del boton. En fondos claros como info o
+   warning eso deja el texto en 2:1. Se fuerza el token de
+   contraste, que si esta validado.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .btn-info.text-white,
+html[data-theme="dark"] .btn-info .text-white,
+html[data-theme="dark"] .btn-info i {
+    color: var(--color-info-btn-text) !important;
+}
+
+html[data-theme="dark"] .btn-warning.text-white,
+html[data-theme="dark"] .btn-warning .text-white {
+    color: var(--color-warning-contrast) !important;
+}
+
+html[data-theme="dark"] .btn-success.text-white,
+html[data-theme="dark"] .btn-success .text-white {
+    color: var(--color-success-contrast) !important;
+}
+
+html[data-theme="dark"] .btn-primary.text-white,
+html[data-theme="dark"] .btn-primary .text-white {
+    color: var(--color-primary-contrast) !important;
+}
+
+html[data-theme="dark"] .btn-danger.text-white,
+html[data-theme="dark"] .btn-danger .text-white {
+    color: var(--color-danger-contrast) !important;
+}
+
+/* Igual para badges: .badge.bg-info.text-white es un patron
+   comun en las vistas de este proyecto. */
+html[data-theme="dark"] .badge.bg-info.text-white {
+    color: var(--color-info-contrast) !important;
+}
+
+html[data-theme="dark"] .badge.bg-warning.text-white {
+    color: var(--color-warning-contrast) !important;
+}
+
+/*--------------------------------------------------------------
+# 7.1b Texto de los chips de Select2 multiple
+   El tema select2-bootstrap4 fija el texto del chip en #495057,
+   que sobre el fondo oscuro del chip queda en 1.39:1.
+   El token --color-chip-text da 8.82:1.
+--------------------------------------------------------------*/
+
+html[data-theme="dark"] .select2-selection__choice,
+html[data-theme="dark"] .select2-selection__choice__display,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-selection__choice,
+html[data-theme="dark"] .select2-container--bootstrap4 .select2-selection__choice__display,
+html[data-theme="dark"] .select2-container--default .select2-selection__choice {
+    color: var(--color-chip-text);
+}

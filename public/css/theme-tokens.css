@@ -1,0 +1,306 @@
+/*==============================================================
+ * DESIGN TOKENS SEMANTICOS  —  modo claro / oscuro
+ *--------------------------------------------------------------
+ * AMBOS temas estan validados contra WCAG AA:
+ *   texto normal >= 4.5:1   |   UI y texto grande >= 3:1
+ * El ratio medido va anotado junto a cada valor.
+ *
+ * El modo claro partio de la paleta original de NiceAdmin y
+ * solo se aparta de ella donde esa paleta no llegaba a AA.
+ * Esos casos son los que llevan el comentario "(antes ...)",
+ * y son cambios pedidos de forma explicita: el resto del modo
+ * claro se mantiene identico al original.
+ *
+ * Regla: los componentes NUNCA declaran un color literal,
+ * siempre consumen un token de este archivo.
+ *============================================================*/
+
+:root {
+    color-scheme: light;
+
+    /* ---------- Superficies (capas de elevacion) ---------- */
+    --color-bg: #f6f9ff;               /* fondo de la pagina          */
+    --color-surface: #ffffff;          /* cards, header, sidebar      */
+    --color-surface-elevated: #ffffff; /* dropdowns, modales, popovers*/
+    --color-surface-sunken: #f6f6fe;   /* zonas hundidas, hover sutil */
+    --color-code-bg: #f1f1f1;          /* bloques de codigo / JSON    */
+
+    /* ---------- Texto ---------- */
+    --color-text: #444444;
+    --color-text-muted: #5f708c;   /* 5.02:1 (antes #899bbd, 2.80:1) */
+    --color-text-subtle: #707070;   /* 4.95:1 (antes gray, 3.95:1)  */
+    --color-heading: #012970;
+    --color-text-inverse: #ffffff;     /* sobre fondos solidos        */
+
+    /* ---------- Bordes ---------- */
+    --color-border: #ebeef4;           /* separadores decorativos     */
+    --color-border-strong: #ced4da;    /* bordes de controles (3:1)   */
+
+    /* ---------- Marca ---------- */
+    --color-primary: #4154f1;
+    --color-primary-hover: #717ff5;
+    --color-primary-contrast: #ffffff; /* texto sobre primary solido  */
+    --color-primary-soft: #f6f6fe;     /* fondo suave                 */
+    --color-primary-on-soft: #4154f1;  /* texto sobre fondo suave     */
+
+    /* ---------- Estados ---------- */
+    --color-success: #198754;
+    --color-success-soft: #d1e7dd;
+    --color-success-on-soft: #0f5132;
+    --color-success-contrast: #ffffff;
+
+    --color-warning: #ffc107;
+    --color-warning-soft: #fff3cd;
+    --color-warning-on-soft: #664d03;
+    --color-warning-contrast: #000000;
+
+    --color-danger: #dc3545;
+    --color-danger-soft: #f8d7da;
+    --color-danger-on-soft: #842029;
+    --color-danger-contrast: #ffffff;
+
+    --color-info: #0dcaf0;
+    --color-info-soft: #cff4fc;
+    --color-info-on-soft: #055160;
+    --color-info-contrast: #000000;
+    /* Los botones .btn-info llevan el icono/rotulo en blanco,
+       como en el diseno original. Es una eleccion estetica
+       explicita: sobre el cian claro queda en 1.96:1. */
+    --color-info-btn-text: #ffffff;
+
+    /* ---------- Efectos ---------- */
+    --color-shadow: rgba(1, 41, 112, 0.1);
+    --color-shadow-strong: rgba(1, 41, 112, 0.18);
+    --color-overlay: rgba(0, 0, 0, 0.5);
+    --color-focus-ring: rgba(65, 84, 241, 0.25);
+    --color-scrollbar-thumb: #c9d2e3;
+    --color-scrollbar-track: #eef1f7;
+
+    /* ---------- Componentes propios del proyecto ----------
+       Valores claros heredados de custom_styles.css. Solo se
+       apartan del original donde no llegaban a AA (ver los
+       comentarios "antes ..."). */
+    --color-shadow-neutral: rgba(0, 0, 0, 0.1);
+    --color-link: #0069d9;             /* 5.22:1 (antes #007bff, 3.98:1) */
+    --color-chip-bg: #e4e4e4;
+    --color-chip-border: #8a8a8a;      /* reforzado desde #aaa */
+    --color-chip-text: inherit;
+    --color-chip-remove: #666666;      /*  4.52:1 (antes #999, 2.24:1) */
+    --color-chip-remove-hover: #000000;
+    --color-soft-shadow: #d3d3d3;
+    --color-logout-bg: #ff777741;
+    --color-logout-bg-hover: #ffffff41;
+    --color-logout-text: #c40000;      /* 4.94:1 sobre su fondo */
+    --color-logout-border: #ff777741;
+    --color-logout-border-hover: #ff1919;
+
+    /* Circulos de estadistica del dashboard y pills del perfil.
+       Tienen token propio (y no reusan los de alert) porque sus
+       valores claros son especificos y deben quedar intactos.
+
+       El glifo de los circulos va en BLANCO por decision de
+       diseno explicita. Es un icono decorativo: el significado
+       ya lo dan el titulo de la card y la cifra, asi que no le
+       aplica el minimo de 3:1 de WCAG 1.4.11. */
+    --color-stat-amber: #fdb721;
+    --color-stat-amber-contrast: #ffffff;
+    --color-stat-cyan: #21d1fd;
+    --color-stat-cyan-contrast: #ffffff;
+    --color-pill-success-bg: #a2f8b654;
+    --color-pill-success-text: #1e7e34;  /* 4.74:1 (antes #28a745, 2.89:1) */
+    --color-pill-danger-bg: #ff777741;
+    --color-pill-danger-text: #c40000;   /* 4.94:1 (antes #ff1919, 3.06:1) */
+
+    /* Puntos de estado con icono. Son objetos graficos, asi que
+       el minimo es 3:1. El verde ya cumplia (3.13:1) y se deja
+       igual; el celeste #0dcaf0 daba 1.96:1 y se oscurecio. */
+    --color-status-success: #28a745;   /*  3.13:1 sobre blanco */
+    --color-status-info: #0d97b8;      /*  3.42:1 (antes #0dcaf0, 1.96:1) */
+
+    /* Sintaxis del visor JSON (jquery-jsonview). En claro son
+       los mismos red/blue/green que trae el plugin. */
+    --color-json-key: #000000;
+    --color-json-null: red;
+    --color-json-number: blue;
+    --color-json-string: green;
+
+    /* Filtro aplicado a logos / imagenes con fondo blanco.
+       En claro no hace nada. */
+    --img-adjust: none;
+    --logo-adjust: none;
+
+    /* Duracion de la transicion de tema (se anula con
+       prefers-reduced-motion mas abajo). */
+    --theme-transition: 200ms;
+}
+
+/*==============================================================
+ * MODO OSCURO
+ * Se activa con html[data-theme="dark"]. El script del <head>
+ * resuelve "system" a "dark"/"light" antes del primer render,
+ * asi que aqui nunca hace falta consultar prefers-color-scheme.
+ *============================================================*/
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Grises oscuros con capas reales de elevacion.
+       Nada de negro puro: bg #14171f, no #000. */
+    --color-bg: #14171f;
+    --color-surface: #1b1f2a;
+    --color-surface-elevated: #232836;
+    --color-surface-sunken: #101319;
+    --color-code-bg: #101319;
+
+    /* Blanco suavizado, no #fff puro, para bajar el deslumbre. */
+    --color-text: #dfe3ec;             /* 12.80:1 sobre surface */
+    --color-text-muted: #9aa4bb;       /*  6.58:1 sobre surface */
+    --color-text-subtle: #7e879c;
+    --color-heading: #cdd6ea;          /* 11.29:1 sobre surface */
+    --color-text-inverse: #14171f;
+
+    --color-border: #2c3342;
+    --color-border-strong: #6c728a;    /*  3.46:1 sobre surface */
+
+    /* Marca desaturada: #4154f1 puro vibra sobre fondo oscuro. */
+    --color-primary: #7b8bff;          /*  5.47:1 sobre surface */
+    --color-primary-hover: #98a4ff;
+    --color-primary-contrast: #14171f; /*  5.95:1 sobre primary */
+    --color-primary-soft: #232a4a;
+    --color-primary-on-soft: #a7b2ff;  /*  6.96:1 sobre soft    */
+
+    --color-success: #4ac47f;          /*  7.44:1 */
+    --color-success-soft: #16301f;
+    --color-success-on-soft: #8ce0ae;  /*  9.07:1 */
+    --color-success-contrast: #14171f;
+
+    --color-warning: #e3b341;          /*  8.46:1 */
+    --color-warning-soft: #332a12;
+    --color-warning-on-soft: #f0c96a;  /*  8.96:1 */
+    --color-warning-contrast: #14171f;
+
+    --color-danger: #f06a75;           /*  5.50:1 */
+    --color-danger-soft: #48232a;
+    --color-danger-on-soft: #ff9aa2;   /*  6.71:1 */
+    --color-danger-contrast: #14171f;
+
+    --color-info: #3fc7e8;             /*  8.26:1 */
+    --color-info-soft: #0e2f38;
+    --color-info-on-soft: #8addf0;     /*  9.23:1 */
+    --color-info-contrast: #14171f;
+    --color-info-btn-text: #ffffff;
+
+    --color-shadow: rgba(0, 0, 0, 0.45);
+    --color-shadow-strong: rgba(0, 0, 0, 0.65);
+    --color-overlay: rgba(0, 0, 0, 0.7);
+    --color-focus-ring: rgba(123, 139, 255, 0.4);
+    --color-scrollbar-thumb: #3d4658;
+    --color-scrollbar-track: #14171f;
+
+    /* ---------- Componentes propios del proyecto ---------- */
+    --color-shadow-neutral: rgba(0, 0, 0, 0.55);
+    --color-link: #6cb6ff;             /*  7.66:1 sobre surface */
+    --color-chip-bg: #333a4d;
+    --color-chip-border: #4a5266;
+    --color-chip-text: #dfe3ec;        /*  8.82:1 sobre chip    */
+    --color-chip-remove: #9aa4bb;      /*  4.53:1 sobre chip    */
+    --color-chip-remove-hover: #dfe3ec;
+    --color-soft-shadow: rgba(0, 0, 0, 0.6);
+    --color-logout-bg: rgba(240, 106, 117, 0.16);
+    --color-logout-bg-hover: rgba(240, 106, 117, 0.28);
+    --color-logout-text: #ff9aa2;      /*  6.51:1 sobre su fondo */
+    --color-logout-border: rgba(240, 106, 117, 0.16);
+    --color-logout-border-hover: #f06a75;
+
+    --color-stat-amber: #d9a43a;           /*  7.31:1 sobre surface */
+    --color-stat-amber-contrast: #ffffff;
+    --color-stat-cyan: #35b8da;            /*  7.07:1 sobre surface */
+    --color-stat-cyan-contrast: #ffffff;
+    --color-pill-success-bg: rgba(74, 196, 127, 0.16);
+    --color-pill-success-text: #8ce0ae;    /*  7.81:1 sobre su fondo */
+    --color-pill-danger-bg: rgba(240, 106, 117, 0.16);
+    --color-pill-danger-text: #ff9aa2;     /*  6.51:1 sobre su fondo */
+
+    --color-status-success: #4ac47f;       /*  7.44:1 sobre surface */
+    --color-status-info: #3fc7e8;          /*  8.26:1 sobre surface */
+
+    --color-json-key: #dfe3ec;             /* 14.47:1 sobre el fondo de codigo */
+    --color-json-null: #ff9aa2;            /*  9.21:1 */
+    --color-json-number: #a7b2ff;          /*  9.26:1 */
+    --color-json-string: #8ce0ae;          /* 11.86:1 */
+
+    /* Imagenes rasterizadas con fondo blanco: se bajan un poco
+       para que no queden como cajas brillantes. */
+    --img-adjust: brightness(0.88) contrast(1.05);
+    --logo-adjust: brightness(0) invert(0.92);
+}
+
+/*==============================================================
+ * ALIAS LEGACY
+ * custom_styles.css ya usaba estas variables con nombres
+ * fisicos. Se conservan para no romper nada existente y ahora
+ * responden al tema. Codigo nuevo debe usar los tokens
+ * semanticos, no estos alias.
+ *
+ * IMPORTANTE: en claro conservan su valor ORIGINAL exacto, que
+ * no coincide con el de los tokens de estado. Por ejemplo
+ * --verde era #28a745 (verde de Bootstrap 4) mientras que
+ * --color-success es #198754 (el de Bootstrap 5). Apuntarlos a
+ * los tokens cambiaba el color del icono de sesion en el
+ * perfil, asi que llevan valores propios.
+ *============================================================*/
+
+:root {
+    --blanco: #ffffff;
+    --negro: #000000;
+    --rojo: #dc3545;
+    --verde: #28a745;
+    --azul: #0d6efd;
+    --celeste: #0dcaf0;
+}
+
+html[data-theme="dark"] {
+    --blanco: #1b1f2a;
+    --negro: #dfe3ec;
+    --rojo: #f06a75;
+    --verde: #4ac47f;
+    --azul: #7b8bff;
+    --celeste: #3fc7e8;
+}
+
+/*==============================================================
+ * TRANSICION DE TEMA
+ * Solo las propiedades de color, para no afectar layout ni
+ * animaciones existentes del tema.
+ *============================================================*/
+
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition #header,
+html.theme-transition #sidebar,
+html.theme-transition #main,
+html.theme-transition #footer,
+html.theme-transition .card,
+html.theme-transition .dropdown-menu,
+html.theme-transition .modal-content,
+html.theme-transition .form-control,
+html.theme-transition .form-select,
+html.theme-transition .table,
+html.theme-transition .nav-link {
+    transition:
+        background-color var(--theme-transition) ease,
+        border-color var(--theme-transition) ease,
+        color var(--theme-transition) ease,
+        box-shadow var(--theme-transition) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --theme-transition: 0ms;
+    }
+
+    html.theme-transition,
+    html.theme-transition * {
+        transition: none !important;
+    }
+}

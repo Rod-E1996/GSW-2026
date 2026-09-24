@@ -1,0 +1,829 @@
+/*********** AQUI VAN TODOS LOS ESTILOS DE CSS PERSONALIZADOS ***********/
+
+/* Los colores viven en theme-tokens.css (que se carga antes que este
+   archivo). Aqui no se declara ningun color literal: todo consume
+   tokens semanticos, de modo que estos estilos responden solos al
+   cambio de tema. Los alias legacy (--blanco, --verde, --celeste...)
+   tambien estan definidos alli. */
+
+.navbar-shadow{
+    box-shadow: 0px 0px 12px 0px var(--color-shadow-neutral);
+    background-color: var(--color-surface);
+}
+
+a{
+    color: var(--color-link);
+    text-decoration: none;
+    transition: 0.5s;
+}
+
+.container-json{
+    background: var(--color-code-bg);
+}
+
+
+/* Inicio select2 multiple */
+.select2-selection__choice {
+    background-color: var(--color-chip-bg);
+    border: 1px solid var(--color-chip-border);
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: inline-block;
+    margin-left: 5px;
+    margin-top: 5px;
+    padding: 0;
+    padding-left: 20px;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+
+.select2-selection__choice__remove {
+    background-color: transparent;
+    border: none;
+    border-right: 1px solid var(--color-chip-border);
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    color: var(--color-chip-remove) !important;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 0 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.select2-selection__choice__remove:hover{
+    color: var(--color-chip-remove-hover) !important;
+}
+
+.select2-selection__choice__display {
+    cursor: default;
+    padding-left: 25px;
+    padding-right: 5px;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice{
+    float: none;
+    margin-bottom: 2px;
+}
+
+.cursor-pointer{
+    -webkit-cursor: pointer;
+    -moz-cursor: pointer;
+    -o-cursor: pointer;
+    cursor: pointer;
+}
+  /* Fin select2 multiple */
+
+.badge-menu{
+    float: right;
+    margin-top: -30px;
+    margin-right: 10px;
+}
+
+.no-intermitente{
+    color: var(--color-status-success);
+    font-size: 20px;
+}
+
+.intermitente{
+    border-radius: 50%;
+    box-shadow: 0px 0px 20px;
+    animation: infinite resplandorAnimation 2s;
+    color: var(--color-status-info);
+    font-size: 20px;
+}
+
+.intermitente-device{
+    border-radius: 50%;
+    box-shadow: 0px 0px 20px;
+    animation: infinite resplandorAnimation 2s;
+    color: var(--color-status-success);
+    font-size: 20px;
+}
+
+@keyframes resplandorAnimation {
+    0%,100%{
+        box-shadow: 0px 0px 20px;
+    }
+    50%{
+        box-shadow: 0px 0px 0px;
+    }
+}
+
+.border-div-segundo-plano{
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--color-soft-shadow);
+    background: var(--color-surface);
+}
+
+.cerrar-sesion-boton {
+    background-color: var(--color-logout-bg);
+    border: 1px solid var(--color-logout-border); /* Solo definir lo que cambia */
+    color: var(--color-logout-text);
+    border-radius: 25px;
+    padding: 3px;
+    font-size: 13px;
+    width: 110px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.cerrar-sesion-boton:hover {
+    background-color: var(--color-logout-bg-hover);
+    border: 1px solid var(--color-logout-border-hover); /* Solo definir lo que cambia */
+}
+
+/*********** UTILIDADES SEMANTICAS DE TEMA ***********
+   Reemplazan colores inline en las vistas. Funcionan
+   igual en claro y en oscuro porque usan tokens. */
+
+/* Reproduce exactamente el layout que estos circulos tenian
+   inline en el dashboard (centrado con margin-top, no con
+   flex), para que el modo claro se vea igual que antes. */
+.theme-icon-circle {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+
+.theme-icon-circle > i {
+    font-size: 25px;
+    margin-top: 12px;
+}
+
+.theme-icon-circle--amber { background: var(--color-stat-amber); }
+.theme-icon-circle--amber > i { color: var(--color-stat-amber-contrast); }
+.theme-icon-circle--cyan { background: var(--color-stat-cyan); }
+.theme-icon-circle--cyan > i { color: var(--color-stat-cyan-contrast); }
+
+.theme-pill {
+    border-radius: 25px;
+    padding: 3px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.theme-pill--success {
+    background-color: var(--color-pill-success-bg);
+    color: var(--color-pill-success-text);
+}
+
+.theme-pill--danger {
+    background-color: var(--color-pill-danger-bg);
+    color: var(--color-pill-danger-text);
+}
+
+/* El punto de estado dentro de una pill debe tomar el color de
+   la pill, no el verde suelto: sobre el fondo de la pill ese
+   verde daba 2.89:1 y como objeto grafico necesita 3:1. */
+.theme-pill .intermitente-device,
+.theme-pill .no-intermitente,
+.theme-pill i {
+    color: inherit;
+}
+
+.text-theme-muted { color: var(--color-text-muted) !important; }
+.text-theme-subtle { color: var(--color-text-subtle) !important; }
+
+/*********** FOOTER PEGADO ABAJO ***********
+   En paginas con poco contenido el footer subia hasta quedar
+   justo debajo del contenido, dejando un hueco vacio enorme.
+   Se resuelve con el patron de "sticky footer": el body es una
+   columna flex de al menos el alto de la ventana y el main
+   absorbe el espacio sobrante.
+
+   El header y el sidebar del panel son position:fixed, asi que
+   no participan del flujo y esto no los afecta. Los overlays
+   (modales, toastr, sweetalert, desplegables de select2) son
+   fixed o absolute, asi que tampoco se ven alterados. */
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* El contenido crece para empujar el footer hasta abajo.
+   flex-basis:auto evita que se encoja el contenido largo. */
+body > #main,
+body > main {
+    flex: 1 0 auto;
+}
+
+body > #footer,
+body > footer {
+    flex-shrink: 0;
+}
+
+/* El area publica se vuelve columna para que sus hijos puedan
+   ocupar el alto disponible (lo usa la pantalla de acceso). */
+body > main {
+    display: flex;
+    flex-direction: column;
+}
+
+/*********** PANTALLA DE ACCESO ***********
+   Tarjeta neutra, centrada en los dos ejes. No usa color de
+   marca salvo en el boton principal y los enlaces; todo sale
+   de tokens, asi que funciona igual en claro y en oscuro. */
+
+.auth-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;      /* centrado vertical   */
+    justify-content: center;  /* centrado horizontal */
+    width: 100%;
+    padding: 32px 16px;
+}
+
+/* El <main> del layout publico trae .py-4 (1.5rem arriba y
+   abajo). En esta pantalla ese relleno sobra y hacia que la
+   pagina se pasara unos pixeles del alto de la ventana. Se
+   anula en los dos lados por igual, asi el centrado no se
+   desplaza. */
+body > main > .auth-wrapper:only-child {
+    margin-top: -1.5rem;
+    margin-bottom: -1.5rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px var(--color-shadow-neutral),
+                0 12px 32px var(--color-shadow);
+    padding: 40px 36px;
+}
+
+@media (max-width: 575.98px) {
+    .auth-card {
+        padding: 28px 22px;
+    }
+}
+
+/* Encabezado */
+.auth-mark {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 12px;
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--color-text-muted);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-title {
+    font-size: 1.3125rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+}
+
+.auth-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+/* Campos */
+.auth-field {
+    margin-bottom: 18px;
+}
+
+.auth-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 6px;
+}
+
+.auth-card .form-control {
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.9375rem;
+}
+
+.auth-card .form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+    outline: none;
+}
+
+.auth-card .invalid-feedback {
+    font-size: 0.8125rem;
+}
+
+/* Fila de "recordarme" + enlace de recuperacion */
+.auth-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+    font-size: 0.875rem;
+}
+
+.auth-meta .form-check {
+    margin: 0;
+    min-height: auto;
+}
+
+.auth-meta .form-check-label {
+    color: var(--color-text);
+    font-size: 0.875rem;
+}
+
+/* Boton principal */
+.auth-submit {
+    width: 100%;
+    height: 44px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+/* Pie de la tarjeta */
+.auth-footer {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.auth-link {
+    color: var(--color-link);
+    font-weight: 600;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* Texto informativo y avisos dentro de la tarjeta de acceso */
+.auth-note {
+    font-size: 0.9375rem;
+    color: var(--color-text);
+    line-height: 1.6;
+    margin: 0 0 20px;
+}
+
+.auth-card .alert {
+    font-size: 0.875rem;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 22px;
+}
+
+/* Enlace de regreso, con la flecha separada del texto */
+.auth-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.auth-back:hover {
+    color: var(--color-link);
+}
+
+/*********** PAGINA PUBLICA PRINCIPAL ***********
+   Pantalla minima: un icono, el nombre y una frase. Se centra
+   en los dos ejes igual que la pantalla de acceso. */
+
+.home-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 32px 16px;
+}
+
+/* Anula el .py-4 del <main> para que el centrado sea exacto,
+   igual que en .auth-wrapper. */
+body > main > .home-wrapper:only-child {
+    margin-top: -1.5rem;
+    margin-bottom: -1.5rem;
+}
+
+.home-hero {
+    text-align: center;
+    max-width: 520px;
+}
+
+.home-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 22px;
+    border-radius: 18px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px var(--color-shadow-neutral),
+                0 10px 26px var(--color-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: var(--color-primary);
+}
+
+.home-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-heading);
+    margin: 0 0 10px;
+}
+
+.home-lead {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    margin: 0 0 28px;
+}
+
+.home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.home-actions .btn {
+    min-width: 180px;
+    height: 44px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/*********** MENU LATERAL ***********
+   El tema trae los items con 4px de radio, que sobre el fondo
+   de color se ven muy cuadrados, sobre todo al alternar entre
+   claro y oscuro. Se redondean un poco mas. Aplica a los dos
+   temas porque es una decision de forma, no de color. */
+
+.sidebar-nav .nav-link,
+.sidebar-nav .nav-link.collapsed {
+    border-radius: 10px;
+}
+
+/* Los enlaces del submenu no tienen fondo propio, pero se les
+   pone el mismo radio para que coincidan si alguna vez lo
+   reciben (por ejemplo al pasar el cursor). */
+.sidebar-nav .nav-content a {
+    border-radius: 10px;
+}
+
+/*********** GESTION DE SESIONES ***********
+   Pantallas "Sesiones de un usuario" y "Sesiones del sistema".
+   Todo sale de tokens, asi que funciona igual en claro y oscuro. */
+
+.ses-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.ses-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: .02em;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-on-soft);
+    border: 2px solid var(--color-primary);
+    flex-shrink: 0;
+}
+
+.ses-avatar--sm {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+    border-width: 1px;
+}
+
+/* Tarjetas de estadisticas */
+.ses-stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+}
+
+.ses-stat__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.ses-stat__icon--primary { background: var(--color-primary-soft); color: var(--color-primary-on-soft); }
+.ses-stat__icon--success { background: var(--color-success-soft); color: var(--color-success-on-soft); }
+.ses-stat__icon--info    { background: var(--color-info-soft);    color: var(--color-info-on-soft); }
+.ses-stat__icon--warning { background: var(--color-warning-soft); color: var(--color-warning-on-soft); }
+
+.ses-stat__value {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-heading);
+}
+
+.ses-stat__label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--color-text-muted);
+}
+
+.ses-stat__hint {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+/* Fila de una sesion (pantalla por usuario) */
+.ses-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+}
+
+.ses-item--actual {
+    border-color: var(--color-success);
+    box-shadow: inset 4px 0 0 var(--color-success);
+}
+
+.ses-item__device {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--color-surface-sunken);
+    color: var(--color-heading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.ses-item__main {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.ses-item__title {
+    font-weight: 600;
+    color: var(--color-heading);
+    font-size: 15px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.ses-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.ses-item__meta i { margin-right: 4px; }
+
+.ses-item__times {
+    flex: 1 1 230px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    display: grid;
+    gap: 5px;
+}
+
+.ses-item__times strong { color: var(--color-text); font-weight: 500; }
+
+.ses-item__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+/* Etiquetas de estado */
+.ses-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.ses-badge--success { background: var(--color-success-soft); color: var(--color-success-on-soft); }
+.ses-badge--info    { background: var(--color-info-soft);    color: var(--color-info-on-soft); }
+.ses-badge--warning { background: var(--color-warning-soft); color: var(--color-warning-on-soft); }
+.ses-badge--danger  { background: var(--color-danger-soft);  color: var(--color-danger-on-soft); }
+.ses-badge--neutral {
+    background: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    font-weight: 500;
+}
+
+.ses-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.ses-dot--pulse { animation: sesPulse 1.6s ease-in-out infinite; }
+
+@keyframes sesPulse {
+    0%, 100% { opacity: 1;   transform: scale(1); }
+    50%      { opacity: .35; transform: scale(.7); }
+}
+
+/* Estado vacio */
+.ses-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--color-text-muted);
+}
+
+.ses-empty i {
+    font-size: 48px;
+    color: var(--color-success);
+    display: block;
+    margin-bottom: 12px;
+}
+
+.ses-empty h5 { color: var(--color-heading); font-weight: 600; }
+
+.ses-code {
+    font-family: SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--color-code-bg);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--color-text);
+}
+
+/* Tabla global */
+.ses-table td,
+.ses-table th { vertical-align: middle; }
+
+.ses-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.ses-user__name { font-weight: 500; color: var(--color-heading); line-height: 1.2; }
+.ses-user__mail { font-size: 12px; color: var(--color-text-muted); }
+
+.ses-device {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.ses-device__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--color-surface-sunken);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--color-heading);
+    flex-shrink: 0;
+}
+
+.ses-device__name { font-weight: 500; color: var(--color-text); line-height: 1.2; }
+.ses-device__sub  { font-size: 12px; color: var(--color-text-muted); }
+
+.ses-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Barra de tiempo restante antes de expirar */
+.ses-expira {
+    display: block;
+    height: 6px;
+    border-radius: 6px;
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    min-width: 90px;
+}
+
+.ses-expira__bar {
+    display: block;
+    height: 100%;
+    transition: width .3s ease;
+    border-radius: 6px;
+    background: var(--color-success);
+}
+
+.ses-expira__bar--warning { background: var(--color-warning); }
+.ses-expira__bar--danger  { background: var(--color-danger); }
+
+.ses-time-main { font-weight: 500; color: var(--color-text); line-height: 1.2; }
+.ses-time-sub  { font-size: 12px; color: var(--color-text-muted); }
+
+/* Contador de sesiones sobre el boton del listado de usuarios */
+.ses-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    background: var(--color-success);
+    color: var(--color-success-contrast);
+}
+
+/* Cabecera desplegable (historial de inicios de sesion) */
+.ses-collapse-header {
+    cursor: pointer;
+    color: var(--color-text);
+}
+
+.ses-collapse-header:hover { color: var(--color-heading); }
+
+.ses-collapse-icon {
+    font-size: 18px;
+    transition: transform .25s ease;
+    color: var(--color-text-muted);
+}
+
+.ses-collapse-header[aria-expanded="true"] .ses-collapse-icon { transform: rotate(180deg); }
+
+.ses-link {
+    color: var(--color-link);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.ses-link:hover { text-decoration: underline; }

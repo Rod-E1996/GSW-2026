@@ -85,6 +85,11 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'ejemplo_update']);
         Permission::create(['name' => 'ejemplo_destroy']);
 
+        //Tipos de habitación
+        foreach (TiposHabitacionSeeder::$permisos as $permiso) {
+            Permission::create(['name' => $permiso]);
+        }
+
         //Procesos en segundo plano
         Permission::create(['name' => 'queue_control_index']);
         Permission::create(['name' => 'queue_control_update_porcentaje']);
@@ -142,6 +147,14 @@ class PermissionSeeder extends Seeder
             'ejemplo_edit',
             'ejemplo_update',
             'ejemplo_destroy',
+
+            'tipo_habitacion_index',
+            'tipo_habitacion_show',
+            'tipo_habitacion_create',
+            'tipo_habitacion_store',
+            'tipo_habitacion_edit',
+            'tipo_habitacion_update',
+            'tipo_habitacion_destroy',
 
             'queue_control_index',
             'queue_control_update_porcentaje',

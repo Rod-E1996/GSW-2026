@@ -15,6 +15,17 @@
             </a>
         </li>
 
+        <li class="nav-heading">Hotel</li>
+
+        @can('tipo_habitacion_index')
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('tipo_habitacion*') ? '' : 'collapsed' }}" href="{{ url('tipo_habitacion') }}">
+                    <i class="bi bi-door-open"></i>
+                    <span>Tipos de habitación</span>
+                </a>
+            </li>
+        @endcan
+
         <li class="nav-heading">Administración</li>
 
         @can('dashboard')

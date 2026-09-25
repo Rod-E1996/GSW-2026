@@ -114,6 +114,17 @@ Route::prefix("/ejemplo")->group(function(){
     Route::post('/{id}', [App\Http\Controllers\EjemplosController::class, 'destroy'])->name('ejemplo_destroy')->middleware(['auth', 'permission:ejemplo_destroy']);                   //Para el eliminar de ejemplo (eliminado logico)
 });
 
+//Tipos de habitación
+Route::prefix("/tipo_habitacion")->group(function(){
+    Route::get('/', [App\Http\Controllers\TiposHabitacionController::class, 'index'])->name('tipo_habitacion_index')->middleware(['auth', 'permission:tipo_habitacion_index']);                      //Para el index de tipos de habitacion
+    Route::get('/create', [App\Http\Controllers\TiposHabitacionController::class, 'create'])->name('tipo_habitacion_create')->middleware(['auth', 'permission:tipo_habitacion_create']);             //Para el create de tipos de habitacion
+    Route::post('/', [App\Http\Controllers\TiposHabitacionController::class, 'store'])->name('tipo_habitacion_store')->middleware(['auth', 'permission:tipo_habitacion_store']);                     //Para guardar la data del create
+    Route::get('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'show'])->name('tipo_habitacion_show')->middleware(['auth', 'permission:tipo_habitacion_show']);                     //Para el show de tipos de habitacion
+    Route::get('/{id}/edit', [App\Http\Controllers\TiposHabitacionController::class, 'edit'])->name('tipo_habitacion_edit')->middleware(['auth', 'permission:tipo_habitacion_edit']);                //Para el edit de tipos de habitacion
+    Route::put('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'update'])->name('tipo_habitacion_update')->middleware(['auth', 'permission:tipo_habitacion_update']);               //Para guardar la data del edit
+    Route::post('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'destroy'])->name('tipo_habitacion_destroy')->middleware(['auth', 'permission:tipo_habitacion_destroy']);           //Para el eliminar (eliminado logico)
+});
+
 //Procesos en segundo plano
 Route::prefix("/queue_control")->group(function(){
     Route::get('/', [App\Http\Controllers\QueueControlController::class, 'index'])->name('queue_control_index')->middleware(['auth', 'permission:queue_control_index']);

@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AuditarAccionesSeeder::class,
         	AuditarTablasSeeder::class,
-        	PermissionSeeder::class
+        	PermissionSeeder::class,
+        	TiposHabitacionSeeder::class
         ]);
     }
 }

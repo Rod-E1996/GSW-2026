@@ -54,6 +54,7 @@
                 <table class="table table-striped text-center border">
                     <thead class="text-uppercase">
                         <tr>
+                            <th>Foto</th>
                             <th>Nombre</th>
                             <th>Capacidad</th>
                             <th>Precio base</th>
@@ -64,6 +65,13 @@
                     <tbody>
                         @forelse($tipos_habitacion as $value)
                         <tr>
+                            <td>
+                                @if($value->imagenPrincipal)
+                                    <img src="{{ $value->imagenPrincipal->url }}" alt="{{ $value->nombre }}" class="rounded" style="width: 72px; height: 48px; object-fit: cover;">
+                                @else
+                                    <span class="text-muted" data-bs-toggle="tooltip" title="Sin foto"><i class="far fa-image fa-2x"></i></span>
+                                @endif
+                            </td>
                             <td>{{ $value->nombre ?? '' }}</td>
                             <td>
                                 <span class="badge bg-info text-white">
@@ -98,7 +106,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-muted">No hay tipos de habitación registrados.</td>
+                            <td colspan="6" class="text-muted">No hay tipos de habitación registrados.</td>
                         </tr>
                         @endforelse
                     </tbody>

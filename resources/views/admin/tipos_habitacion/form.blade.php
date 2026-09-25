@@ -48,6 +48,21 @@
 
 		</div>
 
+        <div class="input-group">
+
+            <div class="col-md-12 col-12 p-1">
+				<div class="form-group  {{ $errors->has('imagenes') || $errors->has('imagenes.*') ? 'has-error' : ''}}">
+					<label for="imagenes">{{ $formMode === 'Editar' ? 'Agregar fotos:' : 'Fotos:' }} </label>
+					<input type="file" name="imagenes[]" id="imagenes" class="form-control" accept="image/jpeg,image/png,image/webp" multiple>
+					<small class="text-muted">Hasta 10 imágenes JPG, PNG o WEBP de máximo 4 MB cada una. La primera que suba será la foto principal.</small>
+					{!! $errors->first('imagenes', '<p class="text-danger">:message</p>') !!}
+					{!! $errors->first('imagenes.*', '<p class="text-danger">:message</p>') !!}
+					<div id="previsualizacion" class="d-flex flex-wrap gap-2 mt-2"></div>
+				</div>
+			</div>
+
+		</div>
+
 	</div>
 	<div class="card-footer">
 		<div class="form-group">
@@ -60,3 +75,28 @@
 		</div>
 	</div>
 </div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+        //Previsualizacion de las fotos seleccionadas antes de guardar
+        $('#imagenes').on('change', function() {
+            const contenedor = document.getElementById('previsualizacion');
+            contenedor.innerHTML = '';
+
+            Array.from(this.files).forEach(function(archivo) {
+                if (!archivo.type.startsWith('image/')) return;
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(archivo);
+                img.className = 'rounded border';
+                img.style.width = '110px';
+                img.style.height = '80px';
+                img.style.objectFit = 'cover';
+                img.onload = function() { URL.revokeObjectURL(img.src); };
+                contenedor.appendChild(img);
+            });
+        });
+
+    });
+</script>

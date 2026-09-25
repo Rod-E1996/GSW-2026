@@ -123,6 +123,10 @@ Route::prefix("/tipo_habitacion")->group(function(){
     Route::get('/{id}/edit', [App\Http\Controllers\TiposHabitacionController::class, 'edit'])->name('tipo_habitacion_edit')->middleware(['auth', 'permission:tipo_habitacion_edit']);                //Para el edit de tipos de habitacion
     Route::put('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'update'])->name('tipo_habitacion_update')->middleware(['auth', 'permission:tipo_habitacion_update']);               //Para guardar la data del edit
     Route::post('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'destroy'])->name('tipo_habitacion_destroy')->middleware(['auth', 'permission:tipo_habitacion_destroy']);           //Para el eliminar (eliminado logico)
+
+    //Fotos del tipo de habitacion (forman parte de la edicion, por eso usan el permiso tipo_habitacion_update)
+    Route::post('/{id}/imagen/{imagen_id}/eliminar', [App\Http\Controllers\TiposHabitacionController::class, 'imagenDestroy'])->name('tipo_habitacion_imagen_destroy')->middleware(['auth', 'permission:tipo_habitacion_update']);     //Para eliminar una foto
+    Route::post('/{id}/imagen/{imagen_id}/principal', [App\Http\Controllers\TiposHabitacionController::class, 'imagenPrincipal'])->name('tipo_habitacion_imagen_principal')->middleware(['auth', 'permission:tipo_habitacion_update']); //Para marcar la foto principal
 });
 
 //Habitaciones

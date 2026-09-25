@@ -4,9 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TipoHabitacion;
+use App\Models\TipoHabitacionImagen;
 
 class TiposHabitacionController extends Controller
 {
+    //Reglas de validacion para las imagenes que se suben con el formulario
+    private $reglasImagenes = [
+        'imagenes' => ['nullable', 'array', 'max:10'],
+        'imagenes.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+    ];
+
     //Funcion para mostrar el index
     public function index(Request $request)
     {
@@ -15,7 +22,7 @@ class TiposHabitacionController extends Controller
 
         $perPage = 10;
 
-        $query = TipoHabitacion::query();
+        $query = TipoHabitacion::query()->with('imagenPrincipal');
         $query->where('estado', 1);
 
         if($nombre){
@@ -40,7 +47,7 @@ class TiposHabitacionController extends Controller
     public function store(Request $request)
     {
         $request->validate(
-            TipoHabitacion::rules()
+            TipoHabitacion::rules() + $this->reglasImagenes
         );
 
         $tipoHabitacion = new TipoHabitacion();
@@ -50,6 +57,7 @@ class TiposHabitacionController extends Controller
         $tipoHabitacion->descripcion = $request->descripcion;
 
         if( $tipoHabitacion->save() ){
+            $this->guardarImagenes($tipoHabitacion, $request->file('imagenes', []));
             return redirect('tipo_habitacion')->with('alerta', 'Agregado con éxito.');
         } else {
             return back()->with([
@@ -62,7 +70,7 @@ class TiposHabitacionController extends Controller
     //Funcion para mostrar los datos de un registro
     public function show($id)
     {
-        $tipoHabitacion = TipoHabitacion::where('estado', 1)->find($id);
+        $tipoHabitacion = TipoHabitacion::with('imagenes')->where('estado', 1)->find($id);
         if(!$tipoHabitacion){
             return redirect('tipo_habitacion')->with([
                 'alerta' => 'El registro que esta buscando no existe.',
@@ -77,7 +85,7 @@ class TiposHabitacionController extends Controller
     //Funcion para cargar el formulario de actualizacion
     public function edit($id)
     {
-        $tipoHabitacion = TipoHabitacion::where('estado', 1)->find($id);
+        $tipoHabitacion = TipoHabitacion::with('imagenes')->where('estado', 1)->find($id);
         if(!$tipoHabitacion){
             return redirect('tipo_habitacion')->with([
                 'alerta' => 'El registro que esta buscando no existe.',
@@ -93,7 +101,7 @@ class TiposHabitacionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate(
-            TipoHabitacion::rules($id)
+            TipoHabitacion::rules($id) + $this->reglasImagenes
         );
 
         $tipoHabitacion = TipoHabitacion::find($id);
@@ -103,6 +111,7 @@ class TiposHabitacionController extends Controller
         $tipoHabitacion->descripcion = $request->descripcion;
 
         if($tipoHabitacion->save()){
+            $this->guardarImagenes($tipoHabitacion, $request->file('imagenes', []));
             return redirect('tipo_habitacion')->with('alerta', 'Modificado con éxito.');
         }else{
             return redirect('tipo_habitacion')->with([
@@ -135,6 +144,82 @@ class TiposHabitacionController extends Controller
                 'alerta' => 'Ocurrio un error al eliminar.',
                 'tipo' => 'error'
             ]);
+        }
+    }
+
+    //Funcion para eliminar una imagen del tipo de habitacion (archivo y registro)
+    public function imagenDestroy($id, $imagen_id)
+    {
+        $imagen = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->find($imagen_id);
+        if(!$imagen){
+            return back()->with([
+                'alerta' => 'La imagen que esta buscando no existe.',
+                'tipo' => 'error'
+            ]);
+        }
+
+        $eraPrincipal = $imagen->principal;
+        $imagen->eliminarArchivo();
+        $imagen->delete();
+
+        //Si se elimino la principal, la primera que quede pasa a ser principal
+        if($eraPrincipal){
+            $siguiente = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->orderBy('orden')->orderBy('id')->first();
+            if($siguiente){
+                $siguiente->principal = true;
+                $siguiente->save();
+            }
+        }
+
+        return back()->with('alerta', 'Imagen eliminada con éxito.');
+    }
+
+    //Funcion para marcar una imagen como principal (la que se muestra en el sitio publico)
+    public function imagenPrincipal($id, $imagen_id)
+    {
+        $imagen = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->find($imagen_id);
+        if(!$imagen){
+            return back()->with([
+                'alerta' => 'La imagen que esta buscando no existe.',
+                'tipo' => 'error'
+            ]);
+        }
+
+        TipoHabitacionImagen::where('tipo_habitacion_id', $id)->where('principal', true)->update(['principal' => false]);
+        $imagen->principal = true;
+        $imagen->save();
+
+        return back()->with('alerta', 'Imagen principal actualizada.');
+    }
+
+    //Guarda en disco las imagenes subidas y crea sus registros.
+    //La primera imagen del tipo queda como principal automaticamente.
+    private function guardarImagenes(TipoHabitacion $tipoHabitacion, $archivos)
+    {
+        if(empty($archivos)){
+            return;
+        }
+
+        $tienePrincipal = $tipoHabitacion->imagenes()->where('principal', true)->exists();
+        $orden = (int) $tipoHabitacion->imagenes()->max('orden');
+
+        foreach($archivos as $archivo){
+            if(!$archivo || !$archivo->isValid()){
+                continue;
+            }
+
+            $ruta = $archivo->store(TipoHabitacionImagen::CARPETA . '/' . $tipoHabitacion->id, TipoHabitacionImagen::DISCO);
+            $orden++;
+
+            TipoHabitacionImagen::create([
+                'tipo_habitacion_id' => $tipoHabitacion->id,
+                'ruta' => $ruta,
+                'nombre_original' => $archivo->getClientOriginalName(),
+                'orden' => $orden,
+                'principal' => !$tienePrincipal,
+            ]);
+
+            $tienePrincipal = true;
         }
     }
 

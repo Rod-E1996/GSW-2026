@@ -52,6 +52,8 @@
                 </tbody>
             </table>
         </div>
-  </div>
+    </div>
+
+    @include ('admin.tipos_habitacion.imagenes', ['editable' => false])
 </div>
 @endsection

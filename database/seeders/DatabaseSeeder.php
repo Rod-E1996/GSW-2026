@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         	PermissionSeeder::class,
         	RolesHotelSeeder::class,
         	TiposHabitacionSeeder::class,
+        	TiposHabitacionImagenesSeeder::class,
         	HabitacionesSeeder::class
         ]);
     }

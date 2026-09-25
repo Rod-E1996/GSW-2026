@@ -70,7 +70,8 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->assignRole('Invitado');
+        //Todo usuario que se registra desde el sitio público es un huésped
+        $user->assignRole('Huésped');
 
         return $user;
     }

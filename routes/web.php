@@ -27,15 +27,15 @@ Route::get('/', [App\Http\Controllers\PublicController::class, 'home'])->name('h
 
 
 
-// RUTAS PARA LOS ROLES (Administrador y Invitado)
+// RUTAS PARA LOS ROLES (Super Administrador, Administrador, Recepcionista y Huésped)
 // =============================================================================================================================================
 
 //Ruta despues de loguearse
 Route::get('/afterlogin', [App\Http\Controllers\HomeController::class, 'afterlogin'])->name('afterlogin');
-//Route::get('/afterlogin', [App\Http\Controllers\HomeController::class, 'afterlogin'])->name('afterlogin')->middleware(['auth', 'role:Administrador|Invitado']); //Para dar accesos por roles
+//Route::get('/afterlogin', [App\Http\Controllers\HomeController::class, 'afterlogin'])->name('afterlogin')->middleware(['auth', 'role:Administrador|Huésped']); //Para dar accesos por roles
 
 // =============================================================================================================================================
-// FIN RUTAS PARA LOS ROLES (Administrador y Invitado)
+// FIN RUTAS PARA LOS ROLES (Super Administrador, Administrador, Recepcionista y Huésped)
 
 
 

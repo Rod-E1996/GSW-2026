@@ -25,9 +25,10 @@ class HomeController extends Controller
     public function afterlogin()
     {
         // Aqui se redireccionara a determinada vista dependiendo del rol del usuario logueado
-        if(auth()->user()->hasAnyRole(['Super Administrador', 'Administrador'])){
+        if(auth()->user()->hasAnyRole(['Super Administrador', 'Recepcionista'])){
             return redirect('/dashboard');
-        }else if(auth()->user()->hasRole('Invitado')){
+        }else if(auth()->user()->hasRole('Huésped')){
+            //Pendiente: redirigir al área privada del huésped (mis reservas) cuando exista
             return redirect('/');
         }else{
             return redirect('/');

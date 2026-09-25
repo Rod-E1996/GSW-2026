@@ -17,9 +17,9 @@ class PermissionSeeder extends Seeder
      */
     public function run()
     {
-        //Insertar el usuario administrador por defecto
+        //Insertar el usuario super administrador por defecto
         $user = User::create([
-            'name' => 'Administrador',
+            'name' => 'Super Administrador',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
         ]);
@@ -94,79 +94,12 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'queue_control_index']);
         Permission::create(['name' => 'queue_control_update_porcentaje']);
 
-        //Lista de roles
+        //Roles del sistema: Super Administrador, Recepcionista y Huésped
+        //Recepcionista y Huésped se crean en RolesHotelSeeder junto con sus usuarios de prueba
         $superAdmin = Role::create(['name' => 'Super Administrador']);
-        $admin = Role::create(['name' => 'Administrador']);
-        $invitado =  Role::create(['name' => 'Invitado']);
 
-        //El Super Administrador tiene todos los permisos del sistema,
-        //incluida la gestion de sesiones que no se le da al Administrador
+        //El Super Administrador tiene todos los permisos del sistema
         $superAdmin->givePermissionTo(Permission::all());
-
-        $admin->givePermissionTo([
-            'permiso_index',
-            'permiso_move',
-
-            'role_index',
-            'role_show',
-            'role_create',
-            'role_store',
-            'role_edit',
-            'role_update',
-            'role_destroy',
-            'role_move_permiso',
-
-            'usuario_index',
-            'usuario_show',
-            'usuario_create',
-            'usuario_store',
-            'usuario_edit',
-            'usuario_update',
-            'usuario_estado',
-            'usuario_login_notificacion',
-
-            'dashboard',
-
-            'perfil_show',
-            'perfil_edit',
-            'perfil_edit_password',
-            'perfil_cerrar_session',
-
-            'auditar_index',
-            'auditar_show',
-
-            'error_log_index',
-            'error_log_show',
-            'error_log_create',
-            'error_log_estado',
-
-            'ejemplo_index',
-            'ejemplo_show',
-            'ejemplo_create',
-            'ejemplo_store',
-            'ejemplo_edit',
-            'ejemplo_update',
-            'ejemplo_destroy',
-
-            'tipo_habitacion_index',
-            'tipo_habitacion_show',
-            'tipo_habitacion_create',
-            'tipo_habitacion_store',
-            'tipo_habitacion_edit',
-            'tipo_habitacion_update',
-            'tipo_habitacion_destroy',
-
-            'queue_control_index',
-            'queue_control_update_porcentaje',
-        ]);
-
-        $invitado->givePermissionTo([
-            'dashboard',
-
-            'perfil_show',
-            'perfil_edit',
-            'perfil_edit_password',
-        ]);
 
         $user = User::find(1);
         $user->assignRole('Super Administrador');

@@ -24,8 +24,8 @@ trait SaveErrorLogTrait {
         //Para guardar el error en los logs de laravel
         \Log::error($e);
 
-        //Para obtener los correos de todos los usuarios con (ROL Administrador)
-        $adminRol = Role::where('name', 'Administrador')->first();
+        //Para obtener los correos de todos los usuarios con (ROL Super Administrador)
+        $adminRol = Role::where('name', 'Super Administrador')->first();
         $correosAdmin = $adminRol->users->where('estado', 1)->pluck('email');
 
         //Envio del error por correo electronico a todos los administradores (Mediante  JOBS Y COLAS en segundo plano)
@@ -42,7 +42,7 @@ trait SaveErrorLogTrait {
                         "\n*Fecha:* ".\Carbon\Carbon::parse($errorLog->created_at)->format('Y-m-d').
                         "\n*Hora:* ".\Carbon\Carbon::parse($errorLog->created_at)->format('h:i:s A');
 
-            //Para obtener los telefonos de todos los usuarios con (ROL Administrador)
+            //Para obtener los telefonos de todos los usuarios con (ROL Super Administrador)
             $telefonosAdmin = $adminRol->users->where('estado', 1)->whereNotNull('phone')->pluck('phone');
 
             //Para realizar el envio del mensaje de whastapp al numero de cada administrador del sistema

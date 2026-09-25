@@ -14,7 +14,7 @@ use Spatie\Permission\Models\Role;
  *   php artisan db:seed --class=TiposHabitacionSeeder
  *
  * - Crea los permisos del módulo si aún no existen y se los asigna
- *   a los roles Super Administrador y Administrador.
+ *   al rol Super Administrador.
  * - Inserta los tipos de habitación de ejemplo si la tabla está vacía.
  */
 class TiposHabitacionSeeder extends Seeder
@@ -36,11 +36,9 @@ class TiposHabitacionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permiso, 'guard_name' => 'web']);
         }
 
-        foreach (['Super Administrador', 'Administrador'] as $nombreRol) {
-            $rol = Role::where('name', $nombreRol)->first();
-            if ($rol) {
-                $rol->givePermissionTo(self::$permisos);
-            }
+        $superAdmin = Role::where('name', 'Super Administrador')->first();
+        if ($superAdmin) {
+            $superAdmin->givePermissionTo(self::$permisos);
         }
 
         //Limpiar cache de permisos de spatie

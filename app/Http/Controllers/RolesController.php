@@ -169,8 +169,8 @@ class RolesController extends Controller
         $rol = Role::findById($id_rol);
         $permisos_rol = $rol->getPermissionNames();
 
-        //Validacion permisos de administrador irrevocables
-        if($rol->name == 'Administrador'){
+        //Validacion permisos de super administrador irrevocables
+        if($rol->name == 'Super Administrador'){
             $permisos_fijos = ['permiso_index','permiso_move','role_index','role_show','role_create','role_store','role_edit','role_update','role_destroy','role_move_permiso','usuario_index','usuario_show','usuario_create','usuario_store','usuario_edit','usuario_update','usuario_estado','dashboard'];
             $permisos_irrevocables = array_diff($permisos_fijos, $permisos_nuevos);
 

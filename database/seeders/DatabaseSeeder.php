@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AuditarAccionesSeeder::class,
         	AuditarTablasSeeder::class,
         	PermissionSeeder::class,
+        	RolesHotelSeeder::class,
         	TiposHabitacionSeeder::class
         ]);
     }

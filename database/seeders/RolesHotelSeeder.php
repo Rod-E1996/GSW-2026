@@ -35,6 +35,10 @@ class RolesHotelSeeder extends Seeder
 
         'tipo_habitacion_index',
         'tipo_habitacion_show',
+
+        'habitacion_index',
+        'habitacion_show',
+        'habitacion_estado',
     ];
 
     public static $permisosHuesped = [

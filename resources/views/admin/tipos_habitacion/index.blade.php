@@ -66,7 +66,7 @@
                         <tr>
                             <td>{{ $value->nombre ?? '' }}</td>
                             <td>
-                                <span class="badge bg-info">
+                                <span class="badge bg-info text-white">
                                     <i class="fas fa-user"></i> {{ $value->capacidad }} {{ $value->capacidad == 1 ? 'huésped' : 'huéspedes' }}
                                 </span>
                             </td>

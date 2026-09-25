@@ -125,6 +125,18 @@ Route::prefix("/tipo_habitacion")->group(function(){
     Route::post('/{id}', [App\Http\Controllers\TiposHabitacionController::class, 'destroy'])->name('tipo_habitacion_destroy')->middleware(['auth', 'permission:tipo_habitacion_destroy']);           //Para el eliminar (eliminado logico)
 });
 
+//Habitaciones
+Route::prefix("/habitacion")->group(function(){
+    Route::get('/', [App\Http\Controllers\HabitacionesController::class, 'index'])->name('habitacion_index')->middleware(['auth', 'permission:habitacion_index']);                      //Para el index de habitaciones
+    Route::get('/create', [App\Http\Controllers\HabitacionesController::class, 'create'])->name('habitacion_create')->middleware(['auth', 'permission:habitacion_create']);             //Para el create de habitaciones
+    Route::post('/', [App\Http\Controllers\HabitacionesController::class, 'store'])->name('habitacion_store')->middleware(['auth', 'permission:habitacion_store']);                     //Para guardar la data del create
+    Route::post('/estado/{id}', [App\Http\Controllers\HabitacionesController::class, 'estado'])->name('habitacion_estado')->middleware(['auth', 'permission:habitacion_estado']);       //Para cambiar el estado operativo (disponible, ocupada, mantenimiento)
+    Route::get('/{id}', [App\Http\Controllers\HabitacionesController::class, 'show'])->name('habitacion_show')->middleware(['auth', 'permission:habitacion_show']);                     //Para el show de habitaciones
+    Route::get('/{id}/edit', [App\Http\Controllers\HabitacionesController::class, 'edit'])->name('habitacion_edit')->middleware(['auth', 'permission:habitacion_edit']);                //Para el edit de habitaciones
+    Route::put('/{id}', [App\Http\Controllers\HabitacionesController::class, 'update'])->name('habitacion_update')->middleware(['auth', 'permission:habitacion_update']);               //Para guardar la data del edit
+    Route::post('/{id}', [App\Http\Controllers\HabitacionesController::class, 'destroy'])->name('habitacion_destroy')->middleware(['auth', 'permission:habitacion_destroy']);           //Para el eliminar (eliminado logico)
+});
+
 //Procesos en segundo plano
 Route::prefix("/queue_control")->group(function(){
     Route::get('/', [App\Http\Controllers\QueueControlController::class, 'index'])->name('queue_control_index')->middleware(['auth', 'permission:queue_control_index']);

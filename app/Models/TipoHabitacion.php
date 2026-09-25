@@ -46,6 +46,8 @@ class TipoHabitacion extends Model
     ];
 
     // relaciones
-    // Nota: cuando exista el modelo Habitacion, agregar:
-    // public function habitaciones(){ return $this->hasMany(Habitacion::class, 'tipo_habitacion_id', 'id'); }
+    public function habitaciones()
+    {
+        return $this->hasMany(Habitacion::class, 'tipo_habitacion_id', 'id');
+    }
 }

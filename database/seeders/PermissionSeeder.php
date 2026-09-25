@@ -90,6 +90,11 @@ class PermissionSeeder extends Seeder
             Permission::create(['name' => $permiso]);
         }
 
+        //Habitaciones
+        foreach (HabitacionesSeeder::$permisos as $permiso) {
+            Permission::create(['name' => $permiso]);
+        }
+
         //Procesos en segundo plano
         Permission::create(['name' => 'queue_control_index']);
         Permission::create(['name' => 'queue_control_update_porcentaje']);

@@ -116,6 +116,16 @@ class TiposHabitacionController extends Controller
     public function destroy($id)
     {
         $tipoHabitacion = TipoHabitacion::find($id);
+
+        //No se puede eliminar un tipo que todavia tiene habitaciones activas
+        $habitacionesActivas = $tipoHabitacion->habitaciones()->where('estado', 1)->count();
+        if($habitacionesActivas > 0){
+            return redirect('tipo_habitacion')->with([
+                'alerta' => 'No se puede eliminar: hay ' . $habitacionesActivas . ' habitación(es) de este tipo. Reasígnelas o elimínelas primero.',
+                'tipo' => 'error'
+            ]);
+        }
+
         $tipoHabitacion->estado = 0;
 
         if($tipoHabitacion->save()){

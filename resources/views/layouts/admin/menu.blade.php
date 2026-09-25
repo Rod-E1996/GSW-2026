@@ -26,6 +26,15 @@
             </li>
         @endcan
 
+        @can('habitacion_index')
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('habitacion*') ? '' : 'collapsed' }}" href="{{ url('habitacion') }}">
+                    <i class="bi bi-building"></i>
+                    <span>Habitaciones</span>
+                </a>
+            </li>
+        @endcan
+
         <li class="nav-heading">Administración</li>
 
         @can('dashboard')

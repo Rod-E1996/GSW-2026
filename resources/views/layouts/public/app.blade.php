@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta content="laravelbase" name="description">
-    <meta content="laravelbase" name="keywords">
+    <meta content="{{ config('hotel.eslogan') }}" name="description">
+    <meta content="hotel, reservaciones, habitaciones, El Salvador, La Libertad" name="keywords">
 
     {{-- Tema: debe ir antes de cualquier hoja de estilo (evita el FOUC) --}}
     @include('layouts.partials.theme-head')
@@ -54,6 +54,9 @@
 
     <!-- Custom styles -->
     <link href="{{ asset('css/custom_styles.css') }}" rel="stylesheet">
+
+    {{-- Estilos del sitio publico del hotel --}}
+    <link href="{{ asset('css/public-site.css') }}" rel="stylesheet">
 
     {{-- Correcciones de contraste WCAG AA (aplican a ambos temas) --}}
     <link href="{{ asset('css/a11y-contrast.css') }}" rel="stylesheet">

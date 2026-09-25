@@ -1,0 +1,392 @@
+/* ============================================================
+   SITIO PÚBLICO DE HOTELLINK
+   Usa los tokens de theme-tokens.css, así que responde al modo
+   claro / oscuro sin reglas adicionales.
+   ============================================================ */
+
+.site-section {
+    padding: 64px 0;
+}
+
+.site-section + .site-section {
+    border-top: 1px solid var(--color-border);
+}
+
+.site-section-title {
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-heading);
+    margin: 0 0 6px;
+}
+
+.site-section-lead {
+    color: var(--color-text-muted);
+    max-width: 62ch;
+    margin: 0 0 32px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.site-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+/* ---------- Hero ---------- */
+
+.site-hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    background-color: #1c2a36;
+    background-size: cover;
+    background-position: center;
+    /* Anula el py-4 del <main> para que la foto llegue hasta la barra de navegación */
+    margin-top: -1.5rem;
+}
+
+.site-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(12, 22, 32, 0.85) 0%, rgba(12, 22, 32, 0.55) 55%, rgba(12, 22, 32, 0.25) 100%);
+}
+
+.site-hero > .container {
+    position: relative;
+    padding-top: 72px;
+    padding-bottom: 72px;
+}
+
+.site-hero-title {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0 0 14px;
+    color: #fff;
+}
+
+.site-hero-lead {
+    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+    max-width: 58ch;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 28px;
+}
+
+.site-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.site-hero-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin-top: 36px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.site-hero-facts i {
+    color: #ffd166;
+    margin-right: 6px;
+}
+
+/* ---------- Habitaciones ---------- */
+
+.room-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px var(--color-shadow-neutral);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px var(--color-shadow);
+}
+
+.room-card-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--color-surface-sunken);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-subtle);
+    font-size: 2.5rem;
+    cursor: pointer;
+}
+
+.room-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.room-card-count {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+.room-card-body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.room-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.room-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0;
+}
+
+.room-card-price {
+    white-space: nowrap;
+    font-weight: 800;
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.room-card-price small {
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.room-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.room-card-meta span {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-on-soft);
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.room-card-text {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0;
+    flex: 1;
+}
+
+.room-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+/* ---------- Servicios ---------- */
+
+.service-item {
+    height: 100%;
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.service-icon {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-on-soft);
+}
+
+.service-item h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 4px;
+}
+
+.service-item p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.93rem;
+    line-height: 1.5;
+}
+
+/* ---------- Galería ---------- */
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.gallery-item {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    display: block;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.04);
+}
+
+.gallery-item span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 20px 12px 10px;
+    color: #fff;
+    font-size: 0.85rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+/* ---------- Contacto ---------- */
+
+.contact-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 24px;
+    height: 100%;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.contact-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: var(--color-text);
+}
+
+.contact-list i {
+    flex: 0 0 auto;
+    color: var(--color-primary);
+    font-size: 1.15rem;
+    margin-top: 2px;
+}
+
+.contact-list small {
+    display: block;
+    color: var(--color-text-muted);
+}
+
+/* ---------- Modal de fotos ---------- */
+
+.room-modal .carousel-item img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* ---------- Navegación pública ---------- */
+
+.navbar .site-nav-link {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.navbar .site-nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* ---------- Pie de página ---------- */
+
+.site-footer {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 36px 0 24px;
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+}
+
+.site-footer h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 12px;
+}
+
+.site-footer a {
+    color: var(--color-text-muted);
+}
+
+.site-footer a:hover {
+    color: var(--color-primary);
+}
+
+.site-footer-bottom {
+    border-top: 1px solid var(--color-border);
+    margin-top: 24px;
+    padding-top: 16px;
+    font-size: 0.85rem;
+    text-align: center;
+}

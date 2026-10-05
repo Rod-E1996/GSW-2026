@@ -1,0 +1,17 @@
+# Lo que NO se copia al contexto de build (se regenera o es secreto).
+.git
+.gitignore
+.github
+.env
+.env.backup
+vendor
+node_modules
+public/storage
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+.phpunit.result.cache
+docker-compose.override.yml
+.idea
+.vscode

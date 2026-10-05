@@ -6,5 +6,9 @@
 *.md diff=markdown
 *.php diff=php
 
+# Los scripts shell deben conservar saltos de linea LF para funcionar en Linux/Docker
+*.sh text eol=lf
+docker/entrypoint.sh text eol=lf
+
 /.github export-ignore
 CHANGELOG.md export-ignore

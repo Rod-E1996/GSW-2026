@@ -23,6 +23,12 @@ class Authenticate extends Middleware
 
     public function handle($request, Closure $next, ...$guards)
     {
+        // Rutas de API (token Sanctum): usar el flujo estandar (token + 401 JSON),
+        // no la logica de sesion/redireccion pensada para el panel Blade.
+        if (in_array('sanctum', $guards, true)) {
+            return parent::handle($request, $next, ...$guards);
+        }
+
         if (!auth()->check()) {
             return redirect('/login');
         }

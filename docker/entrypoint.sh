@@ -49,8 +49,9 @@ if ! grep -q "^APP_KEY=base64:" .env; then
   php artisan key:generate --force
 fi
 
-# 3. Permisos de escritura para Laravel (dev).
-chmod -R ug+rw storage bootstrap/cache 2>/dev/null || true
+# 3. Permisos de escritura para Laravel (dev; Apache corre como www-data y el
+#    bind-mount de Windows no le da escritura, por eso 777 en dev).
+chmod -R 777 storage bootstrap/cache 2>/dev/null || true
 
 wait_for_db
 

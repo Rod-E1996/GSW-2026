@@ -162,3 +162,262 @@ body {
   font-size: 0.85rem;
   border-top: 1px solid var(--bruma);
 }
+
+/* ===== Hero top (marca + acceso) ===== */
+.hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hero__login {
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+.hero__login:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== Botones extra ===== */
+.btn--block {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--pacifico);
+  border: 1px solid var(--bruma);
+}
+.btn--ghost:hover {
+  background: var(--espuma);
+}
+
+/* ===== Login ===== */
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--pacifico), var(--ola));
+  padding: 1.5rem;
+}
+.login__card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.2rem;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.brand--dark {
+  color: var(--pacifico);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.login__card h1 {
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+.login__card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--arena);
+}
+.login__card input {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #d5e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.login__card input:focus {
+  outline: 2px solid var(--ola);
+  border-color: var(--ola);
+}
+.login__error {
+  background: #fdecea;
+  color: #b4322a;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* ===== Panel admin ===== */
+.panel-cargando {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ola);
+}
+.admin {
+  display: flex;
+  min-height: 100vh;
+}
+.admin__sidebar {
+  width: 240px;
+  background: var(--pacifico);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.admin__brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 1.3rem 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.admin__nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0;
+  overflow-y: auto;
+}
+.admin__link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1.4rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.admin__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.admin__link.is-active {
+  background: var(--ola);
+  color: #fff;
+  font-weight: 600;
+}
+.admin__icon {
+  width: 1.2rem;
+  text-align: center;
+}
+.admin__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.admin__topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--bruma);
+  padding: 0.8rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.admin__burger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--pacifico);
+}
+.admin__user {
+  margin-left: auto;
+  text-align: right;
+  line-height: 1.2;
+}
+.admin__user span {
+  display: block;
+  font-weight: 600;
+  color: var(--arena);
+}
+.admin__user small {
+  color: var(--ola);
+  font-size: 0.8rem;
+}
+.admin__content {
+  padding: 1.6rem;
+  flex: 1;
+}
+
+/* ===== Paginas del panel ===== */
+.page-title {
+  color: var(--pacifico);
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
+}
+.page-sub {
+  color: #667;
+  margin-bottom: 1.5rem;
+}
+.page-note {
+  margin-top: 1.5rem;
+  color: #889;
+  font-size: 0.9rem;
+}
+.cards-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 6px 18px rgba(11, 79, 87, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.info-card__label {
+  color: var(--ola);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.info-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--arena);
+}
+.info-card__value--sm {
+  font-size: 1rem;
+}
+.construccion {
+  background: #fff;
+  border-radius: 12px;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #778;
+  box-shadow: 0 6px 18px rgba(11, 79, 87, 0.07);
+}
+.construccion__icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+/* ===== Responsive: menu lateral deslizable en movil ===== */
+@media (max-width: 768px) {
+  .admin__burger {
+    display: block;
+  }
+  .admin__sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: 20;
+  }
+  .admin--menu-abierto .admin__sidebar {
+    transform: translateX(0);
+  }
+}

@@ -1,83 +1,42 @@
-import { useEffect, useState } from 'react'
-import { api } from './api'
-
-// Convierte la URL absoluta de la imagen a ruta relativa para usar el proxy de Vite
-// (asi funciona sin importar el dominio con que se sirva Laravel).
-function rutaImagen(url) {
-  if (!url) return null
-  try {
-    return new URL(url).pathname
-  } catch {
-    return url
-  }
-}
-
-function formatoUSD(valor) {
-  return new Intl.NumberFormat('es-SV', { style: 'currency', currency: 'USD' }).format(valor)
-}
+import { Routes, Route } from 'react-router-dom'
+import Portal from './pages/Portal'
+import Login from './pages/Login'
+import ProtectedRoute from './auth/ProtectedRoute'
+import AdminLayout from './layouts/AdminLayout'
+import Dashboard from './pages/admin/Dashboard'
+import EnConstruccion from './pages/admin/EnConstruccion'
 
 export default function App() {
-  const [tipos, setTipos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    api
-      .get('/tipos-habitacion')
-      .then((res) => setTipos(res.data.data))
-      .catch(() => setError('No se pudieron cargar las habitaciones.'))
-      .finally(() => setCargando(false))
-  }, [])
-
   return (
-    <div className="app">
-      <header className="hero">
-        <div className="hero__inner">
-          <span className="brand">
-            hotel<span className="brand__accent">link</span>
-          </span>
-          <h1>Tu descanso frente al mar, a un clic de distancia</h1>
-          <p>Reserva directo, sin comisiones. Playa El Tunco, La Libertad.</p>
-        </div>
-      </header>
+    <Routes>
+      {/* Portal publico */}
+      <Route path="/" element={<Portal />} />
+      <Route path="/login" element={<Login />} />
 
-      <main className="contenido">
-        <h2>Nuestras habitaciones</h2>
+      {/* Panel protegido */}
+      <Route
+        path="/panel"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="reservas" element={<EnConstruccion titulo="Reservas" />} />
+        <Route path="tipos-habitacion" element={<EnConstruccion titulo="Tipos de habitación" />} />
+        <Route path="habitaciones" element={<EnConstruccion titulo="Habitaciones" />} />
+        <Route path="servicios" element={<EnConstruccion titulo="Servicios" />} />
+        <Route path="usuarios" element={<EnConstruccion titulo="Usuarios" />} />
+        <Route path="roles" element={<EnConstruccion titulo="Roles" />} />
+        <Route path="permisos" element={<EnConstruccion titulo="Permisos" />} />
+        <Route path="auditoria" element={<EnConstruccion titulo="Auditoría" />} />
+        <Route path="error-logs" element={<EnConstruccion titulo="Error logs" />} />
+        <Route path="perfil" element={<EnConstruccion titulo="Perfil" />} />
+      </Route>
 
-        {cargando && <p className="estado">Cargando habitaciones…</p>}
-        {error && <p className="estado estado--error">{error}</p>}
-
-        <div className="grid">
-          {tipos.map((tipo) => (
-            <article key={tipo.id} className="card">
-              <div className="card__img">
-                {rutaImagen(tipo.imagen_principal) ? (
-                  <img src={rutaImagen(tipo.imagen_principal)} alt={tipo.nombre} loading="lazy" />
-                ) : (
-                  <div className="card__img--placeholder">Sin foto</div>
-                )}
-              </div>
-              <div className="card__body">
-                <h3>{tipo.nombre}</h3>
-                <p className="card__cap">Hasta {tipo.capacidad} personas</p>
-                <p className="card__desc">{tipo.descripcion}</p>
-                <div className="card__footer">
-                  <span className="precio">
-                    {formatoUSD(tipo.precio_base)} <small>/ noche</small>
-                  </span>
-                  <button className="btn" disabled>
-                    Reservar
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </main>
-
-      <footer className="pie">
-        HotelLink · Portal de reservas · Frontend React + API Laravel
-      </footer>
-    </div>
+      {/* Cualquier otra ruta vuelve al portal */}
+      <Route path="*" element={<Portal />} />
+    </Routes>
   )
 }

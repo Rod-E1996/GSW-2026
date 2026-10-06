@@ -17,6 +17,7 @@ import ErrorDetalle from './pages/admin/errores/ErrorDetalle'
 import RolesList from './pages/admin/roles/RolesList'
 import RoleForm from './pages/admin/roles/RoleForm'
 import RolePermisos from './pages/admin/roles/RolePermisos'
+import PermisosList from './pages/admin/permisos/PermisosList'
 
 export default function App() {
   return (
@@ -49,7 +50,7 @@ export default function App() {
         <Route path="roles/nuevo" element={<RoleForm />} />
         <Route path="roles/:id/editar" element={<RoleForm />} />
         <Route path="roles/:id/permisos" element={<RolePermisos />} />
-        <Route path="permisos" element={<EnConstruccion titulo="Permisos" />} />
+        <Route path="permisos" element={<PermisosList />} />
         <Route path="auditoria" element={<AuditoriaList />} />
         <Route path="auditoria/:id" element={<AuditoriaDetalle />} />
         <Route path="error-logs" element={<ErroresList />} />

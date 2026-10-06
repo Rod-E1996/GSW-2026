@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitaci
 use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController;
 use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,14 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:role_destroy,sanctum');
     Route::put('/roles/{id}/permisos', [AdminRoleController::class, 'permisos'])
         ->middleware('permission:role_move_permiso,sanctum');
+
+    // Permisos (catalogo: listar, crear, eliminar)
+    Route::get('/permisos', [AdminPermisoController::class, 'index'])
+        ->middleware('permission:permiso_index,sanctum');
+    Route::post('/permisos', [AdminPermisoController::class, 'store'])
+        ->middleware('permission:permiso_move,sanctum');
+    Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])
+        ->middleware('permission:permiso_move,sanctum');
 
     // Error logs (ver, resolver y generar registro de prueba)
     Route::get('/error-logs', [AdminErrorLogController::class, 'index'])

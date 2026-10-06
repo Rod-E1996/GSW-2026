@@ -26,6 +26,15 @@ class TipoHabitacionImagen extends Model
         'principal' => 'boolean',
     ];
 
+    //Reglas de validacion para las imagenes que se suben con el formulario del tipo de habitacion
+    public static function rules(): array
+    {
+        return [
+            'imagenes' => ['nullable', 'array', 'max:10'],
+            'imagenes.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ];
+    }
+
     //Eventos auditoria
     protected $dispatchesEvents = [
         'created' => \App\Events\SaveEvent::class,

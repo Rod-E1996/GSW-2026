@@ -2,34 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTipoHabitacionRequest;
+use App\Http\Requests\UpdateTipoHabitacionRequest;
 use App\Models\TipoHabitacion;
 use App\Models\TipoHabitacionImagen;
+use App\Services\TipoHabitacionImagenService;
+use App\Traits\RespuestasCrud;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TiposHabitacionController extends Controller
 {
-    //Reglas de validacion para las imagenes que se suben con el formulario
-    private $reglasImagenes = [
-        'imagenes' => ['nullable', 'array', 'max:10'],
-        'imagenes.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-    ];
+    use RespuestasCrud;
+
+    public function __construct(private TipoHabitacionImagenService $imagenes)
+    {
+    }
 
     //Funcion para mostrar el index
     public function index(Request $request)
     {
-        $nombre = $request->get('nombre');
-        $capacidad = $request->get('capacidad');
-
         $perPage = 10;
 
-        $query = TipoHabitacion::query()->with('imagenPrincipal');
-        $query->where('estado', 1);
+        $query = TipoHabitacion::query()->with('imagenPrincipal')->where('estado', 1);
 
-        if($nombre){
+        if ($nombre = $request->get('nombre')) {
             $query->where('nombre', 'LIKE', "%$nombre%");
         }
 
-        if($capacidad){
+        if ($capacidad = $request->get('capacidad')) {
             $query->where('capacidad', '>=', $capacidad);
         }
 
@@ -44,38 +45,24 @@ class TiposHabitacionController extends Controller
     }
 
     //Funcion para crear un nuevo registro
-    public function store(Request $request)
+    public function store(StoreTipoHabitacionRequest $request)
     {
-        $request->validate(
-            TipoHabitacion::rules() + $this->reglasImagenes
-        );
+        DB::transaction(function () use ($request) {
+            $tipoHabitacion = TipoHabitacion::create(
+                $request->safe()->only(['nombre', 'capacidad', 'precio_base', 'descripcion'])
+            );
+            $this->imagenes->guardar($tipoHabitacion, $request->file('imagenes', []));
+        });
 
-        $tipoHabitacion = new TipoHabitacion();
-        $tipoHabitacion->nombre = $request->nombre;
-        $tipoHabitacion->capacidad = $request->capacidad;
-        $tipoHabitacion->precio_base = $request->precio_base;
-        $tipoHabitacion->descripcion = $request->descripcion;
-
-        if( $tipoHabitacion->save() ){
-            $this->guardarImagenes($tipoHabitacion, $request->file('imagenes', []));
-            return redirect('tipo_habitacion')->with('alerta', 'Agregado con éxito.');
-        } else {
-            return back()->with([
-                'alerta' => 'Ocurrio un error al agregar.',
-                'tipo' => 'error'
-            ]);
-        }
+        return $this->exito('tipo_habitacion_index', 'Agregado con éxito.');
     }
 
     //Funcion para mostrar los datos de un registro
     public function show($id)
     {
         $tipoHabitacion = TipoHabitacion::with('imagenes')->where('estado', 1)->find($id);
-        if(!$tipoHabitacion){
-            return redirect('tipo_habitacion')->with([
-                'alerta' => 'El registro que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$tipoHabitacion) {
+            return $this->error('tipo_habitacion_index', 'El registro que esta buscando no existe.');
         }
 
         $data['tipo_habitacion'] = $tipoHabitacion;
@@ -86,11 +73,8 @@ class TiposHabitacionController extends Controller
     public function edit($id)
     {
         $tipoHabitacion = TipoHabitacion::with('imagenes')->where('estado', 1)->find($id);
-        if(!$tipoHabitacion){
-            return redirect('tipo_habitacion')->with([
-                'alerta' => 'El registro que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$tipoHabitacion) {
+            return $this->error('tipo_habitacion_index', 'El registro que esta buscando no existe.');
         }
 
         $data['tipo_habitacion'] = $tipoHabitacion;
@@ -98,78 +82,55 @@ class TiposHabitacionController extends Controller
     }
 
     //Funcion para actualizar los datos de un registro
-    public function update(Request $request, $id)
+    public function update(UpdateTipoHabitacionRequest $request, $id)
     {
-        $request->validate(
-            TipoHabitacion::rules($id) + $this->reglasImagenes
-        );
-
-        $tipoHabitacion = TipoHabitacion::find($id);
-        $tipoHabitacion->nombre = $request->nombre;
-        $tipoHabitacion->capacidad = $request->capacidad;
-        $tipoHabitacion->precio_base = $request->precio_base;
-        $tipoHabitacion->descripcion = $request->descripcion;
-
-        if($tipoHabitacion->save()){
-            $this->guardarImagenes($tipoHabitacion, $request->file('imagenes', []));
-            return redirect('tipo_habitacion')->with('alerta', 'Modificado con éxito.');
-        }else{
-            return redirect('tipo_habitacion')->with([
-                'alerta' => 'Ocurrio un error al modificar.',
-                'tipo' => 'error'
-            ]);
+        $tipoHabitacion = TipoHabitacion::where('estado', 1)->find($id);
+        if (!$tipoHabitacion) {
+            return $this->error('tipo_habitacion_index', 'El registro que esta buscando no existe.');
         }
+
+        DB::transaction(function () use ($request, $tipoHabitacion) {
+            $tipoHabitacion->update(
+                $request->safe()->only(['nombre', 'capacidad', 'precio_base', 'descripcion'])
+            );
+            $this->imagenes->guardar($tipoHabitacion, $request->file('imagenes', []));
+        });
+
+        return $this->exito('tipo_habitacion_index', 'Modificado con éxito.');
     }
 
     //Funcion para eliminar (Solo cambio de estado)
     public function destroy($id)
     {
-        $tipoHabitacion = TipoHabitacion::find($id);
+        $tipoHabitacion = TipoHabitacion::where('estado', 1)->find($id);
+        if (!$tipoHabitacion) {
+            return $this->error('tipo_habitacion_index', 'El registro que esta buscando no existe.');
+        }
 
         //No se puede eliminar un tipo que todavia tiene habitaciones activas
         $habitacionesActivas = $tipoHabitacion->habitaciones()->where('estado', 1)->count();
-        if($habitacionesActivas > 0){
-            return redirect('tipo_habitacion')->with([
-                'alerta' => 'No se puede eliminar: hay ' . $habitacionesActivas . ' habitación(es) de este tipo. Reasígnelas o elimínelas primero.',
-                'tipo' => 'error'
-            ]);
+        if ($habitacionesActivas > 0) {
+            return $this->error(
+                'tipo_habitacion_index',
+                'No se puede eliminar: hay ' . $habitacionesActivas . ' habitación(es) de este tipo. Reasígnelas o elimínelas primero.'
+            );
         }
 
         $tipoHabitacion->estado = 0;
+        $tipoHabitacion->save();
 
-        if($tipoHabitacion->save()){
-            return redirect('tipo_habitacion')->with('alerta', 'Eliminado con éxito.');
-        }else{
-            return redirect('tipo_habitacion')->with([
-                'alerta' => 'Ocurrio un error al eliminar.',
-                'tipo' => 'error'
-            ]);
-        }
+        return $this->exito('tipo_habitacion_index', 'Eliminado con éxito.');
     }
 
     //Funcion para eliminar una imagen del tipo de habitacion (archivo y registro)
     public function imagenDestroy($id, $imagen_id)
     {
         $imagen = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->find($imagen_id);
-        if(!$imagen){
-            return back()->with([
-                'alerta' => 'La imagen que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$imagen) {
+            return $this->errorAtras('La imagen que esta buscando no existe.');
         }
 
-        $eraPrincipal = $imagen->principal;
-        $imagen->eliminarArchivo();
-        $imagen->delete();
-
-        //Si se elimino la principal, la primera que quede pasa a ser principal
-        if($eraPrincipal){
-            $siguiente = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->orderBy('orden')->orderBy('id')->first();
-            if($siguiente){
-                $siguiente->principal = true;
-                $siguiente->save();
-            }
-        }
+        $this->imagenes->eliminar($imagen);
 
         return back()->with('alerta', 'Imagen eliminada con éxito.');
     }
@@ -178,49 +139,12 @@ class TiposHabitacionController extends Controller
     public function imagenPrincipal($id, $imagen_id)
     {
         $imagen = TipoHabitacionImagen::where('tipo_habitacion_id', $id)->find($imagen_id);
-        if(!$imagen){
-            return back()->with([
-                'alerta' => 'La imagen que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$imagen) {
+            return $this->errorAtras('La imagen que esta buscando no existe.');
         }
 
-        TipoHabitacionImagen::where('tipo_habitacion_id', $id)->where('principal', true)->update(['principal' => false]);
-        $imagen->principal = true;
-        $imagen->save();
+        $this->imagenes->marcarPrincipal($imagen);
 
         return back()->with('alerta', 'Imagen principal actualizada.');
     }
-
-    //Guarda en disco las imagenes subidas y crea sus registros.
-    //La primera imagen del tipo queda como principal automaticamente.
-    private function guardarImagenes(TipoHabitacion $tipoHabitacion, $archivos)
-    {
-        if(empty($archivos)){
-            return;
-        }
-
-        $tienePrincipal = $tipoHabitacion->imagenes()->where('principal', true)->exists();
-        $orden = (int) $tipoHabitacion->imagenes()->max('orden');
-
-        foreach($archivos as $archivo){
-            if(!$archivo || !$archivo->isValid()){
-                continue;
-            }
-
-            $ruta = $archivo->store(TipoHabitacionImagen::CARPETA . '/' . $tipoHabitacion->id, TipoHabitacionImagen::DISCO);
-            $orden++;
-
-            TipoHabitacionImagen::create([
-                'tipo_habitacion_id' => $tipoHabitacion->id,
-                'ruta' => $ruta,
-                'nombre_original' => $archivo->getClientOriginalName(),
-                'orden' => $orden,
-                'principal' => !$tienePrincipal,
-            ]);
-
-            $tienePrincipal = true;
-        }
-    }
-
 }

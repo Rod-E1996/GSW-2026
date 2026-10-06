@@ -2,33 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\CambiarEstadoHabitacionRequest;
+use App\Http\Requests\StoreHabitacionRequest;
+use App\Http\Requests\UpdateHabitacionRequest;
 use App\Models\Habitacion;
 use App\Models\TipoHabitacion;
+use App\Traits\RespuestasCrud;
+use Illuminate\Http\Request;
 
 class HabitacionesController extends Controller
 {
+    use RespuestasCrud;
+
     //Funcion para mostrar el index
     public function index(Request $request)
     {
-        $numero = $request->get('numero');
-        $tipo_habitacion_id = $request->get('tipo_habitacion_id');
-        $estado_habitacion = $request->get('estado_habitacion');
-
         $perPage = 10;
 
-        $query = Habitacion::query()->with('tipoHabitacion');
-        $query->where('estado', 1);
+        $query = Habitacion::query()->with('tipoHabitacion')->where('estado', 1);
 
-        if($numero){
+        if ($numero = $request->get('numero')) {
             $query->where('numero', 'LIKE', "%$numero%");
         }
 
-        if($tipo_habitacion_id){
+        if ($tipo_habitacion_id = $request->get('tipo_habitacion_id')) {
             $query->where('tipo_habitacion_id', $tipo_habitacion_id);
         }
 
-        if($estado_habitacion){
+        if ($estado_habitacion = $request->get('estado_habitacion')) {
             $query->where('estado_habitacion', $estado_habitacion);
         }
 
@@ -47,38 +48,19 @@ class HabitacionesController extends Controller
     }
 
     //Funcion para crear un nuevo registro
-    public function store(Request $request)
+    public function store(StoreHabitacionRequest $request)
     {
-        $request->validate(
-            Habitacion::rules()
-        );
+        Habitacion::create($request->validated());
 
-        $habitacion = new Habitacion();
-        $habitacion->numero = $request->numero;
-        $habitacion->piso = $request->piso;
-        $habitacion->tipo_habitacion_id = $request->tipo_habitacion_id;
-        $habitacion->estado_habitacion = $request->estado_habitacion;
-        $habitacion->descripcion = $request->descripcion;
-
-        if( $habitacion->save() ){
-            return redirect('habitacion')->with('alerta', 'Agregado con éxito.');
-        } else {
-            return back()->with([
-                'alerta' => 'Ocurrio un error al agregar.',
-                'tipo' => 'error'
-            ]);
-        }
+        return $this->exito('habitacion_index', 'Agregado con éxito.');
     }
 
     //Funcion para mostrar los datos de un registro
     public function show($id)
     {
         $habitacion = Habitacion::with('tipoHabitacion')->where('estado', 1)->find($id);
-        if(!$habitacion){
-            return redirect('habitacion')->with([
-                'alerta' => 'El registro que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$habitacion) {
+            return $this->error('habitacion_index', 'El registro que esta buscando no existe.');
         }
 
         $data['habitacion'] = $habitacion;
@@ -90,11 +72,8 @@ class HabitacionesController extends Controller
     public function edit($id)
     {
         $habitacion = Habitacion::where('estado', 1)->find($id);
-        if(!$habitacion){
-            return redirect('habitacion')->with([
-                'alerta' => 'El registro que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$habitacion) {
+            return $this->error('habitacion_index', 'El registro que esta buscando no existe.');
         }
 
         $data['habitacion'] = $habitacion;
@@ -104,71 +83,44 @@ class HabitacionesController extends Controller
     }
 
     //Funcion para actualizar los datos de un registro
-    public function update(Request $request, $id)
+    public function update(UpdateHabitacionRequest $request, $id)
     {
-        $request->validate(
-            Habitacion::rules($id)
-        );
-
-        $habitacion = Habitacion::find($id);
-        $habitacion->numero = $request->numero;
-        $habitacion->piso = $request->piso;
-        $habitacion->tipo_habitacion_id = $request->tipo_habitacion_id;
-        $habitacion->estado_habitacion = $request->estado_habitacion;
-        $habitacion->descripcion = $request->descripcion;
-
-        if($habitacion->save()){
-            return redirect('habitacion')->with('alerta', 'Modificado con éxito.');
-        }else{
-            return redirect('habitacion')->with([
-                'alerta' => 'Ocurrio un error al modificar.',
-                'tipo' => 'error'
-            ]);
+        $habitacion = Habitacion::where('estado', 1)->find($id);
+        if (!$habitacion) {
+            return $this->error('habitacion_index', 'El registro que esta buscando no existe.');
         }
+
+        $habitacion->update($request->validated());
+
+        return $this->exito('habitacion_index', 'Modificado con éxito.');
     }
 
     //Funcion para cambiar solo el estado operativo (disponible, ocupada, mantenimiento)
     //Pensada para recepcion, que no edita el resto de los datos
-    public function estado(Request $request, $id)
+    public function estado(CambiarEstadoHabitacionRequest $request, $id)
     {
-        $request->validate([
-            'estado_habitacion' => ['required', 'integer', 'in:1,2,3'],
-        ]);
-
         $habitacion = Habitacion::where('estado', 1)->find($id);
-        if(!$habitacion){
-            return redirect('habitacion')->with([
-                'alerta' => 'El registro que esta buscando no existe.',
-                'tipo' => 'error'
-            ]);
+        if (!$habitacion) {
+            return $this->error('habitacion_index', 'El registro que esta buscando no existe.');
         }
 
         $habitacion->estado_habitacion = $request->estado_habitacion;
+        $habitacion->save();
 
-        if($habitacion->save()){
-            return back()->with('alerta', 'Habitación ' . $habitacion->numero . ' marcada como ' . strtolower($habitacion->estado_nombre) . '.');
-        }else{
-            return back()->with([
-                'alerta' => 'Ocurrio un error al cambiar el estado.',
-                'tipo' => 'error'
-            ]);
-        }
+        return back()->with('alerta', 'Habitación ' . $habitacion->numero . ' marcada como ' . strtolower($habitacion->estado_nombre) . '.');
     }
 
     //Funcion para eliminar (Solo cambio de estado)
     public function destroy($id)
     {
-        $habitacion = Habitacion::find($id);
-        $habitacion->estado = 0;
-
-        if($habitacion->save()){
-            return redirect('habitacion')->with('alerta', 'Eliminado con éxito.');
-        }else{
-            return redirect('habitacion')->with([
-                'alerta' => 'Ocurrio un error al eliminar.',
-                'tipo' => 'error'
-            ]);
+        $habitacion = Habitacion::where('estado', 1)->find($id);
+        if (!$habitacion) {
+            return $this->error('habitacion_index', 'El registro que esta buscando no existe.');
         }
-    }
 
+        $habitacion->estado = 0;
+        $habitacion->save();
+
+        return $this->exito('habitacion_index', 'Eliminado con éxito.');
+    }
 }

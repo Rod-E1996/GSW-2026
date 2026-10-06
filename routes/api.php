@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
 use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController;
+use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,7 @@ use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController
 
 // ===== Autenticacion =====
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
 
 // Recuperacion de contrasena (publicas, con limite de intentos)
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
@@ -62,6 +64,20 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:auditar_index,sanctum');
     Route::get('/auditoria/{id}', [AdminAuditarController::class, 'show'])
         ->middleware('permission:auditar_show,sanctum');
+
+    // Roles (CRUD + asignacion de permisos)
+    Route::get('/roles', [AdminRoleController::class, 'index'])
+        ->middleware('permission:role_index,sanctum');
+    Route::post('/roles', [AdminRoleController::class, 'store'])
+        ->middleware('permission:role_store,sanctum');
+    Route::get('/roles/{id}', [AdminRoleController::class, 'show'])
+        ->middleware('permission:role_show,sanctum');
+    Route::put('/roles/{id}', [AdminRoleController::class, 'update'])
+        ->middleware('permission:role_update,sanctum');
+    Route::delete('/roles/{id}', [AdminRoleController::class, 'destroy'])
+        ->middleware('permission:role_destroy,sanctum');
+    Route::put('/roles/{id}/permisos', [AdminRoleController::class, 'permisos'])
+        ->middleware('permission:role_move_permiso,sanctum');
 
     // Error logs (ver, resolver y generar registro de prueba)
     Route::get('/error-logs', [AdminErrorLogController::class, 'index'])

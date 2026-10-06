@@ -2,8 +2,9 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
 // Protege las rutas del panel: si no hay sesion, manda al login.
-// Si se pasa `permiso`, exige ese permiso para entrar.
-export default function ProtectedRoute({ children, permiso }) {
+// `soloStaff`: solo usuarios internos (acceso_panel); los huespedes van al portal.
+// `permiso`: exige ese permiso puntual para entrar.
+export default function ProtectedRoute({ children, permiso, soloStaff }) {
   const { user, cargando, can } = useAuth()
 
   if (cargando) {
@@ -12,6 +13,10 @@ export default function ProtectedRoute({ children, permiso }) {
 
   if (!user) {
     return <Navigate to="/login" replace />
+  }
+
+  if (soloStaff && !user.acceso_panel) {
+    return <Navigate to="/" replace />
   }
 
   if (permiso && !can(permiso)) {

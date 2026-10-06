@@ -335,6 +335,75 @@ body {
 .login__link--center {
   text-align: center;
 }
+.login__pie {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #889;
+  margin-top: -0.2rem;
+}
+
+/* ===== Asignacion de permisos (dual-list) ===== */
+.permisos-filtro {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d5e0e0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.permisos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 720px) {
+  .permisos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.permisos-col {
+  background: #fff;
+  border: 1px solid var(--bruma);
+  border-radius: 12px;
+  padding: 0.9rem;
+}
+.permisos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.permiso-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: var(--espuma);
+  border: 1px solid var(--bruma);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--arena);
+  cursor: pointer;
+  text-align: left;
+}
+.permiso-item:hover {
+  border-color: var(--ola);
+}
+.permiso-item--on {
+  background: #e8f6ee;
+  border-color: #bfe6cf;
+}
+.permiso-item__ico {
+  font-weight: 700;
+  color: var(--pacifico);
+}
 
 /* ===== Panel admin ===== */
 .panel-cargando {

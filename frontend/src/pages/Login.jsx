@@ -23,15 +23,18 @@ export default function Login() {
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false)
 
-  if (!cargando && user) return <Navigate to="/panel" replace />
+  // Staff va al panel; los huespedes al portal publico.
+  const destino = (u) => (u?.acceso_panel ? '/panel' : '/')
+
+  if (!cargando && user) return <Navigate to={destino(user)} replace />
 
   async function onSubmit(e) {
     e.preventDefault()
     setError(null)
     setEnviando(true)
     try {
-      await login(email, password, recordar)
-      navigate('/panel')
+      const u = await login(email, password, recordar)
+      navigate(destino(u))
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo iniciar sesión.')
     } finally {
@@ -46,8 +49,8 @@ export default function Login() {
         <span className="brand brand--dark">
           hotel<span className="brand__accent">link</span>
         </span>
-        <h1>Panel de administración</h1>
-        <p className="login__sub">Ingresa tus credenciales para continuar</p>
+        <h1>Iniciar sesión</h1>
+        <p className="login__sub">Accede a tu cuenta para continuar</p>
 
         {error && <div className="login__error">{error}</div>}
 
@@ -102,6 +105,11 @@ export default function Login() {
         <button className="btn btn--block" disabled={enviando}>
           {enviando ? 'Entrando…' : 'Iniciar sesión'}
         </button>
+
+        <p className="login__pie">
+          ¿No tienes cuenta?{' '}
+          <Link className="login__link" to="/registro">Regístrate</Link>
+        </p>
       </form>
     </div>
   )

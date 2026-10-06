@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Portal from './pages/Portal'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import ProtectedRoute from './auth/ProtectedRoute'
@@ -13,6 +14,9 @@ import AuditoriaList from './pages/admin/auditoria/AuditoriaList'
 import AuditoriaDetalle from './pages/admin/auditoria/AuditoriaDetalle'
 import ErroresList from './pages/admin/errores/ErroresList'
 import ErrorDetalle from './pages/admin/errores/ErrorDetalle'
+import RolesList from './pages/admin/roles/RolesList'
+import RoleForm from './pages/admin/roles/RoleForm'
+import RolePermisos from './pages/admin/roles/RolePermisos'
 
 export default function App() {
   return (
@@ -20,6 +24,7 @@ export default function App() {
       {/* Portal publico */}
       <Route path="/" element={<Portal />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/registro" element={<Register />} />
       <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
       <Route path="/restablecer-contrasena" element={<ResetPassword />} />
 
@@ -27,7 +32,7 @@ export default function App() {
       <Route
         path="/panel"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute soloStaff>
             <AdminLayout />
           </ProtectedRoute>
         }
@@ -40,7 +45,10 @@ export default function App() {
         <Route path="habitaciones" element={<EnConstruccion titulo="Habitaciones" />} />
         <Route path="servicios" element={<EnConstruccion titulo="Servicios" />} />
         <Route path="usuarios" element={<EnConstruccion titulo="Usuarios" />} />
-        <Route path="roles" element={<EnConstruccion titulo="Roles" />} />
+        <Route path="roles" element={<RolesList />} />
+        <Route path="roles/nuevo" element={<RoleForm />} />
+        <Route path="roles/:id/editar" element={<RoleForm />} />
+        <Route path="roles/:id/permisos" element={<RolePermisos />} />
         <Route path="permisos" element={<EnConstruccion titulo="Permisos" />} />
         <Route path="auditoria" element={<AuditoriaList />} />
         <Route path="auditoria/:id" element={<AuditoriaDetalle />} />

@@ -72,4 +72,34 @@ class RolesHotelTest extends TestCase
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('Huésped'));
     }
+
+    public function test_registro_publico_por_api_crea_un_huesped_con_token()
+    {
+        $res = $this->postJson('/api/register', [
+            'name' => 'API Huesped',
+            'email' => 'api.huesped@test.com',
+            'password' => '12345678',
+            'password_confirmation' => '12345678',
+        ]);
+
+        $res->assertCreated()
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email', 'acceso_panel']])
+            ->assertJsonPath('user.acceso_panel', false);
+
+        $user = User::where('email', 'api.huesped@test.com')->firstOrFail();
+        $this->assertTrue($user->hasRole('Huésped'));
+    }
+
+    public function test_login_por_api_expone_acceso_panel_segun_rol()
+    {
+        // Staff (Super Administrador) -> acceso al panel
+        $this->postJson('/api/login', ['email' => 'admin@gmail.com', 'password' => '12345678'])
+            ->assertOk()
+            ->assertJsonPath('user.acceso_panel', true);
+
+        // Externo (Huésped) -> sin acceso al panel
+        $this->postJson('/api/login', ['email' => 'huesped@hotellink.com', 'password' => '12345678'])
+            ->assertOk()
+            ->assertJsonPath('user.acceso_panel', false);
+    }
 }

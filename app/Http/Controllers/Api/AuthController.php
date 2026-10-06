@@ -47,6 +47,33 @@ class AuthController extends Controller
         ]);
     }
 
+    //Registro publico: crea un huesped y lo deja autenticado (como el flujo Blade).
+    public function register(Request $request)
+    {
+        $datos = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'string', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $datos['name'],
+            'email' => $datos['email'],
+            'password' => Hash::make($datos['password']),
+            'estado' => 1,
+        ]);
+
+        // Todo usuario que se registra desde el sitio publico es un huesped.
+        $user->assignRole('Huésped');
+
+        $token = $user->createToken('spa')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => new UserResource($user),
+        ], 201);
+    }
+
     //Devuelve el usuario autenticado (para rehidratar la sesion en el front).
     public function me(Request $request)
     {

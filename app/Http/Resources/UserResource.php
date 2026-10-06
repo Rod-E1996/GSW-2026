@@ -19,6 +19,9 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'roles' => $this->getRoleNames(),
             'permissions' => $this->getAllPermissions()->pluck('name')->values(),
+            // Si puede entrar al panel interno (staff) o es un usuario externo (huesped).
+            // Mismo criterio que HomeController@afterlogin del flujo Blade.
+            'acceso_panel' => $this->hasAnyRole(['Super Administrador', 'Recepcionista']),
         ];
     }
 }

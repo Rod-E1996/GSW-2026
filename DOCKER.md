@@ -1,8 +1,8 @@
 # HotelLink con Docker
 
-Con esto levantas HotelLink **sin instalar PHP, Composer, XAMPP ni MySQL** en tu
-máquina. Todo (servidor web + PHP, base de datos, phpMyAdmin y un buzón de correo
-de prueba) corre dentro de contenedores.
+Con esto levantas HotelLink **sin instalar PHP, Composer, MySQL ni Node** en tu
+máquina. Todo (backend Laravel, base de datos, worker de tareas y frontend React)
+corre dentro de contenedores.
 
 ## 1. Requisito único: Docker Desktop
 
@@ -25,13 +25,15 @@ Desde la carpeta del proyecto (donde está `docker-compose.yml`):
 # 1. Crea tu archivo de configuración a partir del ejemplo
 cp .env.example .env        # Windows PowerShell: copy .env.example .env
 
-# 2. Construye y levanta todo
+# 2. (Opcional) Pon tus credenciales SMTP reales en el .env (MAIL_*)
+
+# 3. Construye y levanta todo
 docker compose up -d --build
 ```
 
 La primera vez tarda unos minutos: descarga las imágenes, instala las
-dependencias de Composer y prepara la base de datos. El contenedor `app` hace
-todo esto solo al arrancar (ver `docker/entrypoint.sh`):
+dependencias de Composer y de npm, y prepara la base de datos. El contenedor
+`back` hace la preparación solo al arrancar (ver `docker/entrypoint.sh`):
 
 1. `composer install`
 2. crea `.env` y genera `APP_KEY` si no existen
@@ -39,57 +41,59 @@ todo esto solo al arrancar (ver `docker/entrypoint.sh`):
 4. `php artisan db:seed` **solo si la base está vacía**
 5. enlaza `public/storage`
 
-Para ver el avance de esa preparación:
+Para ver el avance:
 
 ```bash
-docker compose logs -f app
+docker compose logs -f back     # backend Laravel
+docker compose logs -f front    # frontend React (Vite)
 ```
 
-Cuando veas `Listo: http://localhost:8080`, ya está arriba.
+Cuando el back diga `Listo: http://localhost:8080`, ya está arriba.
 
 ## 3. Dónde entrar
 
 | Servicio | URL | Para qué |
 |----------|-----|----------|
-| **Sitio HotelLink** | http://localhost:8080 | la aplicación |
-| **phpMyAdmin** | http://localhost:8081 | ver y editar la base de datos (usuario `root`, contraseña `root`) |
-| **Mailpit** | http://localhost:8025 | ver los correos que envía el sistema (no salen a internet) |
+| **Portal React** (front) | http://localhost:5173 | el portal de reservas (SPA) |
+| **Backend Laravel** (back) | http://localhost:8080 | el API REST + el sitio/panel Blade |
 
 > Si alguno de esos puertos ya lo usas, cámbialo en `.env`
-> (`APP_PORT`, `PMA_PORT`, `MAILPIT_PORT`, `DB_FORWARD_PORT`) y vuelve a
-> `docker compose up -d`.
+> (`APP_PORT`, `VITE_PORT`) y vuelve a `docker compose up -d`.
 
 ## 4. Comandos del día a día
 
 ```bash
 docker compose up -d            # levantar
 docker compose down             # apagar (la base de datos se conserva)
-docker compose restart app      # reiniciar solo la app
-docker compose logs -f app      # ver registros
+docker compose restart back     # reiniciar solo el backend
+docker compose logs -f back     # ver registros del backend
 
-# Ejecutar artisan / composer dentro del contenedor:
-docker compose exec app php artisan migrate
-docker compose exec app php artisan db:seed
-docker compose exec app composer require vendor/paquete
-docker compose exec app bash    # una terminal dentro del contenedor
+# Ejecutar artisan / composer dentro del backend:
+docker compose exec back php artisan migrate
+docker compose exec back php artisan db:seed
+docker compose exec back composer require vendor/paquete
+docker compose exec back bash   # una terminal dentro del contenedor
+
+# Frontend (dentro del contenedor front):
+docker compose exec front npm install paquete
 ```
 
 ## 5. Contenedores que se levantan
 
-- **app** — PHP 8.3 + Apache. Sirve el sitio desde `public/`.
-- **db** — MariaDB 10.11 (el mismo motor que trae XAMPP). Los datos se guardan
-  en un volumen de Docker llamado `dbdata`, así que **no se pierden** al apagar.
-- **queue** — procesa los correos en segundo plano (`php artisan queue:work`).
-  Se usa cuando en el `.env` tienes `QUEUE_CONNECTION=database`.
-- **phpmyadmin** — administrador visual de la base de datos.
-- **mailpit** — captura los correos de prueba (nuevo dispositivo, errores, etc.).
+- **back** — Laravel (API REST + sitio/panel Blade). PHP 8.3 + Apache desde `public/`.
+- **base** — MariaDB 10.11. Los datos se guardan en el volumen `dbdata`, así que
+  **no se pierden** al apagar.
+- **worker** — procesa tareas en segundo plano (`php artisan queue:work`), p. ej.
+  los correos. Reutiliza la misma imagen que `back`.
+- **front** — React (Vite dev server). Hace proxy de `/api` al `back` (sin CORS).
 
 ## 6. Base de datos
 
 - Se crea sola con las credenciales del `.env` (`DB_DATABASE`) y la contraseña
   root (`DB_ROOT_PASSWORD`).
-- Desde tu máquina, si quieres conectarte con un cliente externo (DBeaver,
-  HeidiSQL), usa `127.0.0.1` puerto **3307** (`DB_FORWARD_PORT`), usuario `root`.
+- Para verla/editarla usa tu cliente favorito (DBeaver, HeidiSQL, TablePlus):
+  - **Host:** `127.0.0.1`  **Puerto:** `3307` (`DB_FORWARD_PORT`)
+  - **Usuario:** `root`  **Contraseña:** la de `DB_ROOT_PASSWORD`
 - Para empezar de cero (borra TODOS los datos):
 
 ```bash
@@ -97,12 +101,11 @@ docker compose down -v          # -v elimina el volumen dbdata
 docker compose up -d --build
 ```
 
-## 7. Convivir con XAMPP
+## 7. Correo
 
-El mismo `.env` sirve para los dos entornos. `docker-compose.yml` sobreescribe
-`DB_HOST=db`, la contraseña de BD y el correo **solo dentro de los contenedores**,
-así que puedes seguir abriendo el proyecto con XAMPP (`DB_HOST=127.0.0.1`) sin
-tocar nada. La base de datos de Docker y la de XAMPP son independientes.
+El envío usa **SMTP real** configurado en el `.env` (`MAIL_*`). Las credenciales
+nunca se suben a git (el `.env` está en `.gitignore`). En desarrollo conviene usar
+un SMTP de pruebas/sandbox para no enviar correos reales mientras pruebas.
 
 ## 8. Despliegue en servidor
 

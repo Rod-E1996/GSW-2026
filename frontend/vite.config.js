@@ -12,8 +12,8 @@ export default defineConfig({
     // El bind-mount en Windows/Docker necesita polling para que el HMR detecte cambios
     watch: { usePolling: true },
     proxy: {
-      '/api': { target: 'http://app', changeOrigin: true },
-      '/storage': { target: 'http://app', changeOrigin: true },
+      '/api': { target: 'http://back', changeOrigin: true },
+      '/storage': { target: 'http://back', changeOrigin: true },
     },
   },
 })

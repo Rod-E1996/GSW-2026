@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
 use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
+use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,4 +62,14 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:auditar_index,sanctum');
     Route::get('/auditoria/{id}', [AdminAuditarController::class, 'show'])
         ->middleware('permission:auditar_show,sanctum');
+
+    // Error logs (ver, resolver y generar registro de prueba)
+    Route::get('/error-logs', [AdminErrorLogController::class, 'index'])
+        ->middleware('permission:error_log_index,sanctum');
+    Route::post('/error-logs/prueba', [AdminErrorLogController::class, 'prueba'])
+        ->middleware('permission:error_log_create,sanctum');
+    Route::get('/error-logs/{id}', [AdminErrorLogController::class, 'show'])
+        ->middleware('permission:error_log_show,sanctum');
+    Route::put('/error-logs/{id}/estado', [AdminErrorLogController::class, 'estado'])
+        ->middleware('permission:error_log_estado,sanctum');
 });

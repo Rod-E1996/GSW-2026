@@ -46,15 +46,7 @@
             </li>
         @endcan
 
-        @can('error_log_index')
-            <li class="nav-item">
-                <a class="nav-link {{ Request::is('error_log*') ? '' : 'collapsed' }}" href="{{ url('error_log') }}">
-                    <i class="bi bi-bug-fill"></i>
-                    <span>Error log</span>
-                </a>
-                {{-- <span class="badge bg-danger badge-menu">7 new</span> --}}
-            </li>
-        @endcan
+        {{-- Error log migrado a React --}}
 
         @can('ejemplo_index')
             <li class="nav-item">

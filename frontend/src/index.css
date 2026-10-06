@@ -692,6 +692,43 @@ body {
   padding: 0.15rem 0.5rem;
   border-radius: 6px;
 }
+
+/* ===== Badges de estado ===== */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge--ok {
+  background: #e8f6ee;
+  color: #1f7a46;
+}
+.badge--danger {
+  background: #fdecea;
+  color: #b4322a;
+}
+
+/* Celda de tabla que recorta texto largo (controller, mensaje). */
+.celda-corta {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mensaje de error en el detalle. */
+.mensaje-error {
+  background: var(--espuma);
+  border-left: 3px solid var(--mango);
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  color: #444;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 .galeria-item__acciones {
   display: flex;
   flex-direction: column;

@@ -11,6 +11,8 @@ import TiposList from './pages/admin/tipos/TiposList'
 import TipoForm from './pages/admin/tipos/TipoForm'
 import AuditoriaList from './pages/admin/auditoria/AuditoriaList'
 import AuditoriaDetalle from './pages/admin/auditoria/AuditoriaDetalle'
+import ErroresList from './pages/admin/errores/ErroresList'
+import ErrorDetalle from './pages/admin/errores/ErrorDetalle'
 
 export default function App() {
   return (
@@ -42,7 +44,8 @@ export default function App() {
         <Route path="permisos" element={<EnConstruccion titulo="Permisos" />} />
         <Route path="auditoria" element={<AuditoriaList />} />
         <Route path="auditoria/:id" element={<AuditoriaDetalle />} />
-        <Route path="error-logs" element={<EnConstruccion titulo="Error logs" />} />
+        <Route path="error-logs" element={<ErroresList />} />
+        <Route path="error-logs/:id" element={<ErrorDetalle />} />
         <Route path="perfil" element={<EnConstruccion titulo="Perfil" />} />
       </Route>
 

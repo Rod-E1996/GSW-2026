@@ -96,13 +96,7 @@ Route::prefix("/perfil")->group(function(){
 
 //Auditoria -> migrada a React (API: /api/admin/auditoria). Panel Blade retirado.
 
-// Error log
-Route::prefix("/error_log")->group(function(){
-    Route::get('/', [App\Http\Controllers\ErrorLogsController::class, 'index'])->name('error_log_index')->middleware(['auth', 'permission:error_log_index']);                             //Para el index de error logs
-    Route::get('/{id}', [App\Http\Controllers\ErrorLogsController::class, 'show'])->name('error_log_show')->middleware(['auth', 'permission:error_log_show']);                            //Para el show de error logs
-    Route::get('/crearError/{id}', [App\Http\Controllers\ErrorLogsController::class, 'crearError'])->name('error_log_create')->middleware(['auth', 'permission:error_log_create']);      //Para crear error logs
-    Route::get('/estado/{id}', [App\Http\Controllers\ErrorLogsController::class, 'estado'])->name('error_log_estado')->middleware(['auth', 'permission:error_log_estado']);              //Para cambiar el estado del error log
-});
+//Error log -> migrado a React (API: /api/admin/error-logs). Panel Blade retirado.
 
 //Ejemplos
 Route::prefix("/ejemplo")->group(function(){

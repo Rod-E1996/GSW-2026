@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\SesionTokenService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,10 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthController extends Controller
 {
+    public function __construct(private SesionTokenService $sesiones)
+    {
+    }
+
     //Login: valida credenciales y devuelve un token + los datos del usuario.
     public function login(Request $request)
     {
@@ -39,10 +44,11 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('spa')->plainTextToken;
+        $nuevo = $user->createToken('spa');
+        $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);
 
         return response()->json([
-            'token' => $token,
+            'token' => $nuevo->plainTextToken,
             'user' => new UserResource($user),
         ]);
     }
@@ -66,10 +72,11 @@ class AuthController extends Controller
         // Todo usuario que se registra desde el sitio publico es un huesped.
         $user->assignRole('Huésped');
 
-        $token = $user->createToken('spa')->plainTextToken;
+        $nuevo = $user->createToken('spa');
+        $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);
 
         return response()->json([
-            'token' => $token,
+            'token' => $nuevo->plainTextToken,
             'user' => new UserResource($user),
         ], 201);
     }
@@ -80,10 +87,16 @@ class AuthController extends Controller
         return response()->json(['user' => new UserResource($request->user())]);
     }
 
-    //Logout: revoca el token actual.
+    //Logout: revoca el token actual y marca su registro de sesion como cerrado.
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        \App\Models\SessionLog::where('session_id', (string) $token->id)
+            ->where('estado', 1)
+            ->update(['estado' => 0]);
+
+        $token->delete();
 
         return response()->json(['message' => 'Sesion cerrada.']);
     }

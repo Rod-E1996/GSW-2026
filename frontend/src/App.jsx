@@ -20,6 +20,8 @@ import RolePermisos from './pages/admin/roles/RolePermisos'
 import PermisosList from './pages/admin/permisos/PermisosList'
 import UsuariosList from './pages/admin/usuarios/UsuariosList'
 import UsuarioForm from './pages/admin/usuarios/UsuarioForm'
+import UsuarioSesiones from './pages/admin/usuarios/UsuarioSesiones'
+import SesionesList from './pages/admin/sesiones/SesionesList'
 
 export default function App() {
   return (
@@ -50,6 +52,8 @@ export default function App() {
         <Route path="usuarios" element={<UsuariosList />} />
         <Route path="usuarios/nuevo" element={<UsuarioForm />} />
         <Route path="usuarios/:id/editar" element={<UsuarioForm />} />
+        <Route path="usuarios/:id/sesiones" element={<UsuarioSesiones />} />
+        <Route path="sesiones" element={<SesionesList />} />
         <Route path="roles" element={<RolesList />} />
         <Route path="roles/nuevo" element={<RoleForm />} />
         <Route path="roles/:id/editar" element={<RoleForm />} />

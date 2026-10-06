@@ -22,6 +22,8 @@ class UsuarioResource extends JsonResource
             'login_notificacion' => (int) $this->login_notificacion,
             'roles' => $this->getRoleNames(),
             'roles_ids' => $this->roles->pluck('id')->values(),
+            // Solo presente en el listado (el index lo adjunta a cada modelo).
+            'sesiones_activas' => $this->resource->sesiones_activas ?? null,
         ];
     }
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+// Lista de usuarios con estado, sesiones activas y acciones.
 
 export default function UsuariosList() {
   const { can } = useAuth()
@@ -79,15 +80,16 @@ export default function UsuariosList() {
               <th>Email</th>
               <th>Roles</th>
               <th>Estado</th>
+              <th>Sesiones</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan="5" className="tabla__vacio">Cargando…</td></tr>
+              <tr><td colSpan="6" className="tabla__vacio">Cargando…</td></tr>
             )}
             {!cargando && items.length === 0 && (
-              <tr><td colSpan="5" className="tabla__vacio">Sin registros.</td></tr>
+              <tr><td colSpan="6" className="tabla__vacio">Sin registros.</td></tr>
             )}
             {!cargando &&
               items.map((u) => (
@@ -99,6 +101,15 @@ export default function UsuariosList() {
                     <span className={`badge ${u.estado === 1 ? 'badge--ok' : 'badge--danger'}`}>
                       {u.estado === 1 ? 'Activo' : 'Inactivo'}
                     </span>
+                  </td>
+                  <td>
+                    {can('usuario_sessiones') ? (
+                      <Link to={`/panel/usuarios/${u.id}/sesiones`} className="link-sesiones">
+                        {u.sesiones_activas ?? 0} activa{(u.sesiones_activas ?? 0) === 1 ? '' : 's'}
+                      </Link>
+                    ) : (
+                      <span>{u.sesiones_activas ?? 0}</span>
+                    )}
                   </td>
                   <td className="tabla__acciones">
                     {can('usuario_update') && (

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UsuarioResource;
 use App\Models\User;
+use App\Services\SesionTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,10 @@ use Spatie\Permission\Models\Role;
  */
 class UserController extends Controller
 {
+    public function __construct(private SesionTokenService $sesiones)
+    {
+    }
+
     //Listado paginado con busqueda por nombre o email.
     public function index(Request $request)
     {
@@ -28,7 +33,15 @@ class UserController extends Controller
             });
         }
 
-        return UsuarioResource::collection($query->latest()->paginate(10));
+        $usuarios = $query->latest()->paginate(10);
+
+        // Conteo de sesiones (tokens) activas por usuario para la pagina actual.
+        $conteos = $this->sesiones->conteoActivasPorUsuario($usuarios->pluck('id')->all());
+        $usuarios->getCollection()->each(function (User $u) use ($conteos) {
+            $u->sesiones_activas = (int) ($conteos[$u->id] ?? 0);
+        });
+
+        return UsuarioResource::collection($usuarios);
     }
 
     //Catalogo de roles para el selector del formulario.

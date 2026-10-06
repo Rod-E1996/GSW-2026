@@ -450,6 +450,15 @@ body {
   font-size: 0.8rem;
   color: #889;
 }
+.link-sesiones {
+  color: var(--pacifico);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+.link-sesiones:hover {
+  text-decoration: underline;
+}
 
 /* ===== Panel admin ===== */
 .panel-cargando {

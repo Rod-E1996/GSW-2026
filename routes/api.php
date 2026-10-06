@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController
 use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\Admin\SesionController as AdminSesionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,20 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:usuario_estado,sanctum');
     Route::put('/usuarios/{id}/login-notificacion', [AdminUserController::class, 'loginNotificacion'])
         ->middleware('permission:usuario_login_notificacion,sanctum');
+
+    // Sesiones por usuario (tokens)
+    Route::get('/usuarios/{id}/sesiones', [AdminSesionController::class, 'deUsuario'])
+        ->middleware('permission:usuario_sessiones,sanctum');
+    Route::delete('/usuarios/{id}/sesiones/{token}', [AdminSesionController::class, 'cerrarDeUsuario'])
+        ->middleware('permission:usuario_cerrar_session,sanctum');
+    Route::delete('/usuarios/{id}/sesiones', [AdminSesionController::class, 'cerrarTodasDeUsuario'])
+        ->middleware('permission:usuario_cerrar_todas_sessiones,sanctum');
+
+    // Sesiones globales del sistema (tokens)
+    Route::get('/sesiones', [AdminSesionController::class, 'index'])
+        ->middleware('permission:session_index,sanctum');
+    Route::delete('/sesiones/{token}', [AdminSesionController::class, 'cerrar'])
+        ->middleware('permission:session_cerrar,sanctum');
 
     // Permisos (catalogo: listar, crear, eliminar)
     Route::get('/permisos', [AdminPermisoController::class, 'index'])

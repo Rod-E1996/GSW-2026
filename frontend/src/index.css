@@ -405,6 +405,52 @@ body {
   color: var(--pacifico);
 }
 
+/* ===== Seleccion de roles (checkboxes) ===== */
+.roles-fieldset {
+  border: 1px solid var(--bruma);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+}
+.roles-fieldset legend {
+  font-size: 0.85rem;
+  color: var(--arena);
+  padding: 0 0.4rem;
+}
+.roles-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+}
+.roles-check__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--arena);
+  cursor: pointer;
+}
+.roles-check__item input {
+  width: auto;
+}
+
+/* ===== Fila de interruptor (toggle) ===== */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--espuma);
+  border: 1px solid var(--bruma);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+}
+.switch-row__hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: #889;
+}
+
 /* ===== Panel admin ===== */
 .panel-cargando {
   min-height: 100vh;

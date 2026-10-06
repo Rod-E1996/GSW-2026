@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController;
 use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +80,22 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:role_destroy,sanctum');
     Route::put('/roles/{id}/permisos', [AdminRoleController::class, 'permisos'])
         ->middleware('permission:role_move_permiso,sanctum');
+
+    // Usuarios (CRUD + estado + aviso de login). /roles antes de /{id}.
+    Route::get('/usuarios', [AdminUserController::class, 'index'])
+        ->middleware('permission:usuario_index,sanctum');
+    Route::get('/usuarios/roles', [AdminUserController::class, 'rolesDisponibles'])
+        ->middleware('permission:usuario_index,sanctum');
+    Route::post('/usuarios', [AdminUserController::class, 'store'])
+        ->middleware('permission:usuario_store,sanctum');
+    Route::get('/usuarios/{id}', [AdminUserController::class, 'show'])
+        ->middleware('permission:usuario_show,sanctum');
+    Route::put('/usuarios/{id}', [AdminUserController::class, 'update'])
+        ->middleware('permission:usuario_update,sanctum');
+    Route::put('/usuarios/{id}/estado', [AdminUserController::class, 'estado'])
+        ->middleware('permission:usuario_estado,sanctum');
+    Route::put('/usuarios/{id}/login-notificacion', [AdminUserController::class, 'loginNotificacion'])
+        ->middleware('permission:usuario_login_notificacion,sanctum');
 
     // Permisos (catalogo: listar, crear, eliminar)
     Route::get('/permisos', [AdminPermisoController::class, 'index'])

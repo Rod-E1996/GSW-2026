@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 
-class CustomResetPasswordNotification extends Notification
+class CustomResetPasswordNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -26,10 +26,10 @@ class CustomResetPasswordNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $url = url(route('password.reset', [
-            'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
-        ], false));
+        // El enlace apunta a la pantalla de React (SPA), no al Blade.
+        $url = rtrim(config('app.frontend_url'), '/')
+            . '/restablecer-contrasena?token=' . $this->token
+            . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
 
         return (new MailMessage)
             ->subject(Lang::get('Restablecimiento de Contraseña'))

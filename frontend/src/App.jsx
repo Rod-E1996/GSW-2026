@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import Portal from './pages/Portal'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import ProtectedRoute from './auth/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
@@ -16,6 +18,8 @@ export default function App() {
       {/* Portal publico */}
       <Route path="/" element={<Portal />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
+      <Route path="/restablecer-contrasena" element={<ResetPassword />} />
 
       {/* Panel protegido */}
       <Route

@@ -20,6 +20,12 @@ use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 // ===== Autenticacion =====
 Route::post('/login', [AuthController::class, 'login']);
 
+// Recuperacion de contrasena (publicas, con limite de intentos)
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->middleware('throttle:6,1');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+    ->middleware('throttle:6,1');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -66,7 +66,7 @@
                     <label class="form-check-label" for="remember">Recordarme</label>
                 </div>
 
-                <a href="{{ route('password.request') }}" class="auth-link">¿Olvidaste tu contraseña?</a>
+                {{-- La recuperacion de contrasena se gestiona desde el portal React. --}}
             </div>
 
             <button type="submit" class="btn btn-primary auth-submit">Iniciar sesión</button>

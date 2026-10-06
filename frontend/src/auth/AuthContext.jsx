@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { api } from '../api'
+import { getToken, setToken, clearToken } from './token'
 
 const AuthContext = createContext(null)
 
@@ -9,7 +10,7 @@ export function AuthProvider({ children }) {
 
   // Al cargar la app, si hay token guardado rehidrata la sesion con /me.
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       setCargando(false)
       return
@@ -17,13 +18,13 @@ export function AuthProvider({ children }) {
     api
       .get('/me')
       .then((res) => setUser(res.data.user))
-      .catch(() => localStorage.removeItem('token'))
+      .catch(() => clearToken())
       .finally(() => setCargando(false))
   }, [])
 
-  async function login(email, password) {
+  async function login(email, password, recordar = true) {
     const res = await api.post('/login', { email, password })
-    localStorage.setItem('token', res.data.token)
+    setToken(res.data.token, recordar)
     setUser(res.data.user)
   }
 
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
     } catch {
       // aunque falle en el server, cerramos localmente
     }
-    localStorage.removeItem('token')
+    clearToken()
     setUser(null)
   }
 

@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-Auth::routes();
+// Reset y confirmacion de contrasena se migraron a React (API /forgot-password,
+// /reset-password). Se mantienen login/logout (acceso de sesion al panel Blade aun
+// no migrado) y register (registro publico de huespedes).
+Auth::routes(['reset' => false, 'confirm' => false]);
 
 // INICIO DE LAS RUTAS PUBLICAS
 // =============================================================================================================================================

@@ -148,6 +148,9 @@ body {
   padding: 0.55rem 1.1rem;
   font-weight: 600;
   cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 .btn:disabled {
   opacity: 0.55;
@@ -250,6 +253,87 @@ body {
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
   font-size: 0.9rem;
+}
+.login__ok {
+  background: #e8f6ee;
+  color: #1f7a46;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+.login__mark {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--espuma);
+  color: var(--pacifico);
+}
+.login__card h1 {
+  text-align: center;
+}
+.login__sub {
+  text-align: center;
+  color: #889;
+  font-size: 0.85rem;
+  margin-top: -0.5rem;
+}
+.login__field {
+  /* hereda el layout en columna de .login__card label */
+}
+.login__pass {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.login__pass input {
+  flex: 1;
+  padding-right: 4.5rem;
+}
+.login__toggle {
+  position: absolute;
+  right: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--pacifico);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.4rem;
+}
+.login__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.login__meta .login__check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--arena);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.login__meta .login__check input {
+  width: auto;
+  padding: 0;
+}
+.login__link {
+  color: var(--pacifico);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+.login__link:hover {
+  text-decoration: underline;
+}
+.login__link--center {
+  text-align: center;
 }
 
 /* ===== Panel admin ===== */

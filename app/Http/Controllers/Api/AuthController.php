@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -56,5 +59,48 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Sesion cerrada.']);
+    }
+
+    //Recuperar contrasena: envia el correo con el enlace de restablecimiento.
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // Dispara el correo (User::sendPasswordResetNotification -> enlace al front).
+        Password::sendResetLink($request->only('email'));
+
+        // Respondemos siempre igual para no revelar si el correo existe o no.
+        return response()->json([
+            'message' => 'Si el correo esta registrado, te enviaremos un enlace para restablecer tu contrasena.',
+        ]);
+    }
+
+    //Restablecer contrasena: valida el token del correo y guarda la nueva clave.
+    public function resetPassword(Request $request)
+    {
+        $datos = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $estado = Password::reset($datos, function (User $user, string $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+                'remember_token' => Str::random(60),
+            ])->save();
+
+            event(new PasswordReset($user));
+        });
+
+        if ($estado !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => ['El enlace para restablecer no es valido o ha expirado. Solicita uno nuevo.'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Tu contrasena ha sido restablecida.']);
     }
 }

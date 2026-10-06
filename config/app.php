@@ -58,6 +58,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL (SPA React)
+    |--------------------------------------------------------------------------
+    |
+    | URL base del frontend React. Se usa para construir enlaces que el usuario
+    | abre en el navegador (por ejemplo, el enlace de restablecer contrasena
+    | que se envia por correo apunta a la pantalla de React, no a Blade).
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

@@ -8,6 +8,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    image: hotellink-app
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:80"
@@ -23,9 +24,7 @@ services:
       DB_DATABASE: "${DB_DATABASE:-hotellink}"
       DB_USERNAME: root
       DB_PASSWORD: "${DB_ROOT_PASSWORD:-root}"
-      MAIL_MAILER: smtp
-      MAIL_HOST: mailpit
-      MAIL_PORT: "1025"
+      # Correo: se toma del .env (SMTP real)
     depends_on:
       db:
         condition: service_healthy
@@ -49,10 +48,9 @@ services:
       retries: 20
 
   # Procesa los correos en segundo plano (QUEUE_CONNECTION=database).
+  # Reutiliza la MISMA imagen que "app" (no construye otra).
   queue:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    image: hotellink-app
     restart: unless-stopped
     command: php artisan queue:work --tries=3 --sleep=3 --timeout=90
     volumes:
@@ -63,9 +61,7 @@ services:
       DB_DATABASE: "${DB_DATABASE:-hotellink}"
       DB_USERNAME: root
       DB_PASSWORD: "${DB_ROOT_PASSWORD:-root}"
-      MAIL_MAILER: smtp
-      MAIL_HOST: mailpit
-      MAIL_PORT: "1025"
+      # Correo: se toma del .env (SMTP real)
     depends_on:
       db:
         condition: service_healthy
@@ -101,13 +97,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
-  # Buzon de correo de prueba: captura los correos sin enviarlos a internet.
-  mailpit:
-    image: axllent/mailpit:latest
-    restart: unless-stopped
-    ports:
-      - "${MAILPIT_PORT:-8025}:8025"
 
 volumes:
   dbdata:

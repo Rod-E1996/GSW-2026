@@ -5,6 +5,8 @@ import ProtectedRoute from './auth/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
 import EnConstruccion from './pages/admin/EnConstruccion'
+import TiposList from './pages/admin/tipos/TiposList'
+import TipoForm from './pages/admin/tipos/TipoForm'
 
 export default function App() {
   return (
@@ -24,7 +26,9 @@ export default function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="reservas" element={<EnConstruccion titulo="Reservas" />} />
-        <Route path="tipos-habitacion" element={<EnConstruccion titulo="Tipos de habitación" />} />
+        <Route path="tipos-habitacion" element={<TiposList />} />
+        <Route path="tipos-habitacion/nuevo" element={<TipoForm />} />
+        <Route path="tipos-habitacion/:id/editar" element={<TipoForm />} />
         <Route path="habitaciones" element={<EnConstruccion titulo="Habitaciones" />} />
         <Route path="servicios" element={<EnConstruccion titulo="Servicios" />} />
         <Route path="usuarios" element={<EnConstruccion titulo="Usuarios" />} />

@@ -51,6 +51,11 @@ class TipoHabitacion extends Model
         return $this->hasMany(Habitacion::class, 'tipo_habitacion_id', 'id');
     }
 
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class, 'tipo_habitacion_id', 'id');
+    }
+
     public function imagenes()
     {
         return $this->hasMany(TipoHabitacionImagen::class, 'tipo_habitacion_id', 'id')->orderBy('orden')->orderBy('id');

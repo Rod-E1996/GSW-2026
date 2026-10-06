@@ -21,7 +21,10 @@ class DatabaseSeeder extends Seeder
         	RolesHotelSeeder::class,
         	TiposHabitacionSeeder::class,
         	TiposHabitacionImagenesSeeder::class,
-        	HabitacionesSeeder::class
+        	HabitacionesSeeder::class,
+        	ServiciosSeeder::class,
+        	TemporadasSeeder::class,
+        	ReservasSeeder::class
         ]);
     }
 }

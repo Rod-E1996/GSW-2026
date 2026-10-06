@@ -622,6 +622,30 @@ body {
   flex-wrap: wrap;
 }
 
+/* ===== Comparar antes/despues (auditoria) ===== */
+.comparar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: 1.4rem;
+}
+.json-box {
+  background: #0b1f23;
+  color: #cfe8ea;
+  padding: 1rem;
+  border-radius: 10px;
+  overflow: auto;
+  font-size: 0.8rem;
+  max-height: 420px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+@media (max-width: 768px) {
+  .comparar {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Responsive: menu lateral deslizable en movil ===== */
 @media (max-width: 768px) {
   .admin__burger {

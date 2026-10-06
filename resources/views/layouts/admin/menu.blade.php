@@ -46,15 +46,6 @@
             </li>
         @endcan
 
-        @can('auditar_index')
-            <li class="nav-item">
-                <a class="nav-link {{ Request::is('auditar*') ? '' : 'collapsed' }}" href="{{ url('auditar') }}">
-                    <i class="fas fa-history"></i>
-                    <span>Auditoría</span>
-                </a>
-            </li>
-        @endcan
-
         @can('error_log_index')
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('error_log*') ? '' : 'collapsed' }}" href="{{ url('error_log') }}">

@@ -91,9 +91,7 @@ Route::prefix("/perfil")->group(function(){
     Route::post('/cerrar-session', [App\Http\Controllers\PerfilController::class, 'cerrarSession'])->name('perfil_cerrar_session')->middleware(['auth', 'permission:perfil_cerrar_session']);
 });
 
-//Auditoria
-Route::get('/auditar', [App\Http\Controllers\AuditarController::class, 'index'])->name('auditar_index')->middleware(['auth', 'permission:auditar_index']);
-Route::get('/auditar/{id}', [App\Http\Controllers\AuditarController::class, 'show'])->name('auditar_show')->middleware(['auth', 'permission:auditar_show']);
+//Auditoria -> migrada a React (API: /api/admin/auditoria). Panel Blade retirado.
 
 // Error log
 Route::prefix("/error_log")->group(function(){

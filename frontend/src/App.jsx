@@ -7,6 +7,8 @@ import Dashboard from './pages/admin/Dashboard'
 import EnConstruccion from './pages/admin/EnConstruccion'
 import TiposList from './pages/admin/tipos/TiposList'
 import TipoForm from './pages/admin/tipos/TipoForm'
+import AuditoriaList from './pages/admin/auditoria/AuditoriaList'
+import AuditoriaDetalle from './pages/admin/auditoria/AuditoriaDetalle'
 
 export default function App() {
   return (
@@ -34,7 +36,8 @@ export default function App() {
         <Route path="usuarios" element={<EnConstruccion titulo="Usuarios" />} />
         <Route path="roles" element={<EnConstruccion titulo="Roles" />} />
         <Route path="permisos" element={<EnConstruccion titulo="Permisos" />} />
-        <Route path="auditoria" element={<EnConstruccion titulo="Auditoría" />} />
+        <Route path="auditoria" element={<AuditoriaList />} />
+        <Route path="auditoria/:id" element={<AuditoriaDetalle />} />
         <Route path="error-logs" element={<EnConstruccion titulo="Error logs" />} />
         <Route path="perfil" element={<EnConstruccion titulo="Perfil" />} />
       </Route>

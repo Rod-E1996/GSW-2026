@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
+use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,4 +49,10 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:tipo_habitacion_update,sanctum');
     Route::put('/tipos-habitacion/{id}/imagenes/{imagen}/principal', [AdminTipoHabitacionController::class, 'imagenPrincipal'])
         ->middleware('permission:tipo_habitacion_update,sanctum');
+
+    // Auditoria (solo lectura)
+    Route::get('/auditoria', [AdminAuditarController::class, 'index'])
+        ->middleware('permission:auditar_index,sanctum');
+    Route::get('/auditoria/{id}', [AdminAuditarController::class, 'show'])
+        ->middleware('permission:auditar_show,sanctum');
 });

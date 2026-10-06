@@ -1,0 +1,164 @@
+:root {
+  --pacifico: #0b4f57;
+  --ola: #008a9c;
+  --mango: #d98a1c;
+  --arena: #2b2825;
+  --espuma: #f6f8f7;
+  --bruma: #e2f1f2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--espuma);
+  color: var(--arena);
+}
+
+/* ===== Hero ===== */
+.hero {
+  background: linear-gradient(135deg, var(--pacifico), var(--ola));
+  color: #fff;
+  padding: 4rem 1.5rem 3.5rem;
+}
+.hero__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.brand__accent {
+  color: var(--mango);
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  margin: 1.2rem 0 0.6rem;
+  max-width: 18ch;
+  line-height: 1.1;
+}
+.hero p {
+  opacity: 0.9;
+  font-size: 1.05rem;
+}
+
+/* ===== Contenido ===== */
+.contenido {
+  max-width: 1100px;
+  margin: -2rem auto 0;
+  padding: 0 1.5rem 3rem;
+}
+.contenido h2 {
+  color: var(--pacifico);
+  margin: 2.5rem 0 1.2rem;
+  font-size: 1.6rem;
+}
+.estado {
+  padding: 1rem 0;
+  color: var(--ola);
+}
+.estado--error {
+  color: #b4322a;
+}
+
+/* ===== Grid de tarjetas ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(11, 79, 87, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(11, 79, 87, 0.14);
+}
+.card__img {
+  aspect-ratio: 4 / 3;
+  background: var(--bruma);
+}
+.card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card__img--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--ola);
+  font-size: 0.9rem;
+}
+.card__body {
+  padding: 1.1rem 1.2rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.card__body h3 {
+  color: var(--pacifico);
+  font-size: 1.2rem;
+}
+.card__cap {
+  color: var(--ola);
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0.7rem;
+}
+.card__desc {
+  font-size: 0.9rem;
+  color: #555;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+.card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.precio {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--arena);
+}
+.precio small {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #888;
+}
+.btn {
+  background: var(--mango);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ===== Pie ===== */
+.pie {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: #889;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--bruma);
+}

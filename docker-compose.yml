@@ -72,6 +72,21 @@ services:
       app:
         condition: service_started
 
+  # Frontend React (Vite dev server). Corre en Node dentro de Docker.
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    restart: unless-stopped
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      # Volumen propio para node_modules (que el bind-mount de Windows no lo pise)
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - app
+
   # Administrador visual de la base de datos.
   phpmyadmin:
     image: phpmyadmin:5
@@ -96,3 +111,4 @@ services:
 
 volumes:
   dbdata:
+  frontend_node_modules:

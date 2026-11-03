@@ -2,8 +2,8 @@
 
 /**
  * Prepara la base de datos exclusiva de las pruebas antes de ejecutarlas.
- * Las pruebas nunca usan la base de desarrollo: phpunit.xml fuerza SQLite y
- * este archivo se detiene si detecta otra configuracion.
+ * Las pruebas nunca usan la base de desarrollo: se impone la configuracion de
+ * phpunit.xml y este archivo se detiene antes de migrar si la conexion real es otra.
  */
 
 use App\Models\TipoHabitacionImagen;
@@ -17,8 +17,21 @@ chdir(dirname(__DIR__));
 
 $base = 'storage/framework/testing/pruebas.sqlite';
 
-if (getenv('DB_CONNECTION') !== 'sqlite' || getenv('DB_DATABASE') !== $base) {
-    fwrite(STDERR, "Pruebas canceladas: phpunit.xml no apunta a la base de pruebas.\n");
+// PHPUnit solo cambia $_ENV y putenv, pero Laravel lee primero $_SERVER, donde siguen
+// las variables reales del contenedor o del sistema.
+foreach ($_ENV as $variable => $valor) {
+    $_SERVER[$variable] = $valor;
+}
+
+$app = require __DIR__ . '/../bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
+
+// Se comprueba lo que Laravel va a usar de verdad, no las variables de entorno.
+$conexion = config('database.default');
+$destino = config("database.connections.$conexion.database");
+
+if ($conexion !== 'sqlite' || $destino !== $base) {
+    fwrite(STDERR, "Pruebas canceladas: apuntan a \"$conexion: $destino\", no a la base de pruebas.\n");
     exit(1);
 }
 
@@ -26,9 +39,6 @@ if (is_file($base)) {
     unlink($base);
 }
 touch($base);
-
-$app = require __DIR__ . '/../bootstrap/app.php';
-$app->make(Kernel::class)->bootstrap();
 
 // Los seeders guardan fotos: se desvian a un disco de prueba para no tocar storage/app/public.
 Storage::fake(TipoHabitacionImagen::DISCO);

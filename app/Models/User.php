@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(AuditarDetalle::class, 'user_id', 'id');
     }
 
+    public function huesped()
+    {
+        return $this->hasOne(Huesped::class, 'user_id', 'id');
+    }
+
     public function errorLog()
     {
         return $this->hasMany(ErrorLog::class, 'user_id', 'id');

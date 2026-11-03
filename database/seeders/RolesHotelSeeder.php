@@ -39,6 +39,25 @@ class RolesHotelSeeder extends Seeder
         'habitacion_index',
         'habitacion_show',
         'habitacion_estado',
+
+        'reserva_index',
+        'reserva_show',
+        'reserva_store',
+        'reserva_update',
+        'reserva_confirmar',
+        'reserva_cancelar',
+        'reserva_checkin',
+        'reserva_checkout',
+
+        'huesped_index',
+        'huesped_show',
+        'huesped_store',
+        'huesped_update',
+
+        'categoria_servicio_index',
+        'servicio_index',
+        'temporada_index',
+        'tarifa_index',
     ];
 
     public static $permisosHuesped = [
@@ -79,6 +98,10 @@ class RolesHotelSeeder extends Seeder
 
             if (!$user->hasRole($datos['rol'])) {
                 $user->assignRole($datos['rol']);
+            }
+
+            if ($datos['rol'] === 'Huésped') {
+                \App\Models\Huesped::paraUsuario($user);
             }
         }
 

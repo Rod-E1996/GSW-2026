@@ -22,6 +22,7 @@ import UsuariosList from './pages/admin/usuarios/UsuariosList'
 import UsuarioForm from './pages/admin/usuarios/UsuarioForm'
 import UsuarioSesiones from './pages/admin/usuarios/UsuarioSesiones'
 import SesionesList from './pages/admin/sesiones/SesionesList'
+import ConfiguracionForm from './pages/admin/configuracion/ConfiguracionForm'
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="auditoria/:id" element={<AuditoriaDetalle />} />
         <Route path="error-logs" element={<ErroresList />} />
         <Route path="error-logs/:id" element={<ErrorDetalle />} />
+        <Route path="configuracion" element={<ConfiguracionForm />} />
         <Route path="perfil" element={<EnConstruccion titulo="Perfil" />} />
       </Route>
 

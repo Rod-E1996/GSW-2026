@@ -12,5 +12,6 @@ export const MENU = [
   { label: 'Permisos', path: '/panel/permisos', permiso: 'permiso_index', icon: '◈' },
   { label: 'Auditoría', path: '/panel/auditoria', permiso: 'auditar_index', icon: '◉' },
   { label: 'Error logs', path: '/panel/error-logs', permiso: 'error_log_index', icon: '⚠' },
+  { label: 'Configuración', path: '/panel/configuracion', permiso: 'configuracion_index', icon: '⚙' },
   { label: 'Perfil', path: '/panel/perfil', permiso: 'perfil_show', icon: '☺' },
 ]

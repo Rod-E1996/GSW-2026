@@ -909,3 +909,29 @@ body {
     transform: translateX(0);
   }
 }
+
+/* Formulario de parametros agrupados */
+.form-grupo {
+  border: 1px solid var(--bruma);
+  border-radius: 8px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.form-grupo legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.form-unidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-unidad input {
+  flex: none;
+  width: 120px;
+}
+.form-error {
+  color: #b4322a;
+}

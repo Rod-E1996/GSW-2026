@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Admin\SesionController as AdminSesionController;
+use App\Http\Controllers\Api\Admin\ConfiguracionController as AdminConfiguracionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,6 +120,12 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:permiso_move,sanctum');
     Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])
         ->middleware('permission:permiso_move,sanctum');
+
+    // Parametros del sistema
+    Route::get('/configuraciones', [AdminConfiguracionController::class, 'index'])
+        ->middleware('permission:configuracion_index,sanctum');
+    Route::put('/configuraciones', [AdminConfiguracionController::class, 'update'])
+        ->middleware('permission:configuracion_update,sanctum');
 
     // Error logs (ver, resolver y generar registro de prueba)
     Route::get('/error-logs', [AdminErrorLogController::class, 'index'])

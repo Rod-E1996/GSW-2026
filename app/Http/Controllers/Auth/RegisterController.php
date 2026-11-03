@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use App\Models\Huesped;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -72,6 +73,7 @@ class RegisterController extends Controller
 
         //Todo usuario que se registra desde el sitio público es un huésped
         $user->assignRole('Huésped');
+        Huesped::paraUsuario($user);
 
         return $user;
     }

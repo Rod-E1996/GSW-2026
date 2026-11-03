@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Huesped;
 use App\Models\User;
 use App\Services\SesionTokenService;
 use Illuminate\Auth\Events\PasswordReset;
@@ -72,6 +73,7 @@ class AuthController extends Controller
 
         // Todo usuario que se registra desde el sitio publico es un huesped.
         $user->assignRole('Huésped');
+        Huesped::paraUsuario($user);
 
         $nuevo = $this->sesiones->crearToken($user, true);
         $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);

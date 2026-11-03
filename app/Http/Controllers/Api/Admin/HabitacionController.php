@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\HabitacionResource;
 use App\Models\Habitacion;
 use App\Models\TipoHabitacion;
+use App\Services\ReservaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
@@ -83,15 +85,19 @@ class HabitacionController extends Controller
 
         $datos = $request->validate($this->reglas($habitacion->id));
 
-        if ((int) $datos['tipo_habitacion_id'] !== (int) $habitacion->tipo_habitacion_id && $habitacion->reservasPorAtender()->exists()) {
-            return response()->json([
-                'message' => 'No se puede cambiar el tipo: la habitación tiene reservas por atender.',
-            ], 422);
-        }
+        return DB::transaction(function () use ($habitacion, $datos) {
+            $habitacion = Habitacion::whereKey($habitacion->id)->lockForUpdate()->first();
 
-        $habitacion->update($datos);
+            if ((int) $datos['tipo_habitacion_id'] !== (int) $habitacion->tipo_habitacion_id && $habitacion->reservasPorAtender()->exists()) {
+                return response()->json([
+                    'message' => 'No se puede cambiar el tipo: la habitación tiene reservas por atender.',
+                ], 422);
+            }
 
-        return new HabitacionResource($habitacion->load('tipoHabitacion'));
+            $habitacion->update($datos);
+
+            return new HabitacionResource($habitacion->load('tipoHabitacion'));
+        }, ReservaService::INTENTOS);
     }
 
     //Cambia solo el estado fisico (recepcion puede hacerlo sin poder editar la habitacion).
@@ -119,16 +125,20 @@ class HabitacionController extends Controller
             return response()->json(['message' => 'El registro no existe.'], 404);
         }
 
-        if ($habitacion->reservasPorAtender()->exists()) {
-            return response()->json([
-                'message' => 'No se puede eliminar: la habitación tiene reservas por atender.',
-            ], 422);
-        }
+        return DB::transaction(function () use ($habitacion) {
+            $habitacion = Habitacion::whereKey($habitacion->id)->lockForUpdate()->first();
 
-        $habitacion->estado = 0;
-        $habitacion->save();
+            if ($habitacion->reservasPorAtender()->exists()) {
+                return response()->json([
+                    'message' => 'No se puede eliminar: la habitación tiene reservas por atender.',
+                ], 422);
+            }
 
-        return response()->json(['message' => 'Eliminado con éxito.']);
+            $habitacion->estado = 0;
+            $habitacion->save();
+
+            return response()->json(['message' => 'Eliminado con éxito.']);
+        }, ReservaService::INTENTOS);
     }
 
     private function reglas($id = null): array

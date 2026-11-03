@@ -61,6 +61,7 @@ class RolesHotelSeeder extends Seeder
     ];
 
     public static $permisosHuesped = [
+        'reserva_solicitar',
         'perfil_show',
         'perfil_edit',
         'perfil_edit_password',

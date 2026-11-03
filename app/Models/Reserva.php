@@ -21,6 +21,12 @@ class Reserva extends Model
     const CANAL_TELEFONO = 'telefono';
     const CANAL_PRESENCIAL = 'presencial';
 
+    //Estadia mas larga que se acepta en linea
+    const MAX_NOCHES = 60;
+
+    //Sin 0, O, 1 ni I: el codigo se dicta y se copia a mano
+    const ALFABETO_CODIGO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
     //Catalogo de estados: [valor => [etiqueta, color bootstrap]]
     const ESTADOS = [
         self::PENDIENTE  => ['nombre' => 'Pendiente',   'color' => 'warning'],
@@ -117,6 +123,32 @@ class Reserva extends Model
             'estado_nuevo' => $this->estado_reserva,
             'user_id' => auth()->id(),
         ]);
+    }
+
+    //Codigo de confirmacion aleatorio, para que no se pueda adivinar el de otra reserva
+    public static function generarCodigo(): string
+    {
+        do {
+            $codigo = 'HL-';
+            for ($i = 0; $i < 8; $i++) {
+                $codigo .= self::ALFABETO_CODIGO[random_int(0, strlen(self::ALFABETO_CODIGO) - 1)];
+            }
+        } while (self::where('codigo', $codigo)->exists());
+
+        return $codigo;
+    }
+
+    //Reservas que ocupan inventario. Una pendiente vencida deja de retener la habitacion.
+    public function scopeVigentes($query)
+    {
+        $limite = now()->subHours((int) Configuracion::valor('reserva_pendiente_horas', 24));
+
+        return $query->where('estado', 1)->where(function ($q) use ($limite) {
+            $q->whereIn('estado_reserva', [self::CONFIRMADA, self::EN_ESTADIA])
+                ->orWhere(function ($p) use ($limite) {
+                    $p->where('estado_reserva', self::PENDIENTE)->where('created_at', '>', $limite);
+                });
+        });
     }
 
     // accesores

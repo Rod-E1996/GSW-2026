@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Portal from './pages/Portal'
+import Resultados from './pages/publico/Resultados'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -38,6 +39,7 @@ export default function App() {
     <Routes>
       {/* Portal publico */}
       <Route path="/" element={<Portal />} />
+      <Route path="/disponibilidad" element={<Resultados />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
       <Route path="/recuperar-contrasena" element={<ForgotPassword />} />

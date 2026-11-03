@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DisponibilidadController;
+use App\Http\Controllers\Api\ReservaController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
@@ -60,6 +62,11 @@ Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
 
 // ===== Portal publico (sin autenticacion) =====
 Route::get('/tipos-habitacion', [TipoHabitacionController::class, 'index']);
+Route::get('/disponibilidad', [DisponibilidadController::class, 'index']);
+
+// ===== Reserva en linea =====
+Route::post('/reservas', [ReservaController::class, 'store'])
+    ->middleware(['auth:sanctum', 'permission:reserva_solicitar,sanctum', 'throttle:10,1']);
 
 // ===== Panel de administracion (token + permisos) =====
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {

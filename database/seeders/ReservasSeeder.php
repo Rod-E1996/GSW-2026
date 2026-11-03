@@ -14,7 +14,7 @@ use Carbon\Carbon;
 /**
  * Reservas de ejemplo para tener datos tangibles en el panel y los reportes.
  * Los totales se calculan aqui de forma simple (precio base x noches + servicios);
- * la logica real de tarifas por temporada vive en el servicio de la Fase 3.
+ * las reservas reales pasan por ReservaService, que aplica temporadas y tarifas.
  * Es seguro re-ejecutarlo: solo inserta si la tabla esta vacia.
  */
 class ReservasSeeder extends Seeder

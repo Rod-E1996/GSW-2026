@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BloqueoHabitacionResource;
 use App\Models\BloqueoHabitacion;
 use App\Models\Habitacion;
+use App\Services\ReservaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -41,7 +43,11 @@ class BloqueoHabitacionController extends Controller
     {
         $datos = $this->validar($request);
 
-        $bloqueo = BloqueoHabitacion::create($datos + ['user_id' => $request->user()->id]);
+        $bloqueo = DB::transaction(function () use ($datos, $request) {
+            $this->comprobarFechas($datos);
+
+            return BloqueoHabitacion::create($datos + ['user_id' => $request->user()->id]);
+        }, ReservaService::INTENTOS);
 
         return (new BloqueoHabitacionResource($bloqueo->load(['habitacion', 'user'])))
             ->response()
@@ -55,7 +61,12 @@ class BloqueoHabitacionController extends Controller
             return response()->json(['message' => 'El registro no existe.'], 404);
         }
 
-        $bloqueo->update($this->validar($request, $bloqueo->id));
+        $datos = $this->validar($request);
+
+        DB::transaction(function () use ($datos, $bloqueo) {
+            $this->comprobarFechas($datos, $bloqueo->id);
+            $bloqueo->update($datos);
+        }, ReservaService::INTENTOS);
 
         return new BloqueoHabitacionResource($bloqueo->load(['habitacion', 'user']));
     }
@@ -74,13 +85,19 @@ class BloqueoHabitacionController extends Controller
         return response()->json(['message' => 'Eliminado con éxito.']);
     }
 
-    //Un bloqueo no puede chocar con otro bloqueo ni dejar sin habitacion a una reserva vigente.
-    private function validar(Request $request, $id = null): array
+    private function validar(Request $request): array
     {
         $reglas = BloqueoHabitacion::$rules;
         $reglas['habitacion_id'][] = Rule::exists('habitaciones', 'id')->where('estado', 1);
 
-        $datos = $request->validate($reglas);
+        return $request->validate($reglas);
+    }
+
+    //Un bloqueo no puede chocar con otro ni dejar sin habitacion a una reserva vigente.
+    //La fila queda bloqueada para que no entre una reserva entre esta revision y el guardado.
+    private function comprobarFechas(array $datos, $id = null): void
+    {
+        $habitacion = Habitacion::whereKey($datos['habitacion_id'])->lockForUpdate()->first();
 
         $repetido = BloqueoHabitacion::where('estado', 1)
             ->where('habitacion_id', $datos['habitacion_id'])
@@ -95,8 +112,9 @@ class BloqueoHabitacionController extends Controller
             ]);
         }
 
-        $reservas = Habitacion::find($datos['habitacion_id'])
+        $reservas = $habitacion
             ->reservasActivasEntre($datos['fecha_inicio'], $datos['fecha_fin'])
+            ->lockForUpdate()
             ->pluck('codigo');
 
         if ($reservas->isNotEmpty()) {
@@ -104,7 +122,5 @@ class BloqueoHabitacionController extends Controller
                 'fecha_inicio' => 'La habitación tiene reservas en esas fechas: ' . $reservas->implode(', ') . '.',
             ]);
         }
-
-        return $datos;
     }
 }

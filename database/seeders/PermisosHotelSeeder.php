@@ -22,6 +22,7 @@ class PermisosHotelSeeder extends Seeder
         'reserva_cancelar',
         'reserva_checkin',
         'reserva_checkout',
+        'reserva_solicitar',
 
         //Huespedes
         'huesped_index',
@@ -74,6 +75,10 @@ class PermisosHotelSeeder extends Seeder
         Role::where('name', 'Super Administrador')->first()?->givePermissionTo(self::$permisos);
         Role::where('name', 'Recepcionista')->first()?->givePermissionTo(
             array_values(array_intersect(self::$permisos, RolesHotelSeeder::$permisosRecepcionista))
+        );
+
+        Role::where('name', 'Huésped')->first()?->givePermissionTo(
+            array_values(array_intersect(self::$permisos, RolesHotelSeeder::$permisosHuesped))
         );
 
         //Limpiar cache de permisos de spatie

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import BuscadorDisponibilidad from './publico/BuscadorDisponibilidad'
 
 // Convierte la URL absoluta de la imagen a ruta relativa para usar el proxy de Vite.
 function rutaImagen(url) {
@@ -17,6 +18,7 @@ function formatoUSD(valor) {
 }
 
 export default function Portal() {
+  const navigate = useNavigate()
   const [tipos, setTipos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -28,6 +30,11 @@ export default function Portal() {
       .catch(() => setError('No se pudieron cargar las habitaciones.'))
       .finally(() => setCargando(false))
   }, [])
+
+  function buscar(form) {
+    const datos = Object.entries(form).filter(([, valor]) => valor !== '')
+    navigate(`/disponibilidad?${new URLSearchParams(datos)}`)
+  }
 
   return (
     <div className="app">
@@ -43,6 +50,7 @@ export default function Portal() {
           </div>
           <h1>Tu descanso frente al mar, a un clic de distancia</h1>
           <p>Reserva directo, sin comisiones. Playa El Tunco, La Libertad.</p>
+          <BuscadorDisponibilidad onBuscar={buscar} />
         </div>
       </header>
 

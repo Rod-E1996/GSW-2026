@@ -68,7 +68,7 @@ class Habitacion extends Model
     public function reservasActivasEntre($inicio, $fin)
     {
         return $this->reservas()
-            ->whereIn('estado_reserva', [Reserva::PENDIENTE, Reserva::CONFIRMADA, Reserva::EN_ESTADIA])
+            ->vigentes()
             ->whereDate('fecha_llegada', '<=', $fin)
             ->whereDate('fecha_salida', '>', $inicio);
     }

@@ -14,9 +14,13 @@ class TipoHabitacionResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'nombre_en' => $this->nombre_en,
+            'slug' => $this->slug,
+            'orden' => $this->orden,
             'capacidad' => $this->capacidad,
             'precio_base' => (float) $this->precio_base,
             'descripcion' => $this->descripcion,
+            'descripcion_en' => $this->descripcion_en,
             'imagen_principal' => $this->imagenPrincipal?->url,
             'imagenes' => $this->whenLoaded('imagenes', function () {
                 return $this->imagenes->map(fn ($img) => [

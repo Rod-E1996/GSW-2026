@@ -11,11 +11,12 @@ use App\Models\TipoHabitacion;
  */
 class TipoHabitacionController extends Controller
 {
-    //Lista los tipos activos con su imagen principal, del mas economico al mas caro.
+    //Lista los tipos activos con su imagen principal, en el orden definido y luego por precio.
     public function index()
     {
         $tipos = TipoHabitacion::with(['imagenPrincipal', 'imagenes'])
             ->where('estado', 1)
+            ->orderBy('orden')
             ->orderBy('precio_base')
             ->get();
 

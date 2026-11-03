@@ -644,6 +644,7 @@ body {
 }
 .filtros input {
   flex: 1;
+  font: inherit;
   max-width: 320px;
   padding: 0.5rem 0.7rem;
   border: 1px solid #d5e0e0;
@@ -694,10 +695,12 @@ body {
   color: #889;
   padding: 1.5rem;
 }
-.tabla__acciones {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: flex-end;
+.tabla td.tabla__acciones {
+  text-align: right;
+  white-space: nowrap;
+}
+.tabla__acciones > * + * {
+  margin-left: 0.4rem;
 }
 .thumb {
   width: 48px;
@@ -745,7 +748,8 @@ body {
   color: var(--arena);
 }
 .form input,
-.form textarea {
+.form textarea,
+.form select {
   padding: 0.55rem 0.7rem;
   border: 1px solid #d5e0e0;
   border-radius: 8px;
@@ -753,7 +757,8 @@ body {
   font-family: inherit;
 }
 .form input:focus,
-.form textarea:focus {
+.form textarea:focus,
+.form select:focus {
   outline: 2px solid var(--ola);
   border-color: var(--ola);
 }
@@ -934,4 +939,101 @@ body {
 }
 .form-error {
   color: #b4322a;
+}
+
+/* Inventario, tarifas y servicios */
+.page-head__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.filtros {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filtros select,
+.tabla__select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #d5e0e0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+.tabla__select {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+}
+.filtros__check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+.filtros .filtros__check input {
+  flex: none;
+}
+.form--seccion {
+  margin-bottom: 1.5rem;
+}
+.page-title + .form--seccion {
+  margin-top: 1rem;
+}
+.tabla-wrap + .seccion-title,
+.paginacion + .seccion-title {
+  margin-top: 2rem;
+}
+.form .form-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.form-imagen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+}
+.form-imagen label {
+  flex: 1;
+  min-width: 220px;
+}
+.form .form-color {
+  width: 64px;
+  height: 38px;
+  padding: 0.2rem;
+}
+.form-nota {
+  color: #667;
+  overflow-wrap: anywhere;
+}
+.badge--aviso {
+  background: #fff4e0;
+  color: #8a5a00;
+}
+.muestra-color {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  vertical-align: baseline;
+}
+.tabla--matriz input {
+  width: 100px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #d5e0e0;
+  border-radius: 8px;
+  font: inherit;
+}
+.tabla--matriz input.is-invalido {
+  border-color: #b4322a;
+  outline: 1px solid #b4322a;
+}
+form > .form-acciones {
+  margin-top: 1rem;
+}
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }

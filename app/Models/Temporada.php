@@ -11,9 +11,12 @@ class Temporada extends Model
 
     protected $fillable = [
         'nombre',
+        'nombre_en',
         'fecha_inicio',
         'fecha_fin',
         'multiplicador',
+        'prioridad',
+        'color',
         'estado',
     ];
 
@@ -29,6 +32,9 @@ class Temporada extends Model
         'fecha_inicio' => ['required', 'date'],
         'fecha_fin' => ['required', 'date', 'after_or_equal:fecha_inicio'],
         'multiplicador' => ['required', 'numeric', 'min:0.1', 'max:9.99'],
+        'nombre_en' => ['nullable', 'string', 'max:100'],
+        'prioridad' => ['nullable', 'integer', 'min:0', 'max:9999'],
+        'color' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
     ];
 
     public static function rules($id = null)
@@ -43,13 +49,20 @@ class Temporada extends Model
         'deleting' => \App\Events\DeleteEvent::class,
     ];
 
+    // relaciones
+    public function tarifas()
+    {
+        return $this->hasMany(Tarifa::class, 'temporada_id', 'id');
+    }
+
     //Devuelve la temporada vigente para una fecha dada (o null si ninguna aplica).
-    //Si varias se traslapan, gana la de mayor multiplicador (la mas especifica/cara).
+    //Si varias se traslapan, gana la de mayor prioridad y, si empatan, la de mayor multiplicador.
     public static function vigentePara($fecha)
     {
         return self::where('estado', 1)
             ->whereDate('fecha_inicio', '<=', $fecha)
             ->whereDate('fecha_fin', '>=', $fecha)
+            ->orderByDesc('prioridad')
             ->orderByDesc('multiplicador')
             ->first();
     }

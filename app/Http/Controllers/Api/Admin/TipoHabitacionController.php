@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
  */
 class TipoHabitacionController extends Controller
 {
+    private const CAMPOS = ['nombre', 'nombre_en', 'capacidad', 'precio_base', 'descripcion', 'descripcion_en', 'orden'];
+
     public function __construct(private TipoHabitacionImagenService $imagenes)
     {
     }
@@ -35,7 +37,7 @@ class TipoHabitacionController extends Controller
         }
 
         return TipoHabitacionResource::collection(
-            $query->orderBy('nombre')->paginate(10)
+            $query->orderBy('orden')->orderBy('nombre')->paginate(10)
         );
     }
 
@@ -55,7 +57,7 @@ class TipoHabitacionController extends Controller
     {
         $tipo = DB::transaction(function () use ($request) {
             $tipo = TipoHabitacion::create(
-                $request->safe()->only(['nombre', 'capacidad', 'precio_base', 'descripcion'])
+                $request->safe()->only(self::CAMPOS)
             );
             $this->imagenes->guardar($tipo, $request->file('imagenes', []));
             return $tipo;
@@ -74,7 +76,7 @@ class TipoHabitacionController extends Controller
             return response()->json(['message' => 'El registro no existe.'], 404);
         }
 
-        $tipo->update($request->safe()->only(['nombre', 'capacidad', 'precio_base', 'descripcion']));
+        $tipo->update($request->safe()->only(self::CAMPOS));
 
         return new TipoHabitacionResource($tipo->load('imagenes'));
     }

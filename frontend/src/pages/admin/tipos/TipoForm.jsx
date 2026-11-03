@@ -9,9 +9,18 @@ export default function TipoForm() {
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
-  const [form, setForm] = useState({ nombre: '', capacidad: 1, precio_base: '', descripcion: '' })
+  const [form, setForm] = useState({
+    nombre: '',
+    nombre_en: '',
+    capacidad: 1,
+    precio_base: '',
+    descripcion: '',
+    descripcion_en: '',
+    orden: 0,
+  })
   const [archivos, setArchivos] = useState([])
   const [imagenes, setImagenes] = useState([])
+  const [slug, setSlug] = useState('')
   const [errores, setErrores] = useState({})
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(editando)
@@ -25,10 +34,14 @@ export default function TipoForm() {
         const t = res.data.data
         setForm({
           nombre: t.nombre,
+          nombre_en: t.nombre_en || '',
           capacidad: t.capacidad,
           precio_base: t.precio_base,
           descripcion: t.descripcion || '',
+          descripcion_en: t.descripcion_en || '',
+          orden: t.orden ?? 0,
         })
+        setSlug(t.slug)
         setImagenes(t.imagenes || [])
       })
       .catch(() => setError('No se pudo cargar el registro.'))
@@ -105,11 +118,20 @@ export default function TipoForm() {
       {error && <div className="alerta alerta--error">{error}</div>}
 
       <form className="form" onSubmit={onSubmit}>
-        <label>
-          Nombre
-          <input value={form.nombre} onChange={(e) => set('nombre', e.target.value)} />
-          {errores.nombre && <small className="campo-error">{errores.nombre[0]}</small>}
-        </label>
+        <div className="form-row">
+          <label>
+            Nombre
+            <input value={form.nombre} onChange={(e) => set('nombre', e.target.value)} />
+            {errores.nombre && <small className="campo-error">{errores.nombre[0]}</small>}
+          </label>
+          <label>
+            Nombre en inglés
+            <input value={form.nombre_en} onChange={(e) => set('nombre_en', e.target.value)} />
+            {errores.nombre_en && <small className="campo-error">{errores.nombre_en[0]}</small>}
+          </label>
+        </div>
+
+        {editando && <small className="form-nota">Dirección en el sitio: /{slug}</small>}
 
         <div className="form-row">
           <label>
@@ -142,6 +164,21 @@ export default function TipoForm() {
             value={form.descripcion}
             onChange={(e) => set('descripcion', e.target.value)}
           />
+        </label>
+
+        <label>
+          Descripción en inglés
+          <textarea
+            rows="3"
+            value={form.descripcion_en}
+            onChange={(e) => set('descripcion_en', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Orden en el sitio
+          <input type="number" min="0" value={form.orden} onChange={(e) => set('orden', e.target.value)} />
+          {errores.orden && <small className="campo-error">{errores.orden[0]}</small>}
         </label>
 
         {!editando && (

@@ -13,9 +13,10 @@ class PublicController extends Controller
     {
         $data['hotel'] = config('hotel');
 
-        //Tipos de habitacion activos con sus fotos, ordenados del mas economico al mas caro
+        //Tipos de habitacion activos con sus fotos, en el orden definido y luego del mas economico al mas caro
         $data['tipos_habitacion'] = TipoHabitacion::with(['imagenes', 'imagenPrincipal'])
             ->where('estado', 1)
+            ->orderBy('orden')
             ->orderBy('precio_base')
             ->get();
 

@@ -5,6 +5,7 @@ export const MENU = [
   { label: 'Reservas', path: '/panel/reservas', permiso: 'reserva_index', icon: '▤' },
   { label: 'Tipos de habitación', path: '/panel/tipos-habitacion', permiso: 'tipo_habitacion_index', icon: '◫' },
   { label: 'Habitaciones', path: '/panel/habitaciones', permiso: 'habitacion_index', icon: '⌂' },
+  { label: 'Tarifas', path: '/panel/tarifas', permiso: 'tarifa_index', icon: '$' },
   { label: 'Servicios', path: '/panel/servicios', permiso: 'servicio_index', icon: '✦' },
   { label: 'Usuarios', path: '/panel/usuarios', permiso: 'usuario_index', icon: '◍' },
   { label: 'Sesiones', path: '/panel/sesiones', permiso: 'session_index', icon: '⚇' },

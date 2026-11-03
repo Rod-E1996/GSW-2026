@@ -23,10 +23,39 @@ class ModeloReservasTest extends TestCase
 {
     use DatabaseTransactions;
 
-    //Columnas de las secciones 3.10 a 3.14 y 3.21 del diccionario de datos
+    //Columnas de las secciones 3.2 a 3.14 y 3.21 del diccionario de datos
     public static function diccionario(): array
     {
         return [
+            'tipos_habitacion' => ['tipos_habitacion', [
+                'id', 'nombre', 'nombre_en', 'slug', 'capacidad', 'precio_base', 'descripcion', 'descripcion_en',
+                'orden', 'estado', 'created_at', 'updated_at',
+            ]],
+            'habitaciones' => ['habitaciones', [
+                'id', 'numero', 'piso', 'estado_habitacion', 'descripcion', 'tipo_habitacion_id', 'estado',
+                'created_at', 'updated_at',
+            ]],
+            'tipo_habitacion_imagenes' => ['tipo_habitacion_imagenes', [
+                'id', 'ruta', 'nombre_original', 'orden', 'principal', 'tipo_habitacion_id', 'created_at', 'updated_at',
+            ]],
+            'temporadas' => ['temporadas', [
+                'id', 'nombre', 'nombre_en', 'fecha_inicio', 'fecha_fin', 'multiplicador', 'prioridad', 'color',
+                'estado', 'created_at', 'updated_at',
+            ]],
+            'tarifas' => ['tarifas', [
+                'id', 'tipo_habitacion_id', 'temporada_id', 'precio_noche', 'estado', 'created_at', 'updated_at',
+            ]],
+            'bloqueos_habitacion' => ['bloqueos_habitacion', [
+                'id', 'habitacion_id', 'fecha_inicio', 'fecha_fin', 'motivo', 'descripcion', 'user_id', 'estado',
+                'created_at', 'updated_at',
+            ]],
+            'categorias_servicio' => ['categorias_servicio', [
+                'id', 'nombre', 'nombre_en', 'icono', 'orden', 'estado', 'created_at', 'updated_at',
+            ]],
+            'servicios' => ['servicios', [
+                'id', 'categoria_servicio_id', 'nombre', 'nombre_en', 'descripcion', 'descripcion_en', 'icono', 'imagen',
+                'precio', 'forma_cobro', 'requiere_fecha', 'estado', 'created_at', 'updated_at',
+            ]],
             'huespedes' => ['huespedes', [
                 'id', 'user_id', 'nombres', 'apellidos', 'tipo_documento', 'documento', 'email', 'telefono',
                 'nacionalidad', 'fecha_nacimiento', 'direccion', 'notas', 'estado', 'created_at', 'updated_at',

@@ -10,16 +10,16 @@ class Habitacion extends Model
     protected $table = 'habitaciones';
     protected $primaryKey = 'id';
 
-    //Estados operativos de la habitacion
-    const DISPONIBLE = 1;
-    const OCUPADA = 2;
-    const MANTENIMIENTO = 3;
+    //Estado fisico de la habitacion. La ocupacion se deduce de las reservas.
+    const DISPONIBLE = 'disponible';
+    const LIMPIEZA = 'limpieza';
+    const MANTENIMIENTO = 'mantenimiento';
 
-    //Catalogo de estados: [valor => [etiqueta, color bootstrap]]
+    //Catalogo de estados: [valor => etiqueta]
     const ESTADOS = [
-        self::DISPONIBLE    => ['nombre' => 'Disponible',    'color' => 'success'],
-        self::OCUPADA       => ['nombre' => 'Ocupada',       'color' => 'warning'],
-        self::MANTENIMIENTO => ['nombre' => 'Mantenimiento', 'color' => 'secondary'],
+        self::DISPONIBLE    => 'Disponible',
+        self::LIMPIEZA      => 'Limpieza',
+        self::MANTENIMIENTO => 'Mantenimiento',
     ];
 
     protected $fillable = [
@@ -36,17 +36,16 @@ class Habitacion extends Model
         'numero' => ['required', 'string', 'max:10'],
         'piso' => ['required', 'integer', 'min:0', 'max:50'],
         'tipo_habitacion_id' => ['required', 'integer', 'exists:tipos_habitacion,id'],
-        'estado_habitacion' => ['required', 'integer', 'in:1,2,3'],
+        'estado_habitacion' => ['required', 'string', 'in:disponible,limpieza,mantenimiento'],
         'descripcion' => ['nullable', 'string'],
     ];
 
-    //Reglas con validacion de numero unico entre las habitaciones activas ($id se ignora al editar)
+    //El numero es unico en toda la tabla. Al crear se ignoran las eliminadas porque se reactivan.
     public static function rules($id = null)
     {
         $rules = self::$rules;
-        $rules['numero'][] = Rule::unique('habitaciones', 'numero')
-            ->where('estado', 1)
-            ->ignore($id);
+        $unico = Rule::unique('habitaciones', 'numero')->ignore($id);
+        $rules['numero'][] = $id ? $unico : $unico->where('estado', 1);
 
         return $rules;
     }
@@ -61,12 +60,25 @@ class Habitacion extends Model
     // accesores
     public function getEstadoNombreAttribute()
     {
-        return self::ESTADOS[$this->estado_habitacion]['nombre'] ?? 'Desconocido';
+        return self::ESTADOS[$this->estado_habitacion] ?? 'Desconocido';
     }
 
-    public function getEstadoColorAttribute()
+    //Reservas vigentes que ocupan algun dia entre $inicio y $fin (ambos inclusive).
+    //La fecha de salida no cuenta como ocupada: ese dia puede entrar otro huesped.
+    public function reservasActivasEntre($inicio, $fin)
     {
-        return self::ESTADOS[$this->estado_habitacion]['color'] ?? 'dark';
+        return $this->reservas()
+            ->whereIn('estado_reserva', [Reserva::PENDIENTE, Reserva::CONFIRMADA, Reserva::EN_ESTADIA])
+            ->whereDate('fecha_llegada', '<=', $fin)
+            ->whereDate('fecha_salida', '>', $inicio);
+    }
+
+    //Reservas vigentes de hoy en adelante.
+    public function reservasPorAtender()
+    {
+        return $this->reservas()
+            ->whereIn('estado_reserva', [Reserva::PENDIENTE, Reserva::CONFIRMADA, Reserva::EN_ESTADIA])
+            ->whereDate('fecha_salida', '>=', now()->toDateString());
     }
 
     // relaciones
@@ -78,5 +90,10 @@ class Habitacion extends Model
     public function reservas()
     {
         return $this->hasMany(Reserva::class, 'habitacion_id', 'id');
+    }
+
+    public function bloqueos()
+    {
+        return $this->hasMany(BloqueoHabitacion::class, 'habitacion_id', 'id');
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\SessionLog;
 use App\Models\User;
 use App\Services\SesionTokenService;
 use Illuminate\Http\Request;
@@ -77,25 +76,11 @@ class SesionController extends Controller
         $tokenActual = $request->user()->currentAccessToken()->id;
         $activas = $this->sesiones->activasDeUsuario($user->id)->orderByDesc('last_used_at')->get();
 
-        $historial = SessionLog::where('user_id', $user->id)
-            ->latest('id')
-            ->limit(20)
-            ->get()
-            ->map(fn (SessionLog $log) => [
-                'id' => $log->id,
-                'ip_address' => $log->ip_address ?? 'Desconocida',
-                'platform' => $log->platform ?? 'Desconocido',
-                'browser' => $log->browser ?? 'Desconocido',
-                'device_type_es' => $this->sesiones->tipoDispositivo($log->device_type),
-                'estado' => (int) $log->estado,
-                'fecha' => $log->created_at,
-            ]);
-
         return response()->json([
             'usuario' => ['id' => $user->id, 'name' => $user->name],
             'sesiones' => $this->sesiones->detallar($activas, $tokenActual),
             'total_activas' => $activas->count(),
-            'historial' => $historial,
+            'historial' => $this->sesiones->historial($user->id),
         ]);
     }
 

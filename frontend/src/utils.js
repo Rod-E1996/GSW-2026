@@ -12,3 +12,10 @@ export function rutaImagen(url) {
 export function formatoUSD(valor) {
   return new Intl.NumberFormat('es-SV', { style: 'currency', currency: 'USD' }).format(valor ?? 0)
 }
+
+// Muestra una fecha AAAA-MM-DD sin convertirla de zona horaria (no se corre un dia).
+export function fechaCorta(valor) {
+  if (!valor) return '—'
+  const [anio, mes, dia] = valor.split('-')
+  return `${dia}/${mes}/${anio}`
+}

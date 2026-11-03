@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
 use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
@@ -12,6 +13,12 @@ use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Admin\SesionController as AdminSesionController;
 use App\Http\Controllers\Api\Admin\ConfiguracionController as AdminConfiguracionController;
+use App\Http\Controllers\Api\Admin\HabitacionController as AdminHabitacionController;
+use App\Http\Controllers\Api\Admin\BloqueoHabitacionController as AdminBloqueoController;
+use App\Http\Controllers\Api\Admin\TemporadaController as AdminTemporadaController;
+use App\Http\Controllers\Api\Admin\TarifaController as AdminTarifaController;
+use App\Http\Controllers\Api\Admin\CategoriaServicioController as AdminCategoriaServicioController;
+use App\Http\Controllers\Api\Admin\ServicioController as AdminServicioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +45,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
+// ===== Perfil del usuario autenticado =====
+Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
+    Route::get('/', [PerfilController::class, 'show'])
+        ->middleware('permission:perfil_show,sanctum');
+    // Con limite de intentos: piden la contrasena actual
+    Route::put('/', [PerfilController::class, 'update'])
+        ->middleware(['permission:perfil_edit,sanctum', 'throttle:10,1']);
+    Route::put('/password', [PerfilController::class, 'password'])
+        ->middleware(['permission:perfil_edit_password,sanctum', 'throttle:6,1']);
+    Route::delete('/sesiones/{token}', [PerfilController::class, 'cerrarSesion'])
+        ->middleware('permission:perfil_cerrar_session,sanctum');
+});
+
 // ===== Portal publico (sin autenticacion) =====
 Route::get('/tipos-habitacion', [TipoHabitacionController::class, 'index']);
 
@@ -62,6 +82,78 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:tipo_habitacion_update,sanctum');
     Route::put('/tipos-habitacion/{id}/imagenes/{imagen}/principal', [AdminTipoHabitacionController::class, 'imagenPrincipal'])
         ->middleware('permission:tipo_habitacion_update,sanctum');
+
+    // Habitaciones. /catalogos antes de /{id}.
+    Route::get('/habitaciones', [AdminHabitacionController::class, 'index'])
+        ->middleware('permission:habitacion_index,sanctum');
+    Route::get('/habitaciones/catalogos', [AdminHabitacionController::class, 'catalogos'])
+        ->middleware('permission:habitacion_index,sanctum');
+    Route::post('/habitaciones', [AdminHabitacionController::class, 'store'])
+        ->middleware('permission:habitacion_store,sanctum');
+    Route::get('/habitaciones/{id}', [AdminHabitacionController::class, 'show'])
+        ->middleware('permission:habitacion_show,sanctum');
+    Route::put('/habitaciones/{id}', [AdminHabitacionController::class, 'update'])
+        ->middleware('permission:habitacion_update,sanctum');
+    Route::put('/habitaciones/{id}/estado', [AdminHabitacionController::class, 'estado'])
+        ->middleware('permission:habitacion_estado,sanctum');
+    Route::delete('/habitaciones/{id}', [AdminHabitacionController::class, 'destroy'])
+        ->middleware('permission:habitacion_destroy,sanctum');
+
+    // Bloqueos de habitacion
+    Route::get('/bloqueos', [AdminBloqueoController::class, 'index'])
+        ->middleware('permission:bloqueo_index,sanctum');
+    Route::post('/bloqueos', [AdminBloqueoController::class, 'store'])
+        ->middleware('permission:bloqueo_store,sanctum');
+    Route::put('/bloqueos/{id}', [AdminBloqueoController::class, 'update'])
+        ->middleware('permission:bloqueo_update,sanctum');
+    Route::delete('/bloqueos/{id}', [AdminBloqueoController::class, 'destroy'])
+        ->middleware('permission:bloqueo_destroy,sanctum');
+
+    // Temporadas
+    Route::get('/temporadas', [AdminTemporadaController::class, 'index'])
+        ->middleware('permission:temporada_index,sanctum');
+    Route::post('/temporadas', [AdminTemporadaController::class, 'store'])
+        ->middleware('permission:temporada_store,sanctum');
+    Route::get('/temporadas/{id}', [AdminTemporadaController::class, 'show'])
+        ->middleware('permission:temporada_index,sanctum');
+    Route::put('/temporadas/{id}', [AdminTemporadaController::class, 'update'])
+        ->middleware('permission:temporada_update,sanctum');
+    Route::delete('/temporadas/{id}', [AdminTemporadaController::class, 'destroy'])
+        ->middleware('permission:temporada_destroy,sanctum');
+
+    // Tarifas (matriz por tipo y temporada)
+    Route::get('/tarifas', [AdminTarifaController::class, 'index'])
+        ->middleware('permission:tarifa_index,sanctum');
+    Route::put('/tarifas', [AdminTarifaController::class, 'update'])
+        ->middleware('permission:tarifa_update,sanctum');
+
+    // Categorias de servicio
+    Route::get('/categorias-servicio', [AdminCategoriaServicioController::class, 'index'])
+        ->middleware('permission:categoria_servicio_index,sanctum');
+    Route::post('/categorias-servicio', [AdminCategoriaServicioController::class, 'store'])
+        ->middleware('permission:categoria_servicio_store,sanctum');
+    Route::get('/categorias-servicio/{id}', [AdminCategoriaServicioController::class, 'show'])
+        ->middleware('permission:categoria_servicio_index,sanctum');
+    Route::put('/categorias-servicio/{id}', [AdminCategoriaServicioController::class, 'update'])
+        ->middleware('permission:categoria_servicio_update,sanctum');
+    Route::delete('/categorias-servicio/{id}', [AdminCategoriaServicioController::class, 'destroy'])
+        ->middleware('permission:categoria_servicio_destroy,sanctum');
+
+    // Servicios complementarios
+    Route::get('/servicios', [AdminServicioController::class, 'index'])
+        ->middleware('permission:servicio_index,sanctum');
+    Route::post('/servicios', [AdminServicioController::class, 'store'])
+        ->middleware('permission:servicio_store,sanctum');
+    Route::get('/servicios/{id}', [AdminServicioController::class, 'show'])
+        ->middleware('permission:servicio_index,sanctum');
+    Route::put('/servicios/{id}', [AdminServicioController::class, 'update'])
+        ->middleware('permission:servicio_update,sanctum');
+    Route::delete('/servicios/{id}', [AdminServicioController::class, 'destroy'])
+        ->middleware('permission:servicio_destroy,sanctum');
+    Route::post('/servicios/{id}/imagen', [AdminServicioController::class, 'imagenStore'])
+        ->middleware('permission:servicio_update,sanctum');
+    Route::delete('/servicios/{id}/imagen', [AdminServicioController::class, 'imagenDestroy'])
+        ->middleware('permission:servicio_update,sanctum');
 
     // Auditoria (solo lectura)
     Route::get('/auditoria', [AdminAuditarController::class, 'index'])

@@ -23,9 +23,7 @@ class HabitacionesSeeder extends Seeder
     public static $permisos = [
         'habitacion_index',
         'habitacion_show',
-        'habitacion_create',
         'habitacion_store',
-        'habitacion_edit',
         'habitacion_update',
         'habitacion_estado',
         'habitacion_destroy',
@@ -66,7 +64,7 @@ class HabitacionesSeeder extends Seeder
         $habitaciones = [
             ['101', 1, 'Sencilla', Habitacion::DISPONIBLE,    'Junto a recepción.'],
             ['102', 1, 'Sencilla', Habitacion::DISPONIBLE,    null],
-            ['103', 1, 'Doble',    Habitacion::OCUPADA,       'Vista al jardín.'],
+            ['103', 1, 'Doble',    Habitacion::LIMPIEZA,      'Vista al jardín.'],
             ['104', 1, 'Doble',    Habitacion::MANTENIMIENTO, 'Reparación de aire acondicionado.'],
             ['201', 2, 'Doble',    Habitacion::DISPONIBLE,    'Vista a la piscina.'],
             ['202', 2, 'Familiar', Habitacion::DISPONIBLE,    'Con balcón.'],

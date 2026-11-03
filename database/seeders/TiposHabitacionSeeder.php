@@ -52,24 +52,28 @@ class TiposHabitacionSeeder extends Seeder
         $tipos = [
             [
                 'nombre' => 'Sencilla',
+                'nombre_en' => 'Single',
                 'capacidad' => 1,
                 'precio_base' => 35.00,
                 'descripcion' => 'Una cama individual, baño privado, aire acondicionado y televisión por cable.',
             ],
             [
                 'nombre' => 'Doble',
+                'nombre_en' => 'Double',
                 'capacidad' => 2,
                 'precio_base' => 55.00,
                 'descripcion' => 'Una cama matrimonial o dos camas individuales, baño privado, aire acondicionado y wifi.',
             ],
             [
                 'nombre' => 'Familiar',
+                'nombre_en' => 'Family',
                 'capacidad' => 4,
                 'precio_base' => 85.00,
                 'descripcion' => 'Una cama matrimonial y dos individuales, baño privado, minibar y balcón.',
             ],
             [
                 'nombre' => 'Suite',
+                'nombre_en' => 'Suite',
                 'capacidad' => 2,
                 'precio_base' => 120.00,
                 'descripcion' => 'Cama king, sala de estar, jacuzzi, minibar y vista al mar.',

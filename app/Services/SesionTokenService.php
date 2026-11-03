@@ -149,6 +149,24 @@ class SesionTokenService
         });
     }
 
+    //Ultimos inicios de sesion de un usuario.
+    public function historial(int $userId): Collection
+    {
+        return SessionLog::where('user_id', $userId)
+            ->latest('id')
+            ->limit(20)
+            ->get()
+            ->map(fn (SessionLog $log) => [
+                'id' => $log->id,
+                'ip_address' => $log->ip_address ?? 'Desconocida',
+                'platform' => $log->platform ?? 'Desconocido',
+                'browser' => $log->browser ?? 'Desconocido',
+                'device_type_es' => $this->tipoDispositivo($log->device_type),
+                'estado' => (int) $log->estado,
+                'fecha' => $log->created_at,
+            ]);
+    }
+
     //Cierra (revoca) un token. Nunca cierra el token actual del que lo solicita.
     public function cerrar(int $tokenId, ?int $tokenActualId = null): bool
     {

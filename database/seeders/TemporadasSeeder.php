@@ -20,10 +20,10 @@ class TemporadasSeeder extends Seeder
         }
 
         $temporadas = [
-            ['nombre' => 'Media',            'fecha_inicio' => '2027-02-01', 'fecha_fin' => '2027-03-20', 'multiplicador' => 1.15],
-            ['nombre' => 'Semana Santa',     'fecha_inicio' => '2027-03-21', 'fecha_fin' => '2027-04-04', 'multiplicador' => 1.45],
-            ['nombre' => 'Fiestas agostinas','fecha_inicio' => '2027-08-01', 'fecha_fin' => '2027-08-07', 'multiplicador' => 1.30],
-            ['nombre' => 'Fin de año',       'fecha_inicio' => '2026-12-15', 'fecha_fin' => '2027-01-06', 'multiplicador' => 1.40],
+            ['nombre' => 'Media',            'nombre_en' => 'Mid season',     'fecha_inicio' => '2027-02-01', 'fecha_fin' => '2027-03-20', 'multiplicador' => 1.15, 'prioridad' => 1, 'color' => '#2F80ED'],
+            ['nombre' => 'Semana Santa',     'nombre_en' => 'Holy Week',      'fecha_inicio' => '2027-03-21', 'fecha_fin' => '2027-04-04', 'multiplicador' => 1.45, 'prioridad' => 2, 'color' => '#9B51E0'],
+            ['nombre' => 'Fiestas agostinas','nombre_en' => 'August holidays','fecha_inicio' => '2027-08-01', 'fecha_fin' => '2027-08-07', 'multiplicador' => 1.30, 'prioridad' => 2, 'color' => '#F2994A'],
+            ['nombre' => 'Fin de año',       'nombre_en' => 'Year end',       'fecha_inicio' => '2026-12-15', 'fecha_fin' => '2027-01-06', 'multiplicador' => 1.40, 'prioridad' => 2, 'color' => '#EB5757'],
         ];
 
         foreach ($temporadas as $temporada) {

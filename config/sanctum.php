@@ -44,7 +44,22 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => env('SANCTUM_EXPIRATION', 129600), // 90 dias: tope absoluto de cualquier token
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inactividad (minutos)
+    |--------------------------------------------------------------------------
+    |
+    | Tiempo sin usar un token antes de que deje de ser valido. Se revisa en
+    | SesionTokenService::esVigente. "recordar" aplica a los tokens creados con
+    | la casilla "Recordarme" y al registro de huespedes.
+    |
+    */
+
+    'inactividad' => env('SANCTUM_INACTIVIDAD', 120),
+
+    'inactividad_recordar' => env('SANCTUM_INACTIVIDAD_RECORDAR', 43200),
 
     /*
     |--------------------------------------------------------------------------

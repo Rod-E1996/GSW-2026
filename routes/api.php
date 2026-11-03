@@ -23,7 +23,7 @@ use App\Http\Controllers\Api\Admin\SesionController as AdminSesionController;
 */
 
 // ===== Autenticacion =====
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
 
 // Recuperacion de contrasena (publicas, con limite de intentos)

@@ -15,6 +15,9 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
 
+    //Idiomas del portal bilingue
+    const IDIOMAS = ['es', 'en'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -25,6 +28,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'idioma',
         'estado',
         'login_notificacion'
     ];

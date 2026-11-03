@@ -59,6 +59,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'idioma' => ['sometimes', 'string', Rule::in(User::IDIOMAS)],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
@@ -67,6 +68,7 @@ class UserController extends Controller
             'name' => $datos['name'],
             'email' => $datos['email'],
             'password' => Hash::make($datos['password']),
+            'idioma' => $datos['idioma'] ?? 'es',
             'estado' => 1,
         ]);
 
@@ -100,12 +102,14 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'idioma' => ['sometimes', 'string', Rule::in(User::IDIOMAS)],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
         $user->name = $datos['name'];
         $user->email = $datos['email'];
+        $user->idioma = $datos['idioma'] ?? $user->idioma;
 
         if (!empty($datos['password'])) {
             $user->password = Hash::make($datos['password']);
@@ -113,6 +117,11 @@ class UserController extends Controller
 
         $user->save();
         $user->syncRoles(Role::whereIn('id', $datos['roles'])->get());
+
+        // Al cambiar la contrasena se cierran sus otras sesiones (la de quien edita se conserva).
+        if (!empty($datos['password'])) {
+            $this->sesiones->cerrarTodasDeUsuario($user->id, $request->user()->currentAccessToken()->id);
+        }
 
         return new UsuarioResource($user->load('roles'));
     }
@@ -132,6 +141,11 @@ class UserController extends Controller
 
         $user->estado = $user->estado == 1 ? 0 : 1;
         $user->save();
+
+        // Un usuario desactivado pierde de inmediato todas sus sesiones.
+        if ($user->estado == 0) {
+            $this->sesiones->cerrarTodasDeUsuario($user->id);
+        }
 
         return new UsuarioResource($user->load('roles'));
     }

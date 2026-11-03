@@ -28,6 +28,7 @@ class AuthController extends Controller
         $datos = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'recordar' => ['sometimes', 'boolean'],
         ]);
 
         $user = User::where('email', $datos['email'])->first();
@@ -44,7 +45,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $nuevo = $user->createToken('spa');
+        $nuevo = $this->sesiones->crearToken($user, $request->boolean('recordar', true));
         $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);
 
         return response()->json([
@@ -72,7 +73,7 @@ class AuthController extends Controller
         // Todo usuario que se registra desde el sitio publico es un huesped.
         $user->assignRole('Huésped');
 
-        $nuevo = $user->createToken('spa');
+        $nuevo = $this->sesiones->crearToken($user, true);
         $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);
 
         return response()->json([
@@ -131,6 +132,9 @@ class AuthController extends Controller
                 'password' => Hash::make($password),
                 'remember_token' => Str::random(60),
             ])->save();
+
+            // Quien tuviera la contrasena anterior deja de tener acceso.
+            $this->sesiones->cerrarTodasDeUsuario($user->id);
 
             event(new PasswordReset($user));
         });

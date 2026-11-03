@@ -16,12 +16,15 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Si el token caduca o es invalido (401), limpia la sesion local.
+// Si el token caduca o es invalido (401), limpia la sesion local y, en el panel, pide iniciar sesion.
 api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
       clearToken()
+      if (window.location.pathname.startsWith('/panel')) {
+        window.location.assign('/login')
+      }
     }
     return Promise.reject(error)
   },

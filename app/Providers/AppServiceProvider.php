@@ -6,6 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Routing\UrlGenerator;
+use App\Services\SesionTokenService;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,5 +39,10 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
+
+        //Cada peticion con token revisa que el usuario siga activo y que no haya vencido por inactividad
+        Sanctum::authenticateAccessTokensUsing(function (PersonalAccessToken $token, bool $esValido) {
+            return $esValido && app(SesionTokenService::class)->esVigente($token);
+        });
     }
 }

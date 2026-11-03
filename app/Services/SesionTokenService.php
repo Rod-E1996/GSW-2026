@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Jenssegers\Agent\Agent;
+use Laravel\Sanctum\NewAccessToken;
 use Laravel\Sanctum\PersonalAccessToken;
 use Mobile_Detect;
 
@@ -19,6 +20,30 @@ use Mobile_Detect;
  */
 class SesionTokenService
 {
+    //Nombres de token: de ellos depende el tiempo de inactividad permitido.
+    const TOKEN_SESION = 'spa';
+    const TOKEN_RECORDAR = 'spa-recordar';
+
+    //Crea el token del SPA ("Recordarme" permite mas tiempo de inactividad).
+    public function crearToken(User $user, bool $recordar): NewAccessToken
+    {
+        return $user->createToken($recordar ? self::TOKEN_RECORDAR : self::TOKEN_SESION);
+    }
+
+    //Un token es vigente si su usuario sigue activo y no ha superado la inactividad permitida.
+    public function esVigente(PersonalAccessToken $token): bool
+    {
+        if ((int) ($token->tokenable->estado ?? 0) !== 1) {
+            return false;
+        }
+
+        $minutos = $token->name === self::TOKEN_RECORDAR
+            ? config('sanctum.inactividad_recordar')
+            : config('sanctum.inactividad');
+
+        return ($token->last_used_at ?? $token->created_at)->gt(now()->subMinutes($minutos));
+    }
+
     //Registra el inicio de sesion: crea el SessionLog ligado al token y avisa si es un dispositivo nuevo.
     public function registrarLogin(Request $request, User $user, int $tokenId): SessionLog
     {
@@ -52,13 +77,25 @@ class SesionTokenService
         ]);
     }
 
-    //Query base: tokens vigentes (no expirados) de usuarios.
+    //Query base: tokens vigentes (no expirados ni inactivos) de usuarios.
     public function activas(): Builder
     {
+        $ultimoUso = 'COALESCE(last_used_at, created_at) > ?';
+
         return PersonalAccessToken::query()
             ->where('tokenable_type', User::class)
             ->where(function ($q) {
                 $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->where('created_at', '>', now()->subMinutes(config('sanctum.expiration')))
+            ->where(function ($q) use ($ultimoUso) {
+                $q->where(function ($r) use ($ultimoUso) {
+                    $r->where('name', self::TOKEN_RECORDAR)
+                        ->whereRaw($ultimoUso, [now()->subMinutes(config('sanctum.inactividad_recordar'))]);
+                })->orWhere(function ($s) use ($ultimoUso) {
+                    $s->where('name', '!=', self::TOKEN_RECORDAR)
+                        ->whereRaw($ultimoUso, [now()->subMinutes(config('sanctum.inactividad'))]);
+                });
             });
     }
 

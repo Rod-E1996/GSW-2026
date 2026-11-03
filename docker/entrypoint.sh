@@ -4,10 +4,13 @@ set -e
 
 cd /var/www/html
 
-DB_HOST="${DB_HOST:-db}"
+# Lo que creen los procesos de root (seeders, worker) debe poder escribirlo Apache (www-data).
+umask 0000
+
+DB_HOST="${DB_HOST:-base}"
 DB_DATABASE="${DB_DATABASE:-hotellink}"
-DB_USERNAME="${DB_USERNAME:-root}"
-DB_PASSWORD="${DB_PASSWORD:-root}"
+DB_USERNAME="${DB_USERNAME:-hotellink}"
+DB_PASSWORD="${DB_PASSWORD:-hotellink_dev}"
 
 # --skip-ssl: el cliente MariaDB nuevo exige TLS por defecto y el servidor no lo usa.
 mysql_cli() {
@@ -15,31 +18,36 @@ mysql_cli() {
 }
 
 wait_for_db() {
-  echo "Esperando a la base de datos en ${DB_HOST}..."
+  echo "[${HOTELLINK_NODE:-app}] Esperando a la base de datos en ${DB_HOST}..."
   until mysql_cli -e "SELECT 1" >/dev/null 2>&1; do
     sleep 2
   done
-  echo "Base de datos lista."
+  echo "[${HOTELLINK_NODE:-app}] Base de datos lista."
 }
 
-# El contenedor de colas (queue) solo necesita la BD arriba; no prepara el proyecto.
-case "$1" in
-  apache2-foreground) ;;
-  *)
-    wait_for_db
-    exec "$@"
-    ;;
-esac
+# Permisos de escritura para Laravel (dev; Apache corre como www-data y el
+# bind-mount de Windows no le da escritura, por eso 777 en dev).
+fix_perms() {
+  chmod -R 777 storage bootstrap/cache 2>/dev/null || true
+}
 
-# --- A partir de aquí, preparación del contenedor principal (app) ---
+# El worker (queue) y las replicas web (HOTELLINK_ROLE=replica) solo necesitan la BD arriba;
+# no preparan el proyecto: eso lo hace una sola vez el contenedor principal (web01).
+if [ "$1" != "apache2-foreground" ] || [ "${HOTELLINK_ROLE:-primary}" = "replica" ]; then
+  fix_perms
+  wait_for_db
+  exec "$@"
+fi
 
-# 1. Dependencias de Composer (solo si faltan, para que los reinicios sean rápidos).
+# --- A partir de aqui, preparacion del contenedor principal (web01) ---
+
+# 1. Dependencias de Composer (solo si faltan, para que los reinicios sean rapidos).
 if [ ! -f vendor/autoload.php ]; then
   echo "Instalando dependencias de Composer..."
   composer install --no-interaction --prefer-dist --optimize-autoloader
 fi
 
-# 2. Archivo .env y APP_KEY si no existen todavía.
+# 2. Archivo .env y APP_KEY si no existen todavia.
 if [ ! -f .env ]; then
   echo "Creando .env a partir de .env.example..."
   cp .env.example .env
@@ -49,17 +57,14 @@ if ! grep -q "^APP_KEY=base64:" .env; then
   php artisan key:generate --force
 fi
 
-# 3. Permisos de escritura para Laravel (dev; Apache corre como www-data y el
-#    bind-mount de Windows no le da escritura, por eso 777 en dev).
-chmod -R 777 storage bootstrap/cache 2>/dev/null || true
-
+fix_perms
 wait_for_db
 
-# 4. Migraciones.
+# 3. Migraciones.
 echo "Ejecutando migraciones..."
 php artisan migrate --force
 
-# 5. Seeders solo si la base está vacía (primer arranque).
+# 4. Seeders solo si la base esta vacia (primer arranque).
 TABLES=$(mysql_cli -N -B \
   -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_DATABASE' AND table_name='users';" 2>/dev/null || echo 0)
 USERS=0
@@ -68,19 +73,22 @@ if [ "$TABLES" = "1" ]; then
     -e "SELECT COUNT(*) FROM \`$DB_DATABASE\`.users;" 2>/dev/null || echo 0)
 fi
 if [ "${USERS:-0}" = "0" ]; then
-  echo "Base vacía: ejecutando seeders..."
+  echo "Base vacia: ejecutando seeders..."
   php artisan db:seed --force
 else
   echo "La base ya tiene datos: se omiten los seeders."
 fi
 
-# 6. Enlace public/storage.
+# 5. Enlace public/storage.
 if [ ! -L public/storage ]; then
   php artisan storage:link || true
 fi
 
-# 7. Limpiar y cachear configuración.
+# 6. Limpiar configuracion cacheada.
 php artisan config:clear || true
+
+# Lo creado por migraciones y seeders (cache, logs) queda escribible para Apache.
+fix_perms
 
 echo "Listo: http://localhost:${APP_PORT:-8080}"
 

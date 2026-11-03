@@ -18,6 +18,7 @@ class UsuarioResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'idioma' => $this->idioma,
             'estado' => (int) $this->estado,
             'login_notificacion' => (int) $this->login_notificacion,
             'roles' => $this->getRoleNames(),

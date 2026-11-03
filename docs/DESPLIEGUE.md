@@ -102,14 +102,16 @@ Cambia al menos esto para producción:
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=http://IP_DEL_SERVIDOR        # o http://reservas.tudominio.com
+FRONTEND_URL=http://IP_DEL_SERVIDOR   # dominio del portal: autoriza CORS y arma el enlace de recuperación
 
 # Pon contraseñas FUERTES (no las de ejemplo)
+DOCKER_DB_PASSWORD=contraseña_de_la_aplicacion_fuerte
 DB_ROOT_PASSWORD=otra_contraseña_root_fuerte
 
 # El sitio escucha en el puerto 80 (web normal)
 APP_PORT=80
 
-# Correo real del hotel (si no, deja Mailpit solo para pruebas)
+# Correo real del hotel
 # MAIL_HOST=smtp.tu-proveedor.com  etc.
 ```
 
@@ -130,13 +132,13 @@ ejecuta los seeders. Comprueba:
 
 ```bash
 docker compose ps          # todos "running"/"healthy"
-docker compose logs -f app # hasta ver "Listo: http://localhost:80"
+docker compose logs -f back # hasta ver "Listo: http://localhost:80"
 ```
 
 Abre en el navegador: **http://IP_DEL_SERVIDOR**
 
 Para que arranque solo si la VM se reinicia, los servicios ya tienen
-`restart: unless-stopped` en `docker-compose.yml`. No hay que hacer nada más.
+`restart: unless-stopped` en `compose.yaml`. No hay que hacer nada más.
 
 ---
 
@@ -156,10 +158,9 @@ El sitio no se verá desde fuera hasta que el firewall deje pasar el puerto web.
 - **En el panel del proveedor de nube** (DigitalOcean, AWS, etc.): abre también
   los puertos **80** y **443** en el "firewall" / "security group" de la VM.
 
-> **No abras** los puertos 8081 (phpMyAdmin), 8025 (Mailpit) ni 3307 (base de
-> datos) a internet. En producción conviene **quitar** esos servicios del
-> `compose` o dejarlos solo accesibles por un túnel SSH. Son herramientas de
-> desarrollo.
+> **No abras** a internet los puertos 5173 (Vite), 8080 ni 8081 (back y web02): el
+> tráfico público entra solo por el proxy de los puertos 80 y 443. La base de datos
+> no publica puertos; no crees un `compose.override.yaml` que la abra en producción.
 
 ---
 
@@ -182,7 +183,8 @@ la app, se pone un **reverse proxy** delante. El más simple es
 Resumen del montaje (se documenta en detalle al desplegar):
 
 1. Cambia el puerto de la app a interno (`APP_PORT=8080`, no al 80).
-2. Añade un servicio `caddy` al `compose` que escuche 80/443 y reenvíe a `app`.
+2. Añade un servicio `caddy` al `compose` que escuche 80/443 y reparta el tráfico
+   entre `back` y `web02` (`reverse_proxy back:80 web02:80`).
 3. Un `Caddyfile` de 2 líneas con tu dominio basta; Caddy saca el certificado
    automáticamente.
 
@@ -192,18 +194,18 @@ Alternativa clásica: Nginx + Certbot. Caddy es más corto para este caso.
 
 ## Paso 9 — Respaldos de la base de datos
 
-Los datos viven en el volumen `dbdata` (persisten aunque apagues los
+Los datos viven en el volumen `hotellink-dbdata` (persisten aunque apagues los
 contenedores). Para un respaldo manual:
 
 ```bash
-docker compose exec db sh -c \
+docker compose exec base sh -c \
   'mariadb-dump -u root -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"' > backup_$(date +%F).sql
 ```
 
 Restaurar:
 
 ```bash
-docker compose exec -T db sh -c \
+docker compose exec -T base sh -c \
   'mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"' < backup_2026-10-05.sql
 ```
 
@@ -218,7 +220,7 @@ docker compose exec -T db sh -c \
 |----------|--------------------|-----------------------------|
 | desarrollas y pruebas con Docker | instalar Docker + Git | `git pull` |
 | `git push` | `git clone` + `.env` | `docker compose up -d --build` |
-| | abrir firewall 80/443 | `docker compose exec app php artisan migrate --force` |
+| | abrir firewall 80/443 | `docker compose exec back php artisan migrate --force` |
 
 Con esto, la VM es el servidor donde se aloja HotelLink: recibe el tráfico en su
 IP/dominio y sirve el sitio desde los mismos contenedores que usas localmente,

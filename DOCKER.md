@@ -19,7 +19,7 @@ docker compose version
 
 ## 2. Primer arranque
 
-Desde la carpeta del proyecto (donde está `docker-compose.yml`):
+Desde la carpeta del proyecto (donde está `compose.yaml`):
 
 ```bash
 # 1. Crea tu archivo de configuración a partir del ejemplo
@@ -55,10 +55,11 @@ Cuando el back diga `Listo: http://localhost:8080`, ya está arriba.
 | Servicio | URL | Para qué |
 |----------|-----|----------|
 | **Portal React** (front) | http://localhost:5173 | el portal de reservas (SPA) |
-| **Backend Laravel** (back) | http://localhost:8080 | el API REST + el sitio/panel Blade |
+| **Backend Laravel web01** (back) | http://localhost:8080 | el API REST + el sitio/panel Blade |
+| **Backend Laravel web02** (web02) | http://localhost:8081 | segunda instancia del mismo backend (alta disponibilidad) |
 
 > Si alguno de esos puertos ya lo usas, cámbialo en `.env`
-> (`APP_PORT`, `VITE_PORT`) y vuelve a `docker compose up -d`.
+> (`APP_PORT`, `WEB02_PORT`, `VITE_PORT`) y vuelve a `docker compose up -d`.
 
 ## 4. Comandos del día a día
 
@@ -74,30 +75,49 @@ docker compose exec back php artisan db:seed
 docker compose exec back composer require vendor/paquete
 docker compose exec back bash   # una terminal dentro del contenedor
 
+# Pruebas automatizadas (usan su propia base SQLite, nunca la de desarrollo):
+docker compose exec back php artisan test
+
 # Frontend (dentro del contenedor front):
 docker compose exec front npm install paquete
 ```
 
 ## 5. Contenedores que se levantan
 
-- **back** — Laravel (API REST + sitio/panel Blade). PHP 8.3 + Apache desde `public/`.
-- **base** — MariaDB 10.11. Los datos se guardan en el volumen `dbdata`, así que
-  **no se pierden** al apagar.
-- **worker** — procesa tareas en segundo plano (`php artisan queue:work`), p. ej.
+Todos comparten la red bridge personalizada **`hotellink-net`** y se localizan
+entre sí por el nombre del servicio (`base`, `back`, ...), nunca por IP.
+
+- **back** (`hotellink-back`) — Laravel web01 (API REST + sitio/panel Blade). PHP 8.3 + Apache desde `public/`.
+  Es el único que ejecuta migraciones y seeders al arrancar.
+- **web02** (`hotellink-web02`) — segunda instancia web con la misma imagen `hotellink-app:1.0`.
+  Arranca como réplica (`HOTELLINK_ROLE=replica`): solo espera la BD y sirve la app.
+- **base** (`hotellink-base`) — MariaDB 10.11. **No publica ningún puerto** al host: solo es
+  alcanzable dentro de `hotellink-net`. Los datos se guardan en el volumen nombrado
+  `hotellink-dbdata`, así que **no se pierden** al apagar ni al recrear el contenedor.
+- **worker** (`hotellink-worker`) — procesa tareas en segundo plano (`php artisan queue:work`), p. ej.
   los correos. Reutiliza la misma imagen que `back`.
-- **front** — React (Vite dev server). Hace proxy de `/api` al `back` (sin CORS).
+- **front** (`hotellink-front`) — React (Vite dev server). Hace proxy de `/api` al `back` (sin CORS).
+
+Bind mounts: el código (`.:/var/www/html`, lectura/escritura para desarrollo) y la
+configuración de PHP (`docker/php/php.ini`, **solo lectura** `:ro`).
 
 ## 6. Base de datos
 
-- Se crea sola con las credenciales del `.env` (`DB_DATABASE`) y la contraseña
-  root (`DB_ROOT_PASSWORD`).
-- Para verla/editarla usa tu cliente favorito (DBeaver, HeidiSQL, TablePlus):
-  - **Host:** `127.0.0.1`  **Puerto:** `3307` (`DB_FORWARD_PORT`)
-  - **Usuario:** `root`  **Contraseña:** la de `DB_ROOT_PASSWORD`
+- Se crea sola con las credenciales del `.env`: base `DB_DATABASE`, usuario de
+  aplicación `DOCKER_DB_USER` / `DOCKER_DB_PASSWORD` y contraseña root `DB_ROOT_PASSWORD`.
+- La BD **no está publicada al host** (principio de mínima exposición). Para consultarla
+  entra por el propio contenedor:
+
+```bash
+docker compose exec base mariadb -uhotellink -photellink_dev hotellink
+# o con un cliente gráfico, publicando el puerto SOLO en tu PC con un override local:
+#   docker-compose.override.yml ->  services: { base: { ports: ["127.0.0.1:3307:3306"] } }
+```
+
 - Para empezar de cero (borra TODOS los datos):
 
 ```bash
-docker compose down -v          # -v elimina el volumen dbdata
+docker compose down -v          # -v elimina el volumen hotellink-dbdata
 docker compose up -d --build
 ```
 

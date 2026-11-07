@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\MiCuentaController;
 use App\Http\Controllers\Api\PagoController;
 use App\Http\Controllers\Api\PasarelaPruebasController;
 use App\Http\Controllers\Api\Admin\ComprobanteController as AdminComprobanteController;
+use App\Http\Controllers\Api\Admin\ReservaController as AdminReservaController;
+use App\Http\Controllers\Api\Admin\HuespedController as AdminHuespedController;
+use App\Http\Controllers\Api\Admin\PanelController as AdminPanelController;
 use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\TipoHabitacionController;
@@ -249,6 +252,45 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:permiso_move,sanctum');
     Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])
         ->middleware('permission:permiso_move,sanctum');
+
+    // Panel de control y calendario de ocupacion
+    Route::get('/panel', [AdminPanelController::class, 'index'])
+        ->middleware('permission:reserva_index,sanctum');
+    Route::get('/calendario', [AdminPanelController::class, 'calendario'])
+        ->middleware('permission:reserva_index,sanctum');
+
+    // Reservas (operacion de recepcion). /catalogos antes de /{codigo}.
+    Route::get('/reservas', [AdminReservaController::class, 'index'])
+        ->middleware('permission:reserva_index,sanctum');
+    Route::get('/reservas/catalogos', [AdminReservaController::class, 'catalogos'])
+        ->middleware('permission:reserva_index,sanctum');
+    Route::post('/reservas', [AdminReservaController::class, 'store'])
+        ->middleware('permission:reserva_store,sanctum');
+    Route::get('/reservas/{codigo}', [AdminReservaController::class, 'show'])
+        ->middleware('permission:reserva_show,sanctum');
+    Route::put('/reservas/{codigo}', [AdminReservaController::class, 'update'])
+        ->middleware('permission:reserva_update,sanctum');
+    Route::get('/reservas/{codigo}/habitaciones', [AdminReservaController::class, 'habitaciones'])
+        ->middleware('permission:reserva_update,sanctum');
+    Route::post('/reservas/{codigo}/confirmar', [AdminReservaController::class, 'confirmar'])
+        ->middleware('permission:reserva_confirmar,sanctum');
+    Route::post('/reservas/{codigo}/cancelar', [AdminReservaController::class, 'cancelar'])
+        ->middleware('permission:reserva_cancelar,sanctum');
+    Route::post('/reservas/{codigo}/checkin', [AdminReservaController::class, 'checkin'])
+        ->middleware('permission:reserva_checkin,sanctum');
+    Route::post('/reservas/{codigo}/consumos', [AdminReservaController::class, 'agregarConsumo'])
+        ->middleware('permission:reserva_update,sanctum');
+    Route::delete('/reservas/{codigo}/consumos/{linea}', [AdminReservaController::class, 'quitarConsumo'])
+        ->whereNumber('linea')
+        ->middleware('permission:reserva_update,sanctum');
+    Route::post('/reservas/{codigo}/checkout', [AdminReservaController::class, 'checkout'])
+        ->middleware('permission:reserva_checkout,sanctum');
+
+    // Huespedes: busqueda y alta para la reserva telefonica o presencial
+    Route::get('/huespedes', [AdminHuespedController::class, 'index'])
+        ->middleware('permission:huesped_index,sanctum');
+    Route::post('/huespedes', [AdminHuespedController::class, 'store'])
+        ->middleware('permission:huesped_store,sanctum');
 
     // Comprobantes: verificacion en recepcion por QR o codigo de reserva
     Route::get('/comprobantes/{valor}', [AdminComprobanteController::class, 'show'])

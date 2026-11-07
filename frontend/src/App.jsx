@@ -6,6 +6,10 @@ import VerificarCorreo from './pages/publico/VerificarCorreo'
 import Privacidad from './pages/publico/Privacidad'
 import PasarelaPruebas from './pages/publico/PasarelaPruebas'
 import VerificarComprobante from './pages/admin/comprobantes/VerificarComprobante'
+import ReservasList from './pages/admin/reservas/ReservasList'
+import ReservaForm from './pages/admin/reservas/ReservaForm'
+import ReservaAdmin from './pages/admin/reservas/ReservaAdmin'
+import Calendario from './pages/admin/reservas/Calendario'
 import MiCuenta from './pages/cuenta/MiCuenta'
 import MisReservas from './pages/cuenta/MisReservas'
 import ReservaDetalle from './pages/cuenta/ReservaDetalle'
@@ -16,7 +20,6 @@ import ResetPassword from './pages/ResetPassword'
 import ProtectedRoute from './auth/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
-import EnConstruccion from './pages/admin/EnConstruccion'
 import TiposList from './pages/admin/tipos/TiposList'
 import TipoForm from './pages/admin/tipos/TipoForm'
 import AuditoriaList from './pages/admin/auditoria/AuditoriaList'
@@ -89,7 +92,11 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="reservas" element={<EnConstruccion titulo="Reservas" />} />
+        <Route path="reservas" element={<ReservasList />} />
+        <Route path="reservas/nueva" element={<ReservaForm />} />
+        <Route path="reservas/:codigo" element={<ReservaAdmin />} />
+        <Route path="reservas/:codigo/editar" element={<ReservaForm />} />
+        <Route path="calendario" element={<Calendario />} />
         <Route path="verificar" element={<VerificarComprobante />} />
         <Route path="verificar/:token" element={<VerificarComprobante />} />
         <Route path="tipos-habitacion" element={<TiposList />} />

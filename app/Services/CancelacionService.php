@@ -44,18 +44,23 @@ class CancelacionService
         ];
     }
 
-    //Cancela con la fila bloqueada: dos clics seguidos no la cancelan dos veces.
-    public function cancelar(Reserva $reserva, ?string $motivo): array
+    /**
+     * Cancela con la fila bloqueada: dos clics seguidos no la cancelan dos veces.
+     * Recepcion tambien puede cancelar despues de la hora de entrada (huesped que no llego):
+     * entonces se aplica el porcentaje de no presentacion.
+     */
+    public function cancelar(Reserva $reserva, ?string $motivo, bool $porRecepcion = false): array
     {
-        $resultado = DB::transaction(function () use ($reserva, $motivo) {
+        $resultado = DB::transaction(function () use ($reserva, $motivo, $porRecepcion) {
             $reserva = Reserva::whereKey($reserva->id)->lockForUpdate()->firstOrFail();
             $politica = $this->evaluar($reserva);
 
-            if (!$politica['permitida']) {
+            $estadoCancelable = in_array((int) $reserva->estado_reserva, [Reserva::PENDIENTE, Reserva::CONFIRMADA]);
+            if (!($politica['permitida'] || ($porRecepcion && $estadoCancelable))) {
                 throw ValidationException::withMessages(['reserva' => $politica['motivo_no_permitida']]);
             }
 
-            $reserva->comentarioHistorial = 'Cancelada por el huésped. '
+            $reserva->comentarioHistorial = ($porRecepcion ? 'Cancelada en recepción. ' : 'Cancelada por el huésped. ')
                 . ($politica['anticipo_pagado'] > 0
                     ? 'Reembolso: ' . $this->numero($politica['porcentaje_reembolso']) . ' % del anticipo pagado ($'
                         . number_format($politica['reembolso'], 2) . ').'

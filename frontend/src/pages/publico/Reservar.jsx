@@ -137,7 +137,7 @@ export default function Reservar() {
   }
 
   const campoError = (campo) => errores[campo] && <small className="campo-error">{errores[campo][0]}</small>
-  const volverAResultados = `/disponibilidad?llegada=${estadia.fecha_llegada}&salida=${estadia.fecha_salida}&huespedes=${personas.adultos + Number(personas.ninos || 0)}`
+  const volverAResultados = `/disponibilidad?llegada=${estadia.fecha_llegada}&salida=${estadia.fecha_salida}&huespedes=${Number(personas.adultos || 1) + Number(personas.ninos || 0)}`
 
   if (faltanDatos) {
     return (
@@ -237,7 +237,7 @@ export default function Reservar() {
                     min="1"
                     max={capacidad || 20}
                     value={personas.adultos}
-                    onChange={(e) => setPersonas({ ...personas, adultos: Number(e.target.value) || 1 })}
+                    onChange={(e) => setPersonas({ ...personas, adultos: e.target.value })}
                   />
                   {campoError('adultos')}
                 </label>
@@ -248,7 +248,7 @@ export default function Reservar() {
                     min="0"
                     max={capacidad || 20}
                     value={personas.ninos}
-                    onChange={(e) => setPersonas({ ...personas, ninos: Number(e.target.value) || 0 })}
+                    onChange={(e) => setPersonas({ ...personas, ninos: e.target.value })}
                   />
                 </label>
               </div>
@@ -290,8 +290,8 @@ export default function Reservar() {
                                 type="number"
                                 min="1"
                                 max="20"
-                                value={elegido.cantidad || 1}
-                                onChange={(e) => cambiarServicio(s.id, 'cantidad', Number(e.target.value) || 1)}
+                                value={elegido.cantidad ?? ''}
+                                onChange={(e) => cambiarServicio(s.id, 'cantidad', e.target.value)}
                               />
                             </label>
                           )}

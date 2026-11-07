@@ -1675,3 +1675,323 @@ form > .form-acciones {
     align-items: flex-start;
   }
 }
+
+/* ===== Operacion de recepcion ===== */
+.badge--info {
+  background: var(--bruma);
+  color: var(--pacifico);
+}
+.tabla__sub {
+  display: block;
+}
+.filtros__busqueda {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.filtros__fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.form-acciones--izq {
+  justify-content: flex-start;
+}
+.reserva-admin__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.25rem;
+  align-items: start;
+}
+.reserva-admin__columna {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+.reserva-admin__resumen {
+  position: sticky;
+  top: 1rem;
+}
+.reserva-admin__resumen .btn--block {
+  margin-top: 1rem;
+}
+.reserva-admin .form-row {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.habitaciones-elegibles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+.habitacion-opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--bruma);
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+}
+.habitacion-opcion input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.habitacion-opcion strong {
+  font-size: 1.15rem;
+  color: var(--pacifico);
+}
+.habitacion-opcion.is-elegida {
+  border-color: var(--ola);
+  box-shadow: 0 0 0 2px var(--ola);
+}
+.habitacion-opcion .badge {
+  align-self: flex-start;
+}
+.buscador-huesped {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.buscador-huesped input {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.lista-huespedes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lista-huespedes li,
+.huesped-elegido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--bruma);
+}
+.huesped-elegido {
+  border: 1px solid var(--bruma);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+}
+.huesped-elegido > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.form-subform {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  border: 1px dashed var(--bruma);
+  border-radius: 10px;
+}
+.acciones-reserva {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.accion-form {
+  margin-bottom: 1.25rem;
+  border-left: 4px solid var(--ola);
+}
+.accion-form h3 {
+  margin: 0;
+  color: var(--pacifico);
+}
+.enlace-quitar {
+  margin-left: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.comprobante-admin {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+.comprobante-admin h3 {
+  margin-bottom: 0.2rem;
+}
+.reserva-admin .detalle-reserva__grid {
+  margin-bottom: 1.25rem;
+}
+
+/* Panel de control */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+.panel-lista ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.panel-lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--bruma);
+}
+.panel-lista li:first-child {
+  border-top: none;
+}
+.panel-lista a {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+.panel-lista a:hover strong {
+  text-decoration: underline;
+}
+.cards-info .form-nota {
+  font-size: 0.82rem;
+}
+
+/* Calendario de ocupacion */
+.calendario__mes {
+  min-width: 9rem;
+  text-align: center;
+  color: var(--pacifico);
+}
+.calendario__leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.9rem;
+}
+.calendario__leyenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.calendario__leyenda i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.calendario__wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(11, 79, 87, 0.07);
+  margin-bottom: 1.25rem;
+}
+.calendario {
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  min-width: 100%;
+}
+.calendario th,
+.calendario td {
+  border: 1px solid #edf2f3;
+  text-align: center;
+  padding: 0;
+  height: 30px;
+  min-width: 26px;
+}
+.calendario thead th {
+  padding: 0.3rem 0;
+  font-weight: 600;
+  color: var(--pacifico);
+}
+.calendario thead th span {
+  display: block;
+  font-size: 0.68rem;
+  color: #8a9a9c;
+  font-weight: 400;
+}
+.calendario .is-finde {
+  background: #f6f8f7;
+}
+.calendario .is-hoy {
+  outline: 2px solid var(--mango);
+  outline-offset: -2px;
+}
+.calendario__hab {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  min-width: 64px !important;
+  padding: 0 0.5rem !important;
+  text-align: left !important;
+  white-space: nowrap;
+}
+.cal__fisico {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 500;
+}
+.cal__fisico--limpieza {
+  color: #a16207;
+}
+.cal__fisico--mantenimiento {
+  color: #b91c1c;
+}
+.cal--pendiente {
+  background: #fde68a;
+}
+.cal--confirmada {
+  background: #86efac;
+}
+.cal--estadia {
+  background: #5eb6c2;
+}
+.cal--finalizada {
+  background: #d4dadb;
+}
+.cal--bloqueo {
+  background: repeating-linear-gradient(45deg, #fca5a5, #fca5a5 4px, #fee2e2 4px, #fee2e2 8px);
+}
+.calendario td.is-clic {
+  cursor: pointer;
+}
+.cal__marca {
+  font-size: 0.6rem;
+  color: var(--pacifico);
+}
+.cal__marca--sale {
+  color: #7a4b00;
+}
+@media (max-width: 960px) {
+  .reserva-admin__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reserva-admin__resumen {
+    position: static;
+  }
+}
+.habitacion-opcion {
+  position: relative;
+}
+.reserva-admin__estadia {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.6rem 0 0;
+}
+.form-page.reserva-admin {
+  max-width: 1180px;
+}

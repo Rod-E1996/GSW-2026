@@ -28,10 +28,10 @@ class DisponibilidadService
      * Habitaciones que se pueden ofrecer. Cada reserva sin habitacion asignada
      * ocupa un lugar de su tipo, por eso se retira una habitacion por cada una.
      */
-    public function habitacionesLibres(string $llegada, string $salida, ?int $tipoId = null): Collection
+    public function habitacionesLibres(string $llegada, string $salida, ?int $tipoId = null, ?int $excluirReservaId = null): Collection
     {
-        $libres = $this->libres($llegada, $salida, $tipoId);
-        $sinAsignar = $this->reservasVigentes($llegada, $salida, $tipoId)
+        $libres = $this->libres($llegada, $salida, $tipoId, false, $excluirReservaId);
+        $sinAsignar = $this->reservasVigentes($llegada, $salida, $tipoId, false, $excluirReservaId)
             ->whereNull('habitacion_id')
             ->countBy('tipo_habitacion_id');
 
@@ -45,11 +45,12 @@ class DisponibilidadService
     /**
      * Revalida una habitacion concreta con lecturas bloqueantes. Solo tiene sentido dentro
      * de la transaccion que ya bloqueo las habitaciones del tipo (ver ReservaService).
+     * $excluirReservaId: al modificar una reserva, la propia no cuenta como ocupacion.
      */
-    public function sePuedeReservar(Habitacion $habitacion, string $llegada, string $salida): bool
+    public function sePuedeReservar(Habitacion $habitacion, string $llegada, string $salida, ?int $excluirReservaId = null): bool
     {
-        $libres = $this->libres($llegada, $salida, $habitacion->tipo_habitacion_id, true);
-        $sinAsignar = $this->reservasVigentes($llegada, $salida, $habitacion->tipo_habitacion_id, true)
+        $libres = $this->libres($llegada, $salida, $habitacion->tipo_habitacion_id, true, $excluirReservaId);
+        $sinAsignar = $this->reservasVigentes($llegada, $salida, $habitacion->tipo_habitacion_id, true, $excluirReservaId)
             ->whereNull('habitacion_id')
             ->count();
 
@@ -65,7 +66,7 @@ class DisponibilidadService
         ];
     }
 
-    private function libres(string $llegada, string $salida, ?int $tipoId, bool $bloquear = false): Collection
+    private function libres(string $llegada, string $salida, ?int $tipoId, bool $bloquear = false, ?int $excluir = null): Collection
     {
         $habitaciones = Habitacion::with('tipoHabitacion')
             ->where('estado', 1)
@@ -75,7 +76,7 @@ class DisponibilidadService
             ->orderBy('numero')
             ->get();
 
-        $ocupadas = $this->reservasVigentes($llegada, $salida, $tipoId, $bloquear)
+        $ocupadas = $this->reservasVigentes($llegada, $salida, $tipoId, $bloquear, $excluir)
             ->pluck('habitacion_id')
             ->filter();
 
@@ -91,9 +92,10 @@ class DisponibilidadService
             ->values();
     }
 
-    private function reservasVigentes(string $llegada, string $salida, ?int $tipoId, bool $bloquear = false): Collection
+    private function reservasVigentes(string $llegada, string $salida, ?int $tipoId, bool $bloquear = false, ?int $excluir = null): Collection
     {
         return Reserva::vigentes()
+            ->when($excluir, fn ($q) => $q->whereKeyNot($excluir))
             ->whereDate('fecha_llegada', '<', $salida)
             ->whereDate('fecha_salida', '>', $llegada)
             ->when($tipoId, fn ($q) => $q->where('tipo_habitacion_id', $tipoId))

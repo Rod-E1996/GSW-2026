@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../api'
+import { useAuth } from '../../../auth/AuthContext'
 import { descargar, fechaCorta, formatoUSD } from '../../../utils'
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
@@ -20,6 +21,7 @@ function fechaHora(iso) {
 export default function VerificarComprobante() {
   const { token } = useParams()
   const navigate = useNavigate()
+  const { can } = useAuth()
   const [entrada, setEntrada] = useState(token || '')
   const [resultado, setResultado] = useState(null)
   const [error, setError] = useState(null)
@@ -138,6 +140,7 @@ export default function VerificarComprobante() {
 
           <div className="form-acciones">
             <button type="button" className="btn btn--ghost" onClick={verPdf}>Descargar PDF</button>
+            {can('reserva_show') && <Link className="btn btn--ghost" to={`/panel/reservas/${r.codigo}`}>Abrir reserva</Link>}
             {resultado.valido && !c.verificado_at && (
               <button type="button" className="btn" onClick={marcarVerificado} disabled={marcando}>
                 {marcando ? 'Registrando…' : 'Marcar como verificado'}

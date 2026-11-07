@@ -21,6 +21,10 @@ class Reserva extends Model
     const CANAL_TELEFONO = 'telefono';
     const CANAL_PRESENCIAL = 'presencial';
 
+    //reserva_servicio.estado_servicio: contratado al reservar o consumido durante la estadia
+    const SERVICIO_CONTRATADO = 1;
+    const SERVICIO_CONSUMIDO = 2;
+
     //Estadia mas larga que se acepta en linea
     const MAX_NOCHES = 60;
 
@@ -240,7 +244,7 @@ class Reserva extends Model
     public function servicios()
     {
         return $this->belongsToMany(Servicio::class, 'reserva_servicio', 'reserva_id', 'servicio_id')
-            ->withPivot('cantidad', 'precio_unitario', 'subtotal', 'fecha_servicio', 'hora_servicio', 'estado_servicio', 'notas')
+            ->withPivot('id', 'cantidad', 'precio_unitario', 'subtotal', 'fecha_servicio', 'hora_servicio', 'estado_servicio', 'notas')
             ->withTimestamps();
     }
 }

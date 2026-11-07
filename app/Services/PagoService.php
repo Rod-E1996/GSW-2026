@@ -180,7 +180,7 @@ class PagoService
     }
 
     //Pendiente aun vigente, o vencida pero con la habitacion todavia libre
-    private function sigueApartada(Reserva $reserva): bool
+    public function sigueApartada(Reserva $reserva): bool
     {
         if ((int) $reserva->estado_reserva !== Reserva::PENDIENTE) {
             return false;

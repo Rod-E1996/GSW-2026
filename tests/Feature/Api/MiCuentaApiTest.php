@@ -121,7 +121,7 @@ class MiCuentaApiTest extends ApiTestCase
         $this->assertSame($ana->id, $ultima->user_id);
         $this->assertStringContainsString('100 % del anticipo pagado ($60.00)', $ultima->comentario);
 
-        Mail::assertQueued(ReservaCanceladaMail::class, fn ($m) => $m->hasTo($reserva->huesped->email) && $m->politica['reembolso'] === 60.0);
+        Mail::assertSent(ReservaCanceladaMail::class, fn ($m) => $m->hasTo($reserva->huesped->email) && $m->politica['reembolso'] === 60.0);
     }
 
     public function test_si_el_correo_falla_la_cancelacion_igual_queda_guardada()
@@ -158,7 +158,7 @@ class MiCuentaApiTest extends ApiTestCase
         $this->como($ana)->postJson("/api/mi-cuenta/reservas/{$reserva->codigo}/cancelar")->assertOk();
 
         $this->assertStringContainsString('0 % del anticipo pagado ($0.00)', $reserva->historial()->reorder('id', 'desc')->first()->comentario);
-        Mail::assertQueued(ReservaCanceladaMail::class, fn ($m) => $m->politica['reembolso'] === 0.0);
+        Mail::assertSent(ReservaCanceladaMail::class, fn ($m) => $m->politica['reembolso'] === 0.0);
     }
 
     public function test_una_pendiente_no_tiene_anticipo_que_devolver()
@@ -197,7 +197,7 @@ class MiCuentaApiTest extends ApiTestCase
         $this->como($ana)->postJson("/api/mi-cuenta/reservas/{$cancelada->codigo}/cancelar")
             ->assertStatus(422)
             ->assertJsonPath('errors.reserva.0', 'La reserva ya está cancelada.');
-        Mail::assertQueued(ReservaCanceladaMail::class, 1);
+        Mail::assertSent(ReservaCanceladaMail::class, 1);
 
         $enCurso = $this->reservaDe($ana, '2041-05-01', Reserva::EN_ESTADIA);
         $this->como($ana)->postJson("/api/mi-cuenta/reservas/{$enCurso->codigo}/cancelar")->assertStatus(422);

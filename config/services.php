@@ -24,6 +24,18 @@ return [
         'token' => env('POSTMARK_TOKEN'),
     ],
 
+    /*
+    | Pasarela de pago del anticipo. Por ahora solo existe 'sandbox': una pasarela
+    | de pruebas interna que no mueve dinero. La firma protege la notificacion
+    | de resultado; sin PASARELA_SECRETO se deriva de APP_KEY.
+    */
+    'pasarela' => [
+        'driver' => env('PASARELA_DRIVER', 'sandbox'),
+        'secreto' => env('PASARELA_SECRETO'),
+        //Minutos que se reutiliza un intento de pago abierto antes de crear otro
+        'intento_minutos' => (int) env('PASARELA_INTENTO_MINUTOS', 30),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

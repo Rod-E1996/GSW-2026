@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Huesped;
 use App\Models\Reserva;
+use App\Models\Pago;
 use App\Services\CancelacionService;
+use App\Services\ComprobanteService;
+use App\Services\PagoService;
 use Illuminate\Http\Request;
 
 /**
@@ -13,8 +16,11 @@ use Illuminate\Http\Request;
  */
 class MiCuentaController extends Controller
 {
-    public function __construct(private CancelacionService $cancelaciones)
-    {
+    public function __construct(
+        private CancelacionService $cancelaciones,
+        private PagoService $pagos,
+        private ComprobanteService $comprobantes
+    ) {
     }
 
     //Datos con que se precarga la pantalla de reserva.
@@ -77,6 +83,41 @@ class MiCuentaController extends Controller
         ]);
     }
 
+    //Abre el pago del anticipo y devuelve la pagina de la pasarela.
+    public function pagar(Request $request, string $codigo)
+    {
+        $reserva = $this->propias($request)->where('codigo', $codigo)->first();
+
+        if (!$reserva) {
+            return response()->json(['message' => 'No encontramos esa reserva en tu cuenta.'], 404);
+        }
+
+        $intento = $this->pagos->iniciar($reserva, $request->user());
+
+        return response()->json([
+            'data' => [
+                'referencia' => $intento['pago']->referencia_externa,
+                'monto' => (float) $intento['pago']->monto,
+                'url' => $intento['url'],
+            ],
+        ]);
+    }
+
+    public function comprobante(Request $request, string $codigo)
+    {
+        $reserva = $this->propias($request)->where('codigo', $codigo)->first();
+        $comprobante = $reserva?->comprobanteVigente()->first();
+
+        if (!$comprobante) {
+            return response()->json(['message' => 'Esta reserva no tiene un comprobante vigente.'], 404);
+        }
+
+        return response($this->comprobantes->pdf($comprobante), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="comprobante-' . $reserva->codigo . '.pdf"',
+        ]);
+    }
+
     //Solo las reservas cuya ficha pertenece a la cuenta autenticada
     private function propias(Request $request)
     {
@@ -105,7 +146,35 @@ class MiCuentaController extends Controller
 
     private function detalle(Reserva $r): array
     {
-        return $this->resumen($r) + [
+        $pagos = $r->pagos()->get();
+        $pagado = round((float) $pagos->where('estado_pago', Pago::APROBADO)->sum('monto'), 2);
+        $comprobante = $r->comprobanteVigente()->first();
+        $resumen = $this->resumen($r);
+
+        return $resumen + [
+            'pagos' => $pagos->map(fn (Pago $p) => [
+                'referencia' => $p->referencia_externa,
+                'monto' => (float) $p->monto,
+                'estado' => $p->estado_pago,
+                'estado_nombre' => $p->estado_nombre,
+                'medio' => isset($p->respuesta_pasarela['ultimos4'])
+                    ? ($p->respuesta_pasarela['marca'] ?? 'Tarjeta') . ' terminada en ' . $p->respuesta_pasarela['ultimos4']
+                    : null,
+                'motivo' => $p->respuesta_pasarela['motivo'] ?? null,
+                'pasarela' => $p->pasarela,
+                'fecha' => ($p->pagado_at ?? $p->updated_at)?->toIso8601String(),
+                'requiere_reembolso' => PagoService::requiereReembolso($p),
+            ])->values(),
+            'pagado' => $pagado,
+            'saldo' => max(0, round((float) $r->total - $pagado, 2)),
+            //Una pendiente vencida aun se puede pagar si la habitacion sigue libre (lo revisa PagoService)
+            'puede_pagar' => (int) $r->estado_reserva === Reserva::PENDIENTE && $pagado <= 0,
+            'comprobante' => $comprobante ? [
+                'numero' => $comprobante->numero,
+                'version' => $comprobante->version,
+                'emitido_at' => $comprobante->emitido_at?->toIso8601String(),
+                'qr' => $this->comprobantes->qrSvg($comprobante),
+            ] : null,
             'adultos' => $r->adultos,
             'ninos' => $r->ninos,
             'hora_estimada_llegada' => $r->hora_estimada_llegada ? substr($r->hora_estimada_llegada, 0, 5) : null,

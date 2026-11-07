@@ -48,6 +48,7 @@ class RolesHotelSeeder extends Seeder
         'reserva_cancelar',
         'reserva_checkin',
         'reserva_checkout',
+        'comprobante_verificar',
 
         'huesped_index',
         'huesped_show',

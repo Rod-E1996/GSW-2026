@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Mail\ReservaCanceladaMail;
 use App\Models\Configuracion;
+use App\Models\Pago;
 use App\Models\Reserva;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -16,6 +15,12 @@ use Illuminate\Validation\ValidationException;
  */
 class CancelacionService
 {
+    public function __construct(
+        private ComprobanteService $comprobantes,
+        private NotificacionService $notificaciones
+    ) {
+    }
+
     public function evaluar(Reserva $reserva): array
     {
         $entrada = Carbon::parse($reserva->fecha_llegada->toDateString() . ' ' . config('hotel.checkin'));
@@ -26,8 +31,7 @@ class CancelacionService
             ? Configuracion::valor('cancelacion_reembolso_porcentaje', 100)
             : Configuracion::valor('no_show_reembolso_porcentaje', 0);
 
-        //Una reserva se confirma al pagar el anticipo; la pendiente aun no pago nada
-        $pagado = (int) $reserva->estado_reserva === Reserva::CONFIRMADA ? (float) $reserva->anticipo_requerido : 0.0;
+        $pagado = $this->anticipoPagado($reserva);
 
         return [
             'permitida' => in_array((int) $reserva->estado_reserva, [Reserva::PENDIENTE, Reserva::CONFIRMADA]) && now()->lt($entrada),
@@ -64,20 +68,37 @@ class CancelacionService
                 'motivo_cancelacion' => $motivo,
             ]);
 
+            //El QR del comprobante deja de valer en recepcion
+            $this->comprobantes->anular($reserva);
+
             return ['reserva' => $reserva, 'politica' => $politica];
         });
 
-        $correo = $resultado['reserva']->huesped->email ?? $resultado['reserva']->user?->email;
-        //La cancelacion ya quedo guardada: un correo que falla no debe deshacerla
-        try {
-            if ($correo) {
-                Mail::to($correo)->queue(new ReservaCanceladaMail($resultado['reserva'], $resultado['politica']));
-            }
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        //La cancelacion ya quedo guardada: un correo que falla no la deshace
+        $this->notificaciones->cancelacion($resultado['reserva'], $resultado['politica']);
 
         return $resultado;
+    }
+
+    /**
+     * Lo pagado son los pagos aprobados. Las reservas confirmadas antes de que existiera
+     * la tabla pagos no tienen registros: para ellas se asume el anticipo pagado.
+     */
+    private function anticipoPagado(Reserva $reserva): float
+    {
+        $pagos = $reserva->pagos()->get();
+
+        if ($pagos->isNotEmpty()) {
+            //Un cobro que no pudo confirmar la reserva se devuelve completo, fuera de esta politica
+            return round((float) $pagos
+                ->where('estado_pago', Pago::APROBADO)
+                ->reject(fn (Pago $p) => PagoService::requiereReembolso($p))
+                ->sum('monto'), 2);
+        }
+
+        return in_array((int) $reserva->estado_reserva, [Reserva::CONFIRMADA, Reserva::EN_ESTADIA, Reserva::FINALIZADA])
+            ? (float) $reserva->anticipo_requerido
+            : 0.0;
     }
 
     private function motivoNoPermitida(Reserva $reserva, Carbon $entrada): ?string

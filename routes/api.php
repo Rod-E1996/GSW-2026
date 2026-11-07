@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DisponibilidadController;
 use App\Http\Controllers\Api\ReservaController;
 use App\Http\Controllers\Api\MiCuentaController;
+use App\Http\Controllers\Api\PagoController;
+use App\Http\Controllers\Api\PasarelaPruebasController;
+use App\Http\Controllers\Api\Admin\ComprobanteController as AdminComprobanteController;
 use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\TipoHabitacionController;
@@ -84,7 +87,16 @@ Route::middleware('auth:sanctum')->prefix('mi-cuenta')->group(function () {
     Route::get('/reservas', [MiCuentaController::class, 'reservas']);
     Route::get('/reservas/{codigo}', [MiCuentaController::class, 'reserva']);
     Route::post('/reservas/{codigo}/cancelar', [MiCuentaController::class, 'cancelar'])->middleware('throttle:10,1');
+    Route::post('/reservas/{codigo}/pagar', [MiCuentaController::class, 'pagar'])->middleware(['correo.verificado', 'throttle:10,1']);
+    Route::get('/reservas/{codigo}/comprobante', [MiCuentaController::class, 'comprobante'])->middleware('throttle:20,1');
 });
+
+// ===== Pago del anticipo =====
+// Notificacion firmada de la pasarela (sin sesion: la firma es la autenticacion)
+Route::post('/pagos/notificacion', [PagoController::class, 'notificacion'])->middleware('throttle:60,1');
+// Pagina de pago de la pasarela de pruebas (solo existe con PASARELA_DRIVER=sandbox)
+Route::get('/pasarela-pruebas/{referencia}', [PasarelaPruebasController::class, 'show'])->middleware('throttle:30,1');
+Route::post('/pasarela-pruebas/{referencia}', [PasarelaPruebasController::class, 'pagar'])->middleware('throttle:10,1');
 
 // ===== Panel de administracion (token + permisos) =====
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
@@ -237,6 +249,14 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:permiso_move,sanctum');
     Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])
         ->middleware('permission:permiso_move,sanctum');
+
+    // Comprobantes: verificacion en recepcion por QR o codigo de reserva
+    Route::get('/comprobantes/{valor}', [AdminComprobanteController::class, 'show'])
+        ->middleware('permission:comprobante_verificar,sanctum');
+    Route::post('/comprobantes/{valor}/verificar', [AdminComprobanteController::class, 'verificar'])
+        ->middleware('permission:comprobante_verificar,sanctum');
+    Route::get('/comprobantes/{valor}/pdf', [AdminComprobanteController::class, 'pdf'])
+        ->middleware('permission:comprobante_verificar,sanctum');
 
     // Parametros del sistema
     Route::get('/configuraciones', [AdminConfiguracionController::class, 'index'])

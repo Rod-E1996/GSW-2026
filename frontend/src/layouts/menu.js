@@ -3,6 +3,7 @@
 export const MENU = [
   { label: 'Dashboard', path: '/panel', permiso: 'dashboard', icon: '▣', end: true },
   { label: 'Reservas', path: '/panel/reservas', permiso: 'reserva_index', icon: '▤' },
+  { label: 'Verificar comprobante', path: '/panel/verificar', permiso: 'comprobante_verificar', icon: '▦' },
   { label: 'Tipos de habitación', path: '/panel/tipos-habitacion', permiso: 'tipo_habitacion_index', icon: '◫' },
   { label: 'Habitaciones', path: '/panel/habitaciones', permiso: 'habitacion_index', icon: '⌂' },
   { label: 'Tarifas', path: '/panel/tarifas', permiso: 'tarifa_index', icon: '$' },

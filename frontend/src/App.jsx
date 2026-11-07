@@ -4,6 +4,8 @@ import Resultados from './pages/publico/Resultados'
 import Reservar from './pages/publico/Reservar'
 import VerificarCorreo from './pages/publico/VerificarCorreo'
 import Privacidad from './pages/publico/Privacidad'
+import PasarelaPruebas from './pages/publico/PasarelaPruebas'
+import VerificarComprobante from './pages/admin/comprobantes/VerificarComprobante'
 import MiCuenta from './pages/cuenta/MiCuenta'
 import MisReservas from './pages/cuenta/MisReservas'
 import ReservaDetalle from './pages/cuenta/ReservaDetalle'
@@ -48,6 +50,8 @@ export default function App() {
       <Route path="/disponibilidad" element={<Resultados />} />
       <Route path="/verificar-correo" element={<VerificarCorreo />} />
       <Route path="/privacidad" element={<Privacidad />} />
+      {/* Pagina de pago de la pasarela de pruebas (hace las veces de la pagina externa de la pasarela) */}
+      <Route path="/pasarela-pruebas/:referencia" element={<PasarelaPruebas />} />
       <Route
         path="/reservar"
         element={
@@ -86,6 +90,8 @@ export default function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="reservas" element={<EnConstruccion titulo="Reservas" />} />
+        <Route path="verificar" element={<VerificarComprobante />} />
+        <Route path="verificar/:token" element={<VerificarComprobante />} />
         <Route path="tipos-habitacion" element={<TiposList />} />
         <Route path="tipos-habitacion/nuevo" element={<TipoForm />} />
         <Route path="tipos-habitacion/:id/editar" element={<TipoForm />} />

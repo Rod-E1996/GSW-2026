@@ -1,29 +1,84 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../../api'
-import { fechaCorta, formatoUSD } from '../../utils'
+import { descargar, fechaCorta, formatoUSD, irAPasarela } from '../../utils'
 import { COLOR_ESTADO } from './MisReservas'
 
 function fechaHora(iso) {
   return iso ? new Date(iso).toLocaleString('es-SV', { dateStyle: 'short', timeStyle: 'short' }) : '—'
 }
 
+const COLOR_PAGO = { 1: 'badge--aviso', 2: 'badge--ok', 3: 'badge--danger' }
+
+// Mensaje al volver de la pasarela, segun el resultado del cobro
+function mensajeDelPago(reserva, referencia) {
+  const pago = reserva.pagos.find((p) => p.referencia === referencia)
+  if (!pago) return null
+  if (pago.estado === 2 && pago.requiere_reembolso) {
+    return { tipo: 'aviso', texto: 'Recibimos tu pago, pero la reserva ya no se podía confirmar. El hotel te devolverá el monto completo.' }
+  }
+  if (pago.estado === 2) {
+    return { tipo: 'ok', texto: 'Pago aprobado. Tu reserva está confirmada y te enviamos el comprobante por correo.' }
+  }
+  if (pago.estado === 3) {
+    return { tipo: 'error', texto: `El pago fue rechazado${pago.motivo ? `: ${pago.motivo}` : '.'} Puedes intentarlo de nuevo.` }
+  }
+  return { tipo: 'aviso', texto: 'El pago no se completó. Puedes intentarlo de nuevo.' }
+}
+
 export default function ReservaDetalle() {
   const { codigo } = useParams()
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const [reserva, setReserva] = useState(null)
   const [error, setError] = useState(null)
-  const [mensaje, setMensaje] = useState(params.get('nueva') ? 'Reserva registrada. Guarda tu código de confirmación.' : null)
+  const [mensaje, setMensaje] = useState(params.get('nueva') ? { tipo: 'ok', texto: 'Reserva registrada. Guarda tu código de confirmación.' } : null)
   const [cancelando, setCancelando] = useState(false)
   const [motivo, setMotivo] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [pagando, setPagando] = useState(false)
+  const [bajando, setBajando] = useState(false)
 
   useEffect(() => {
     api
       .get(`/mi-cuenta/reservas/${codigo}`)
-      .then((res) => setReserva(res.data.data))
+      .then((res) => {
+        setReserva(res.data.data)
+        const referencia = params.get('pago')
+        if (referencia) setMensaje(mensajeDelPago(res.data.data, referencia))
+      })
       .catch((err) => setError(err.response?.data?.message || 'No se pudo cargar la reserva.'))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codigo])
+
+  function primerError(err, porDefecto) {
+    const errores = err.response?.data?.errors
+    return errores ? Object.values(errores)[0][0] : err.response?.data?.message || porDefecto
+  }
+
+  async function pagar() {
+    setPagando(true)
+    setError(null)
+    try {
+      const res = await api.post(`/mi-cuenta/reservas/${codigo}/pagar`)
+      irAPasarela(res.data.data.url, navigate)
+    } catch (err) {
+      setError(primerError(err, 'No se pudo abrir el pago.'))
+      setPagando(false)
+    }
+  }
+
+  async function bajarComprobante() {
+    setBajando(true)
+    setError(null)
+    try {
+      await descargar(api, `/mi-cuenta/reservas/${codigo}/comprobante`, `comprobante-${codigo}.pdf`)
+    } catch {
+      setError('No se pudo descargar el comprobante.')
+    } finally {
+      setBajando(false)
+    }
+  }
 
   async function cancelar(e) {
     e.preventDefault()
@@ -32,11 +87,10 @@ export default function ReservaDetalle() {
     try {
       const res = await api.post(`/mi-cuenta/reservas/${codigo}/cancelar`, { motivo: motivo || undefined })
       setReserva(res.data.data)
-      setMensaje(res.data.message)
+      setMensaje({ tipo: 'ok', texto: res.data.message })
       setCancelando(false)
     } catch (err) {
-      const errores = err.response?.data?.errors
-      setError(errores ? Object.values(errores)[0][0] : err.response?.data?.message || 'No se pudo cancelar.')
+      setError(primerError(err, 'No se pudo cancelar.'))
     } finally {
       setEnviando(false)
     }
@@ -59,7 +113,7 @@ export default function ReservaDetalle() {
     <div className="detalle-reserva">
       <Link to="/mi-cuenta" className="reserva__volver">← Mis reservas</Link>
 
-      {mensaje && <div className="alerta alerta--ok">{mensaje}</div>}
+      {mensaje && <div className={`alerta alerta--${mensaje.tipo}`}>{mensaje.texto}</div>}
       {error && <div className="alerta alerta--error">{error}</div>}
 
       <div className="detalle-reserva__cabecera">
@@ -70,15 +124,31 @@ export default function ReservaDetalle() {
         <span className={`badge ${reserva.vencida ? '' : COLOR_ESTADO[reserva.estado] || ''}`}>{reserva.estado_nombre}</span>
       </div>
 
-      {reserva.estado === 1 && !reserva.vencida && (
-        <div className="alerta alerta--aviso">
-          Tu reserva está pendiente hasta que se registre el anticipo de {formatoUSD(reserva.anticipo_requerido)}.
+      {reserva.puede_pagar && (
+        <div className="alerta alerta--aviso aviso-pago">
+          <span>
+            {reserva.vencida
+              ? 'Esta reserva venció sin anticipo. Si la habitación sigue libre, aún puedes pagarlo y confirmarla.'
+              : `Tu reserva está pendiente hasta que se apruebe el anticipo de ${formatoUSD(reserva.anticipo_requerido)}.`}
+          </span>
+          <button type="button" className="btn" onClick={pagar} disabled={pagando}>
+            {pagando ? 'Abriendo…' : `Pagar ${formatoUSD(reserva.anticipo_requerido)}`}
+          </button>
         </div>
       )}
-      {reserva.vencida && (
-        <div className="alerta alerta--aviso">
-          Esta reserva venció sin que se registrara el anticipo, así que la habitación ya no está apartada.
-        </div>
+
+      {reserva.comprobante && (
+        <section className="tarjeta-simple comprobante">
+          <img className="comprobante__qr" src={reserva.comprobante.qr} alt="Código QR del comprobante" />
+          <div className="comprobante__datos">
+            <h3>Comprobante {reserva.comprobante.numero}</h3>
+            <p>Preséntalo al llegar, impreso o en tu teléfono. Recepción escanea el código QR para verificar tu reserva.</p>
+            <p className="form-nota">Versión {reserva.comprobante.version} · emitido el {fechaHora(reserva.comprobante.emitido_at)}</p>
+            <button type="button" className="btn" onClick={bajarComprobante} disabled={bajando}>
+              {bajando ? 'Descargando…' : 'Descargar PDF'}
+            </button>
+          </div>
+        </section>
       )}
 
       <div className="detalle-reserva__grid">
@@ -112,9 +182,35 @@ export default function ReservaDetalle() {
             <dt>Impuestos</dt><dd>{formatoUSD(reserva.impuesto)}</dd>
             <dt className="importes__total">Total</dt><dd className="importes__total">{formatoUSD(reserva.total)}</dd>
             <dt className="importes__anticipo">Anticipo</dt><dd className="importes__anticipo">{formatoUSD(reserva.anticipo_requerido)}</dd>
+            {reserva.pagado > 0 && (
+              <>
+                <dt>Pagado</dt><dd>{formatoUSD(reserva.pagado)}</dd>
+                <dt>Saldo a pagar en el hotel</dt><dd>{formatoUSD(reserva.saldo)}</dd>
+              </>
+            )}
           </dl>
         </section>
       </div>
+
+      {reserva.pagos.length > 0 && (
+        <section className="tarjeta-simple">
+          <h3>Pagos</h3>
+          <ul className="historial">
+            {reserva.pagos.map((p) => (
+              <li key={p.referencia} className="pago">
+                <span>
+                  <span className="form-nota">{fechaHora(p.fecha)}</span> · {formatoUSD(p.monto)}
+                  {p.medio && ` · ${p.medio}`}
+                  {p.motivo && <span> — {p.motivo}</span>}
+                  {p.requiere_reembolso && <span> — el hotel te lo devolverá</span>}
+                  {p.pasarela === 'sandbox' && <span className="form-nota"> (pasarela de pruebas)</span>}
+                </span>
+                <span className={`badge ${COLOR_PAGO[p.estado] || ''}`}>{p.estado_nombre}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="tarjeta-simple">
         <h3>Historial</h3>

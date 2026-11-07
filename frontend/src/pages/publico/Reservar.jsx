@@ -4,7 +4,7 @@ import { api } from '../../api'
 import { useAuth } from '../../auth/AuthContext'
 import AvisoVerificacion from '../../components/AvisoVerificacion'
 import BarraPublica from '../../components/BarraPublica'
-import { fechaCorta, formatoUSD, rutaImagen } from '../../utils'
+import { fechaCorta, formatoUSD, irAPasarela, rutaImagen } from '../../utils'
 
 const DOCUMENTOS = ['DUI', 'Pasaporte', 'Carné de residente', 'Otro']
 
@@ -111,7 +111,15 @@ export default function Reservar() {
         hora_estimada_llegada: extra.hora_estimada_llegada || undefined,
         servicios: servicios(),
       })
-      navigate(`/mi-cuenta/reservas/${res.data.data.codigo}?nueva=1`)
+      const codigo = res.data.data.codigo
+      // Paso 5 del caso de uso: el anticipo se paga en la pasarela
+      try {
+        const pago = await api.post(`/mi-cuenta/reservas/${codigo}/pagar`)
+        irAPasarela(pago.data.data.url, navigate)
+      } catch {
+        // La reserva ya quedo registrada: se paga desde su detalle
+        navigate(`/mi-cuenta/reservas/${codigo}?nueva=1`)
+      }
     } catch (err) {
       const data = err.response?.data
       if (err.response?.status === 409) {
@@ -349,14 +357,14 @@ export default function Reservar() {
                   <dt className="importes__anticipo">Anticipo ({resumen.anticipo_porcentaje} %)</dt>
                   <dd className="importes__anticipo">{formatoUSD(resumen.anticipo_requerido)}</dd>
                 </dl>
-                <p className="form-nota">El saldo se paga en el hotel. La reserva queda pendiente hasta registrar el anticipo.</p>
+                <p className="form-nota">El saldo se paga en el hotel. La reserva se confirma cuando se aprueba el anticipo.</p>
               </>
             )}
             <button
               className="btn btn--block"
               disabled={enviando || !resumen || !resumen.disponible || !user?.email_verificado}
             >
-              {enviando ? 'Registrando…' : 'Confirmar reserva'}
+              {enviando ? 'Registrando…' : 'Reservar y pagar el anticipo'}
             </button>
             {user && !user.email_verificado && <small className="form-nota">Verifica tu correo para confirmar.</small>}
           </aside>

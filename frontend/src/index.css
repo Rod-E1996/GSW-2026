@@ -1514,3 +1514,164 @@ form > .form-acciones {
     gap: 0.6rem;
   }
 }
+
+/* ===== Pago del anticipo y comprobante ===== */
+.aviso-pago {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.comprobante {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+.comprobante__qr {
+  width: 132px;
+  height: 132px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid var(--bruma);
+  background: #fff;
+}
+.comprobante__datos p {
+  margin: 0 0 0.6rem;
+}
+.historial li.pago {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Pasarela de pruebas: se ve distinta del portal a proposito, como una pagina externa */
+.pasarela {
+  min-height: 100vh;
+  background: #eef0f4;
+}
+.pasarela__barra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  background: #1f2937;
+  color: #fff;
+}
+.pasarela__marca {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.pasarela__aviso {
+  font-size: 0.85rem;
+  background: #fbbf24;
+  color: #1f2937;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.pasarela__contenido {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.pasarela__cobro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.pasarela__monto {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+/* Un formulario dentro de una tarjeta no lleva una segunda tarjeta */
+.tarjeta-simple .form {
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+.pasarela__fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.pasarela__fila input {
+  width: 100%;
+  min-width: 0;
+}
+.pasarela .btn--block + .btn--block {
+  margin-top: 0.5rem;
+}
+.pasarela__resultado .alerta {
+  margin-bottom: 1rem;
+}
+.pasarela__ayuda h3 {
+  font-size: 1rem;
+}
+.pasarela__ayuda ul {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+.pasarela__ayuda li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+.pasarela__usar {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-family: ui-monospace, Consolas, monospace;
+  color: #2563eb;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pasarela__ayuda li span {
+  text-align: right;
+}
+
+/* Verificacion de comprobantes en recepcion */
+.verificar__buscar {
+  max-width: 520px;
+  margin-bottom: 1rem;
+}
+.verificar {
+  max-width: 640px;
+}
+.verificar__veredicto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+.verificar__veredicto--ok {
+  background: #e7f7ee;
+  color: #14532d;
+}
+.verificar__veredicto--mal {
+  background: #fdecec;
+  color: #7f1d1d;
+}
+.verificar__veredicto strong {
+  font-size: 1.1rem;
+}
+@media (max-width: 520px) {
+  .comprobante {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

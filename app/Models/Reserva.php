@@ -208,6 +208,35 @@ class Reserva extends Model
         return $this->hasMany(ReservaHistorial::class, 'reserva_id', 'id')->orderBy('id');
     }
 
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'reserva_id', 'id')->orderBy('id');
+    }
+
+    public function comprobantes()
+    {
+        return $this->hasMany(Comprobante::class, 'reserva_id', 'id')->orderBy('version');
+    }
+
+    //El comprobante que vale hoy: al emitir una version nueva la anterior queda sustituida
+    public function comprobanteVigente()
+    {
+        return $this->hasOne(Comprobante::class, 'reserva_id', 'id')
+            ->where('estado', Comprobante::VIGENTE)
+            ->orderByDesc('version');
+    }
+
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'reserva_id', 'id')->orderBy('id');
+    }
+
+    //Suma de los pagos aprobados
+    public function montoPagado(): float
+    {
+        return round((float) $this->pagos()->aprobados()->sum('monto'), 2);
+    }
+
     public function servicios()
     {
         return $this->belongsToMany(Servicio::class, 'reserva_servicio', 'reserva_id', 'servicio_id')

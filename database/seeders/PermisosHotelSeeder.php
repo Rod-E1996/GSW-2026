@@ -23,6 +23,7 @@ class PermisosHotelSeeder extends Seeder
         'reserva_checkin',
         'reserva_checkout',
         'reserva_solicitar',
+        'comprobante_verificar',
 
         //Huespedes
         'huesped_index',

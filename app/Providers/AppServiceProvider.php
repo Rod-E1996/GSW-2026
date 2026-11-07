@@ -19,7 +19,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        //Pasarela del anticipo segun PASARELA_DRIVER (por ahora solo la de pruebas)
+        $this->app->singleton(\App\Pagos\Pasarela::class, function () {
+            return match (config('services.pasarela.driver')) {
+                'sandbox' => new \App\Pagos\PasarelaSandbox(),
+                default => throw new \InvalidArgumentException('Pasarela de pago no soportada: ' . config('services.pasarela.driver')),
+            };
+        });
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\Huesped;
 use App\Models\Reserva;
 use App\Services\CotizacionService;
 use App\Services\DisponibilidadService;
+use App\Services\NotificacionService;
 use App\Services\ReservaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,7 +24,8 @@ class ReservaController extends Controller
     public function __construct(
         private ReservaService $reservas,
         private DisponibilidadService $disponibilidad,
-        private CotizacionService $cotizaciones
+        private CotizacionService $cotizaciones,
+        private NotificacionService $notificaciones
     ) {
     }
 
@@ -98,6 +100,9 @@ class ReservaController extends Controller
                 ),
             ], 409);
         }
+
+        //Aviso con el plazo para pagar; si el correo falla la reserva sigue registrada
+        $this->notificaciones->registro($reserva);
 
         return response()->json([
             'message' => 'Reserva registrada. Queda pendiente hasta registrar el anticipo.',

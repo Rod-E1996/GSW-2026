@@ -59,6 +59,7 @@ class SendEmailNuevoDispositivo implements ShouldQueue
         $queue_control->fecha_fin = Carbon::now()->toDateTimeString();
         $queue_control->save();
 
-        echo "\nEMAIL DE NOTIFICACION DE NUEVO DISPOSITIVO ENVIADO\n";
+        //Con la cola en modo sync, un echo se colaria en la respuesta del login
+        \Illuminate\Support\Facades\Log::info('Email de notificacion de nuevo dispositivo enviado');
     }
 }

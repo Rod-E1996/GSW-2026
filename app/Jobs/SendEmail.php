@@ -55,6 +55,7 @@ class SendEmail implements ShouldQueue
         $queue_control->fecha_fin = Carbon::now()->toDateTimeString();
         $queue_control->save();
 
-        echo "\nEMAILS DEL ERROR LOG ENVIADOS\n";
+        //Con la cola en modo sync, un echo se colaria en la respuesta de la peticion
+        \Illuminate\Support\Facades\Log::info('Emails del error log enviados');
     }
 }

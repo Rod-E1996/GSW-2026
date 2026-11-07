@@ -8,6 +8,10 @@ use App\Models\Huesped;
 use App\Models\User;
 use App\Services\SesionTokenService;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -55,25 +59,46 @@ class AuthController extends Controller
         ]);
     }
 
-    //Registro publico: crea un huesped y lo deja autenticado (como el flujo Blade).
+    //Registro publico: crea un huesped, lo deja autenticado y le envia el enlace de verificacion.
     public function register(Request $request)
     {
+        //El telefono se guarda solo con numeros
+        $request->merge(['telefono' => preg_replace('/[^0-9]/', '', (string) $request->input('telefono')) ?: null]);
+
         $datos = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'string', 'max:255', 'unique:users'],
+            'telefono' => ['required', 'string', 'min:8', 'max:30', Rule::unique('users', 'phone')],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'consentimiento' => ['accepted'],
+        ], [
+            'telefono.unique' => 'Ese teléfono ya está registrado en otra cuenta.',
+            'consentimiento.accepted' => 'Debes aceptar el aviso de privacidad para crear tu cuenta.',
         ]);
 
         $user = User::create([
-            'name' => $datos['name'],
+            'name' => trim($datos['nombres'] . ' ' . $datos['apellidos']),
             'email' => $datos['email'],
+            'phone' => $datos['telefono'],
             'password' => Hash::make($datos['password']),
             'estado' => 1,
         ]);
+        $user->forceFill(['privacidad_aceptada_at' => now()])->save();
 
         // Todo usuario que se registra desde el sitio publico es un huesped.
         $user->assignRole('Huésped');
-        Huesped::paraUsuario($user);
+        Huesped::paraUsuario($user, [
+            'nombres' => $datos['nombres'],
+            'apellidos' => $datos['apellidos'],
+        ]);
+
+        //Si el correo falla la cuenta ya existe: el huesped puede pedir otro enlace desde Mi cuenta
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         $nuevo = $this->sesiones->crearToken($user, true);
         $this->sesiones->registrarLogin($request, $user, $nuevo->accessToken->id);
@@ -82,6 +107,40 @@ class AuthController extends Controller
             'token' => $nuevo->plainTextToken,
             'user' => new UserResource($user),
         ], 201);
+    }
+
+    //Verifica el correo desde el enlace. No exige sesion: el enlace puede abrirse en otro dispositivo.
+    public function verificarCorreo(Request $request, $id, $hash)
+    {
+        $user = User::find($id);
+
+        if (!$user || !URL::hasValidRelativeSignature($request) || !hash_equals(sha1($user->getEmailForVerification()), (string) $hash)) {
+            return response()->json(['message' => 'El enlace no es válido o ya venció. Pide uno nuevo desde Mi cuenta.'], 403);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
+        }
+
+        return response()->json(['message' => 'Tu correo quedó verificado. Ya puedes reservar.']);
+    }
+
+    public function reenviarVerificacion(Request $request)
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Tu correo ya está verificado.']);
+        }
+
+        try {
+            $request->user()->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json(['message' => 'No pudimos enviar el correo. Intenta de nuevo en unos minutos.'], 503);
+        }
+
+        return response()->json(['message' => 'Te enviamos un nuevo enlace. Revisa tu correo.']);
     }
 
     //Devuelve el usuario autenticado (para rehidratar la sesion en el front).

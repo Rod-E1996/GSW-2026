@@ -1260,3 +1260,257 @@ form > .form-acciones {
     height: 170px;
   }
 }
+
+/* Fase 4: registro, reserva y Mi cuenta */
+.barra-publica__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.barra-publica__salir {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.login__card--ancha {
+  max-width: 520px;
+}
+.login__fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.login__campo-error {
+  color: #b4322a;
+  font-size: 0.8rem;
+}
+.login__card .login__check--bloque {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+  text-align: left;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.login__card .login__check--bloque input {
+  width: auto;
+  padding: 0;
+  margin-top: 0.2rem;
+  flex: none;
+}
+.alerta--aviso {
+  background: #fff4e0;
+  color: #6b4500;
+}
+.aviso-verificacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.pagina-simple {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+.tarjeta-simple {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 6px 18px rgba(11, 79, 87, 0.07);
+  margin-bottom: 1.25rem;
+}
+.tarjeta-simple > p {
+  margin: 0 0 0.9rem;
+}
+.reserva__resumen .form-nota {
+  display: block;
+  margin-bottom: 0.9rem;
+}
+.tarjeta-simple h1,
+.tarjeta-simple h3 {
+  margin-top: 0;
+  color: var(--pacifico);
+}
+.aviso h2 {
+  font-size: 1.05rem;
+  color: var(--pacifico);
+  margin: 1.25rem 0 0.4rem;
+}
+.aviso p {
+  line-height: 1.6;
+}
+.reserva,
+.cuenta {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.reserva__encabezado h1 {
+  margin: 0.4rem 0 1rem;
+  color: var(--pacifico);
+}
+.reserva__volver {
+  color: var(--ola);
+  font-size: 0.9rem;
+}
+.reserva__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.5rem;
+  align-items: start;
+}
+.reserva__formulario {
+  min-width: 0;
+}
+.reserva__formulario .form select {
+  background: #fff;
+}
+.reserva__resumen {
+  position: sticky;
+  top: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 6px 18px rgba(11, 79, 87, 0.07);
+}
+.reserva__foto {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.reserva__habitacion {
+  margin: 0.6rem 0 0.2rem;
+}
+.importes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+  margin: 0.9rem 0;
+}
+.importes dt,
+.importes dd {
+  margin: 0;
+}
+.importes dd {
+  text-align: right;
+}
+.importes__linea {
+  display: contents;
+}
+.importes__total {
+  font-weight: 700;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--bruma);
+}
+.importes__anticipo {
+  color: var(--mango);
+  font-weight: 600;
+}
+.servicios-elegibles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.servicios-elegibles li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--bruma);
+}
+.servicios-elegibles li:first-child {
+  border-top: none;
+}
+.servicios-elegibles__detalle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0 1.6rem;
+}
+.servicios-elegibles__detalle label {
+  min-width: 120px;
+}
+.cuenta__pestanas {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 1.25rem;
+  border-bottom: 1px solid var(--bruma);
+}
+.cuenta__pestanas a {
+  padding: 0.55rem 0.9rem;
+  color: var(--arena);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.cuenta__pestanas a.active {
+  color: var(--pacifico);
+  font-weight: 600;
+  border-bottom-color: var(--mango);
+}
+.cuenta .form-page {
+  max-width: none;
+}
+.cuenta .form-page > .page-title {
+  display: none;
+}
+.detalle-reserva__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.75rem 0 1rem;
+}
+.detalle-reserva__codigo {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: var(--pacifico);
+}
+.detalle-reserva__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.historial {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.historial li {
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--bruma);
+}
+.historial li:first-child {
+  border-top: none;
+}
+@media (max-width: 860px) {
+  .reserva__grid,
+  .detalle-reserva__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reserva__resumen {
+    position: static;
+  }
+  .reserva,
+  .cuenta {
+    padding: 1rem;
+  }
+}
+@media (max-width: 520px) {
+  .login__fila {
+    grid-template-columns: 1fr;
+  }
+  .barra-publica__nav {
+    gap: 0.6rem;
+  }
+}

@@ -46,13 +46,19 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  async function refrescar() {
+    const res = await api.get('/me')
+    setUser(res.data.user)
+    return res.data.user
+  }
+
   // Comprueba si el usuario tiene un permiso (para el menu y las vistas).
   function can(permiso) {
     return user?.permissions?.includes(permiso) ?? false
   }
 
   return (
-    <AuthContext.Provider value={{ user, cargando, login, register, logout, can, actualizarUsuario: setUser }}>
+    <AuthContext.Provider value={{ user, cargando, login, register, logout, can, actualizarUsuario: setUser, refrescar }}>
       {children}
     </AuthContext.Provider>
   )

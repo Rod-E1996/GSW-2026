@@ -11,6 +11,7 @@ use App\Models\QueueControl;
 use App\Models\SessionLog;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class CorreosColaTest extends ApiTestCase
@@ -65,6 +66,19 @@ class CorreosColaTest extends ApiTestCase
         Bus::assertNotDispatched(SendEmailNuevoDispositivo::class);
     }
 
+    public function test_con_la_cola_sync_el_login_sigue_respondiendo_json_limpio()
+    {
+        Mail::fake();
+        $huesped = $this->huesped();
+        $huesped->update(['login_notificacion' => 1]);
+        $this->dispositivoAnterior($huesped->id);
+
+        $res = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->assertOk();
+
+        $this->assertNotNull(json_decode($res->getContent()));
+        Mail::assertSent(NuevoDispositivoEmail::class);
+    }
+
     public function test_los_correos_pasan_por_la_tabla_jobs()
     {
         config(['queue.default' => 'database']);
@@ -79,12 +93,14 @@ class CorreosColaTest extends ApiTestCase
     public function test_el_trabajo_de_nuevo_dispositivo_envia_el_correo_y_registra_el_avance()
     {
         Mail::fake();
+        Log::spy();
         $huesped = $this->huesped();
-        $this->expectOutputRegex('/NUEVO DISPOSITIVO ENVIADO/');
+        $this->expectOutputString('');
 
         (new SendEmailNuevoDispositivo($huesped, '10.0.0.2', 'Windows', 'Chrome', 'Desktop'))->handle();
 
         Mail::assertSent(NuevoDispositivoEmail::class, fn ($correo) => $correo->hasTo($huesped->email));
+        Log::shouldHaveReceived('info')->with('Email de notificacion de nuevo dispositivo enviado');
 
         $control = QueueControl::latest('id')->firstOrFail();
         $this->assertSame(1, (int) $control->progreso);
@@ -94,10 +110,12 @@ class CorreosColaTest extends ApiTestCase
     public function test_el_trabajo_de_errores_envia_un_correo_a_cada_administrador()
     {
         Mail::fake();
-        $this->expectOutputRegex('/ERROR LOG ENVIADOS/');
+        Log::spy();
+        $this->expectOutputString('');
 
         (new SendEmail(collect(['uno@test.com', 'dos@test.com']), $this->errorDePrueba()))->handle();
 
+        Log::shouldHaveReceived('info')->with('Emails del error log enviados');
         Mail::assertSent(ErrorLogMail::class, 2);
         Mail::assertSent(ErrorLogMail::class, fn ($correo) => $correo->hasTo('dos@test.com'));
     }

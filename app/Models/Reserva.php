@@ -36,6 +36,9 @@ class Reserva extends Model
         self::CANCELADA  => ['nombre' => 'Cancelada',   'color' => 'danger'],
     ];
 
+    //Comentario para la siguiente entrada de reserva_historial (por ejemplo, el motivo de una cancelacion)
+    public ?string $comentarioHistorial = null;
+
     protected $fillable = [
         'codigo',
         'huesped_id',
@@ -121,8 +124,11 @@ class Reserva extends Model
         $this->historial()->create([
             'estado_anterior' => $estadoAnterior,
             'estado_nuevo' => $this->estado_reserva,
+            'comentario' => $this->comentarioHistorial,
             'user_id' => auth()->id(),
         ]);
+
+        $this->comentarioHistorial = null;
     }
 
     //Codigo de confirmacion aleatorio, para que no se pueda adivinar el de otra reserva

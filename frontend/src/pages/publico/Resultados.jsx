@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../../api'
 import { fechaCorta, formatoUSD, rutaImagen } from '../../utils'
 import BuscadorDisponibilidad from './BuscadorDisponibilidad'
+import BarraPublica from '../../components/BarraPublica'
 
 const FILTROS_VACIOS = { tipo_habitacion_id: '', capacidad: '', precio_min: '', precio_max: '' }
 
@@ -70,12 +71,7 @@ export default function Resultados() {
 
   return (
     <div className="app">
-      <header className="barra-publica">
-        <Link to="/" className="brand">
-          hotel<span className="brand__accent">link</span>
-        </Link>
-        <Link to="/login" className="barra-publica__login">Mi cuenta</Link>
-      </header>
+      <BarraPublica />
 
       <div className="resumen-busqueda">
         <div className="resumen-busqueda__datos">
@@ -182,9 +178,12 @@ export default function Resultados() {
                 <span className="precio">{formatoUSD(h.precio_noche)} <small>/ noche</small></span>
                 <span className="resultado__total">{formatoUSD(h.total)} en total</span>
                 <small className="resultado__nota">Antes de impuestos</small>
-                <button className="btn" disabled title="La reserva en línea se habilitará próximamente">
+                <Link
+                  className="btn"
+                  to={`/reservar?habitacion=${h.id}&llegada=${meta.llegada}&salida=${meta.salida}&huespedes=${meta.huespedes}`}
+                >
                   Reservar
-                </button>
+                </Link>
               </div>
             </article>
           ))}

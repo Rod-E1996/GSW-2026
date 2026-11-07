@@ -53,12 +53,13 @@ class Huesped extends Model
      * Ficha de huesped de una cuenta; la crea si aun no existe.
      * No enlaza fichas existentes por correo: mientras el correo no este verificado,
      * registrarse con un correo ajeno daria acceso a las reservas de otra persona.
+     * $datos completa la ficha nueva (el registro del portal manda nombres y apellidos aparte).
      */
-    public static function paraUsuario(User $user): self
+    public static function paraUsuario(User $user, array $datos = []): self
     {
         $partes = preg_split('/\s+/', trim($user->name), 2);
 
-        return self::firstOrCreate(['user_id' => $user->id], [
+        return self::firstOrCreate(['user_id' => $user->id], $datos + [
             'nombres' => $partes[0],
             'apellidos' => $partes[1] ?? '',
             'email' => $user->email,

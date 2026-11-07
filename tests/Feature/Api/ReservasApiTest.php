@@ -43,6 +43,11 @@ class ReservasApiTest extends ApiTestCase
             'fecha_llegada' => '2040-05-10',
             'fecha_salida' => '2040-05-12',
             'adultos' => 2,
+            'nombres' => 'Huésped',
+            'apellidos' => 'De Prueba',
+            'tipo_documento' => 'DUI',
+            'documento' => '01234567-8',
+            'telefono' => '70004444',
         ], $extra);
     }
 

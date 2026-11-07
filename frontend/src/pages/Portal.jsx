@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import BuscadorDisponibilidad from './publico/BuscadorDisponibilidad'
+import { useAuth } from '../auth/AuthContext'
 
 // Convierte la URL absoluta de la imagen a ruta relativa para usar el proxy de Vite.
 function rutaImagen(url) {
@@ -19,6 +20,7 @@ function formatoUSD(valor) {
 
 export default function Portal() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [tipos, setTipos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -44,8 +46,8 @@ export default function Portal() {
             <span className="brand">
               hotel<span className="brand__accent">link</span>
             </span>
-            <Link to="/login" className="hero__login">
-              Acceso panel
+            <Link to={user?.acceso_panel ? '/panel' : '/mi-cuenta'} className="hero__login">
+              {user?.acceso_panel ? 'Panel' : 'Mi cuenta'}
             </Link>
           </div>
           <h1>Tu descanso frente al mar, a un clic de distancia</h1>

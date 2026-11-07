@@ -189,16 +189,20 @@ class ModeloReservasTest extends TestCase
     public function test_el_registro_publico_crea_la_ficha_de_huesped()
     {
         $this->postJson('/api/register', [
-            'name' => 'Ana María Pérez',
+            'nombres' => 'Ana María',
+            'apellidos' => 'Pérez',
             'email' => 'ana.perez@test.com',
+            'telefono' => '7000-1111',
             'password' => '12345678',
             'password_confirmation' => '12345678',
+            'consentimiento' => true,
         ])->assertCreated();
 
         $ficha = User::where('email', 'ana.perez@test.com')->firstOrFail()->huesped;
 
-        $this->assertSame('Ana', $ficha->nombres);
-        $this->assertSame('María Pérez', $ficha->apellidos);
+        $this->assertSame('Ana María', $ficha->nombres);
+        $this->assertSame('Pérez', $ficha->apellidos);
+        $this->assertSame('70001111', $ficha->telefono);
         $this->assertSame('ana.perez@test.com', $ficha->email);
         $this->assertSame('Ana María Pérez', $ficha->nombre_completo);
     }
@@ -220,10 +224,13 @@ class ModeloReservasTest extends TestCase
         $ficha = Reserva::firstOrFail()->huesped;
 
         $this->postJson('/api/register', [
-            'name' => 'Persona Intrusa',
+            'nombres' => 'Persona',
+            'apellidos' => 'Intrusa',
             'email' => $ficha->email,
+            'telefono' => '70002222',
             'password' => '12345678',
             'password_confirmation' => '12345678',
+            'consentimiento' => true,
         ])->assertCreated();
 
         $cuenta = User::where('email', $ficha->email)->firstOrFail();

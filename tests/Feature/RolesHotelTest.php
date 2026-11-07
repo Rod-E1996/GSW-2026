@@ -76,10 +76,13 @@ class RolesHotelTest extends TestCase
     public function test_registro_publico_por_api_crea_un_huesped_con_token()
     {
         $res = $this->postJson('/api/register', [
-            'name' => 'API Huesped',
+            'nombres' => 'API',
+            'apellidos' => 'Huesped',
             'email' => 'api.huesped@test.com',
+            'telefono' => '70003333',
             'password' => '12345678',
             'password_confirmation' => '12345678',
+            'consentimiento' => true,
         ]);
 
         $res->assertCreated()

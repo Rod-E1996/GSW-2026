@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Exceptions\HabitacionNoDisponible;
-use App\Models\Configuracion;
 use App\Models\Habitacion;
 use App\Models\Reserva;
 use Illuminate\Support\Facades\DB;
@@ -20,21 +19,22 @@ class ReservaService
 
     public function __construct(
         private DisponibilidadService $disponibilidad,
-        private PrecioService $precios
+        private CotizacionService $cotizaciones
     ) {
     }
 
     /**
      * $datos: habitacion_id, huesped_id, fecha_llegada, fecha_salida, adultos y,
      * opcionales, ninos, hora_estimada_llegada, canal, notas, user_id.
+     * $servicios: los pedidos que entiende CotizacionService::calcular.
      *
      * @throws HabitacionNoDisponible si otra reserva o un bloqueo ocupo la habitacion
      */
-    public function crear(array $datos): Reserva
+    public function crear(array $datos, array $servicios = []): Reserva
     {
         $tipoId = Habitacion::whereKey($datos['habitacion_id'])->value('tipo_habitacion_id');
 
-        return DB::transaction(function () use ($datos, $tipoId) {
+        return DB::transaction(function () use ($datos, $servicios, $tipoId) {
             //Siempre en el mismo orden, para que dos solicitudes no se esperen mutuamente
             $habitaciones = Habitacion::with('tipoHabitacion')
                 ->where('tipo_habitacion_id', $tipoId)
@@ -48,9 +48,17 @@ class ReservaService
                 throw new HabitacionNoDisponible();
             }
 
-            $cotizacion = $this->precios->cotizar($habitacion->tipoHabitacion, $datos['fecha_llegada'], $datos['fecha_salida']);
+            $cotizacion = $this->cotizaciones->calcular(
+                $habitacion->tipoHabitacion,
+                $datos['fecha_llegada'],
+                $datos['fecha_salida'],
+                (int) $datos['adultos'] + (int) ($datos['ninos'] ?? 0),
+                $servicios
+            );
 
-            $reserva = Reserva::create($datos + $this->importes($cotizacion['subtotal']) + [
+            $reserva = Reserva::create($datos + array_intersect_key($cotizacion, array_flip([
+                'subtotal_alojamiento', 'subtotal_servicios', 'descuento', 'impuesto', 'total', 'anticipo_requerido',
+            ])) + [
                 'codigo' => Reserva::generarCodigo(),
                 'tipo_habitacion_id' => $tipoId,
                 'estado_reserva' => Reserva::PENDIENTE,
@@ -63,22 +71,18 @@ class ReservaService
                 'precio_noche' => $noche['precio_noche'],
             ], $cotizacion['noches']));
 
+            foreach ($cotizacion['servicios'] as $linea) {
+                $reserva->servicios()->attach($linea['servicio_id'], [
+                    'cantidad' => $linea['cantidad'],
+                    'precio_unitario' => $linea['precio_unitario'],
+                    'subtotal' => $linea['subtotal'],
+                    'fecha_servicio' => $linea['fecha_servicio'],
+                    'hora_servicio' => $linea['hora_servicio'],
+                    'estado_servicio' => 1,
+                ]);
+            }
+
             return $reserva;
         }, self::INTENTOS);
-    }
-
-    private function importes(float $alojamiento): array
-    {
-        $impuesto = round($alojamiento * Configuracion::valor('impuesto_porcentaje') / 100, 2);
-        $total = round($alojamiento + $impuesto, 2);
-
-        return [
-            'subtotal_alojamiento' => $alojamiento,
-            'subtotal_servicios' => 0,
-            'descuento' => 0,
-            'impuesto' => $impuesto,
-            'total' => $total,
-            'anticipo_requerido' => round($total * Configuracion::valor('anticipo_porcentaje') / 100, 2),
-        ];
     }
 }

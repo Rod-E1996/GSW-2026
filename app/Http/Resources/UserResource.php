@@ -18,6 +18,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'idioma' => $this->idioma,
+            'email_verificado' => $this->hasVerifiedEmail(),
             'roles' => $this->getRoleNames(),
             'permissions' => $this->getAllPermissions()->pluck('name')->values(),
             // Si puede entrar al panel interno (staff) o es un usuario externo (huesped).

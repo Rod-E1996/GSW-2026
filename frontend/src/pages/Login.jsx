@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { destinoSeguro } from '../auth/ProtectedRoute'
 
 // Icono de candado (sin dependencias de fuentes de iconos).
 function IconoCandado() {
@@ -16,6 +17,8 @@ function IconoCandado() {
 export default function Login() {
   const { login, user, cargando } = useAuth()
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const volver = destinoSeguro(params.get('volver'))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [verPass, setVerPass] = useState(false)
@@ -23,8 +26,8 @@ export default function Login() {
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false)
 
-  // Staff va al panel; los huespedes al portal publico.
-  const destino = (u) => (u?.acceso_panel ? '/panel' : '/')
+  // Primero a donde iba; si no, el staff al panel y el huesped a Mi cuenta.
+  const destino = (u) => volver || (u?.acceso_panel ? '/panel' : '/mi-cuenta')
 
   if (!cargando && user) return <Navigate to={destino(user)} replace />
 
@@ -108,7 +111,7 @@ export default function Login() {
 
         <p className="login__pie">
           ¿No tienes cuenta?{' '}
-          <Link className="login__link" to="/registro">Regístrate</Link>
+          <Link className="login__link" to={volver ? `/registro?volver=${encodeURIComponent(volver)}` : '/registro'}>Regístrate</Link>
         </p>
       </form>
     </div>

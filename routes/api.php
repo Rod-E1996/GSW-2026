@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DisponibilidadController;
 use App\Http\Controllers\Api\ReservaController;
+use App\Http\Controllers\Api\MiCuentaController;
+use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
@@ -42,7 +44,13 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])
     ->middleware('throttle:6,1');
 
+// Verificacion de correo: el enlace firmado basta, no hace falta sesion
+Route::get('/correo/verificar/{id}/{hash}', [AuthController::class, 'verificarCorreo'])
+    ->middleware('throttle:6,1')
+    ->name('api.correo.verificar');
+
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/correo/reenviar', [AuthController::class, 'reenviarVerificacion'])->middleware('throttle:3,1');
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
@@ -63,10 +71,20 @@ Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
 // ===== Portal publico (sin autenticacion) =====
 Route::get('/tipos-habitacion', [TipoHabitacionController::class, 'index']);
 Route::get('/disponibilidad', [DisponibilidadController::class, 'index']);
+Route::get('/servicios', [ServicioController::class, 'index']);
+Route::post('/reservas/cotizar', [ReservaController::class, 'cotizar'])->middleware('throttle:60,1');
 
 // ===== Reserva en linea =====
 Route::post('/reservas', [ReservaController::class, 'store'])
-    ->middleware(['auth:sanctum', 'permission:reserva_solicitar,sanctum', 'throttle:10,1']);
+    ->middleware(['auth:sanctum', 'permission:reserva_solicitar,sanctum', 'correo.verificado', 'throttle:10,1']);
+
+// ===== Mi cuenta (solo las reservas propias) =====
+Route::middleware('auth:sanctum')->prefix('mi-cuenta')->group(function () {
+    Route::get('/huesped', [MiCuentaController::class, 'huesped']);
+    Route::get('/reservas', [MiCuentaController::class, 'reservas']);
+    Route::get('/reservas/{codigo}', [MiCuentaController::class, 'reserva']);
+    Route::post('/reservas/{codigo}/cancelar', [MiCuentaController::class, 'cancelar'])->middleware('throttle:10,1');
+});
 
 // ===== Panel de administracion (token + permisos) =====
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {

@@ -1,6 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import Portal from './pages/Portal'
 import Resultados from './pages/publico/Resultados'
+import Reservar from './pages/publico/Reservar'
+import VerificarCorreo from './pages/publico/VerificarCorreo'
+import Privacidad from './pages/publico/Privacidad'
+import MiCuenta from './pages/cuenta/MiCuenta'
+import MisReservas from './pages/cuenta/MisReservas'
+import ReservaDetalle from './pages/cuenta/ReservaDetalle'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -40,6 +46,30 @@ export default function App() {
       {/* Portal publico */}
       <Route path="/" element={<Portal />} />
       <Route path="/disponibilidad" element={<Resultados />} />
+      <Route path="/verificar-correo" element={<VerificarCorreo />} />
+      <Route path="/privacidad" element={<Privacidad />} />
+      <Route
+        path="/reservar"
+        element={
+          <ProtectedRoute>
+            <Reservar />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Area privada del huesped */}
+      <Route
+        path="/mi-cuenta"
+        element={
+          <ProtectedRoute>
+            <MiCuenta />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<MisReservas />} />
+        <Route path="reservas/:codigo" element={<ReservaDetalle />} />
+        <Route path="perfil" element={<Perfil />} />
+      </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
       <Route path="/recuperar-contrasena" element={<ForgotPassword />} />

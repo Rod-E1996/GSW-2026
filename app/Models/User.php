@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
@@ -50,6 +50,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'privacidad_aceptada_at' => 'datetime',
     ];
 
     // validaciones
@@ -95,6 +96,12 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \App\Notifications\CustomResetPasswordNotification($token));
+    }
+
+    //El enlace abre el portal React; tambien lo usa el registro por Blade
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\VerificarCorreoNotification());
     }
 
 }

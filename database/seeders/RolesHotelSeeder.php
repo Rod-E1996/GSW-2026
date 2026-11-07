@@ -97,6 +97,10 @@ class RolesHotelSeeder extends Seeder
                 ]
             );
 
+            if (!$user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+            }
+
             if (!$user->hasRole($datos['rol'])) {
                 $user->assignRole($datos['rol']);
             }

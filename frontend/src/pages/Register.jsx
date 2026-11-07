@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { destinoSeguro } from '../auth/ProtectedRoute'
 
 function IconoUsuario() {
   return (
@@ -15,48 +16,62 @@ function IconoUsuario() {
 export default function Register() {
   const { register, user, cargando } = useAuth()
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmacion, setConfirmacion] = useState('')
+  const [params] = useSearchParams()
+  const volver = destinoSeguro(params.get('volver'))
+
+  const [form, setForm] = useState({
+    nombres: '',
+    apellidos: '',
+    email: '',
+    telefono: '',
+    password: '',
+    password_confirmation: '',
+    consentimiento: false,
+  })
   const [verPass, setVerPass] = useState(false)
+  const [errores, setErrores] = useState({})
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false)
 
   // Si ya hay sesion, cada quien a su lugar.
-  if (!cargando && user) return <Navigate to={user.acceso_panel ? '/panel' : '/'} replace />
+  if (!cargando && user) return <Navigate to={volver || (user.acceso_panel ? '/panel' : '/mi-cuenta')} replace />
+
+  function set(campo, valor) {
+    setForm((f) => ({ ...f, [campo]: valor }))
+  }
 
   async function onSubmit(e) {
     e.preventDefault()
     setError(null)
+    setErrores({})
 
-    if (password !== confirmacion) {
-      setError('Las contraseñas no coinciden.')
+    if (form.password !== form.password_confirmation) {
+      setErrores({ password_confirmation: ['Las contraseñas no coinciden.'] })
       return
     }
 
     setEnviando(true)
     try {
-      await register({
-        name,
-        email,
-        password,
-        password_confirmation: confirmacion,
-      })
-      // El registro deja la sesion iniciada; el huesped va al portal.
-      navigate('/')
+      await register(form)
+      // El registro deja la sesion iniciada; el correo de verificacion ya va en camino.
+      navigate(volver || '/mi-cuenta?bienvenida=1')
     } catch (err) {
       const data = err.response?.data
-      const primerError = data?.errors ? Object.values(data.errors)[0]?.[0] : null
-      setError(primerError || data?.message || 'No se pudo crear la cuenta.')
+      if (data?.errors) {
+        setErrores(data.errors)
+      } else {
+        setError(data?.message || 'No se pudo crear la cuenta.')
+      }
     } finally {
       setEnviando(false)
     }
   }
 
+  const campoError = (campo) => errores[campo] && <small className="login__campo-error">{errores[campo][0]}</small>
+
   return (
     <div className="login">
-      <form className="login__card" onSubmit={onSubmit}>
+      <form className="login__card login__card--ancha" onSubmit={onSubmit} noValidate>
         <div className="login__mark"><IconoUsuario /></div>
         <span className="brand brand--dark">
           hotel<span className="brand__accent">link</span>
@@ -66,29 +81,43 @@ export default function Register() {
 
         {error && <div className="login__error">{error}</div>}
 
-        <label className="login__field">
-          Nombre completo
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            autoFocus
-            autoComplete="name"
-            placeholder="Tu nombre"
-          />
-        </label>
+        <div className="login__fila">
+          <label className="login__field">
+            Nombres
+            <input value={form.nombres} onChange={(e) => set('nombres', e.target.value)} required autoFocus autoComplete="given-name" />
+            {campoError('nombres')}
+          </label>
+          <label className="login__field">
+            Apellidos
+            <input value={form.apellidos} onChange={(e) => set('apellidos', e.target.value)} required autoComplete="family-name" />
+            {campoError('apellidos')}
+          </label>
+        </div>
 
         <label className="login__field">
           Correo electrónico
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
             required
             autoComplete="email"
             placeholder="nombre@ejemplo.com"
           />
+          {campoError('email')}
+        </label>
+
+        <label className="login__field">
+          Teléfono
+          <input
+            type="tel"
+            value={form.telefono}
+            onChange={(e) => set('telefono', e.target.value)}
+            required
+            autoComplete="tel"
+            placeholder="7000-0000"
+          />
+          {campoError('telefono')}
         </label>
 
         <label className="login__field">
@@ -96,35 +125,47 @@ export default function Register() {
           <div className="login__pass">
             <input
               type={verPass ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={(e) => set('password', e.target.value)}
               required
               minLength={8}
               autoComplete="new-password"
               placeholder="Mínimo 8 caracteres"
             />
-            <button
-              type="button"
-              className="login__toggle"
-              onClick={() => setVerPass((v) => !v)}
-            >
+            <button type="button" className="login__toggle" onClick={() => setVerPass((v) => !v)}>
               {verPass ? 'Ocultar' : 'Mostrar'}
             </button>
           </div>
+          {campoError('password')}
         </label>
 
         <label className="login__field">
           Confirmar contraseña
           <input
             type={verPass ? 'text' : 'password'}
-            value={confirmacion}
-            onChange={(e) => setConfirmacion(e.target.value)}
+            value={form.password_confirmation}
+            onChange={(e) => set('password_confirmation', e.target.value)}
             required
             minLength={8}
             autoComplete="new-password"
             placeholder="Repite la contraseña"
           />
+          {campoError('password_confirmation')}
         </label>
+
+        <label className="login__check login__check--bloque">
+          <input
+            type="checkbox"
+            checked={form.consentimiento}
+            onChange={(e) => set('consentimiento', e.target.checked)}
+          />
+          <span>
+            Leí y acepto el{' '}
+            <Link className="login__link" to="/privacidad" target="_blank" rel="noopener">aviso de privacidad</Link>
+            , y autorizo el uso de mis datos para gestionar mis reservas.
+          </span>
+        </label>
+        {campoError('consentimiento')}
 
         <button className="btn btn--block" disabled={enviando}>
           {enviando ? 'Creando…' : 'Crear cuenta'}
@@ -132,7 +173,7 @@ export default function Register() {
 
         <p className="login__pie">
           ¿Ya tienes cuenta?{' '}
-          <Link className="login__link" to="/login">Inicia sesión</Link>
+          <Link className="login__link" to={volver ? `/login?volver=${encodeURIComponent(volver)}` : '/login'}>Inicia sesión</Link>
         </p>
       </form>
     </div>

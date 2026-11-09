@@ -34,6 +34,7 @@ export const MENU = [
     items: [
       { label: 'Auditoría', path: '/panel/auditoria', permiso: 'auditar_index', icon: 'auditoria' },
       { label: 'Error logs', path: '/panel/error-logs', permiso: 'error_log_index', icon: 'alerta' },
+      { label: 'Procesos', path: '/panel/procesos', permiso: 'queue_control_index', icon: 'recargar' },
       { label: 'Configuración', path: '/panel/configuracion', permiso: 'configuracion_index', icon: 'ajustes' },
     ],
   },

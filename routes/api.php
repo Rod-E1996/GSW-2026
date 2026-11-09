@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\TipoHabitacionController;
 use App\Http\Controllers\Api\Admin\TipoHabitacionController as AdminTipoHabitacionController;
 use App\Http\Controllers\Api\Admin\AuditarController as AdminAuditarController;
 use App\Http\Controllers\Api\Admin\ErrorLogController as AdminErrorLogController;
+use App\Http\Controllers\Api\Admin\ProcesoController as AdminProcesoController;
 use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\PermisoController as AdminPermisoController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
@@ -315,4 +316,8 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:error_log_show,sanctum');
     Route::put('/error-logs/{id}/estado', [AdminErrorLogController::class, 'estado'])
         ->middleware('permission:error_log_estado,sanctum');
+
+    // Procesos en segundo plano (avance de los trabajos de la cola)
+    Route::get('/procesos', [AdminProcesoController::class, 'index'])
+        ->middleware('permission:queue_control_index,sanctum');
 });

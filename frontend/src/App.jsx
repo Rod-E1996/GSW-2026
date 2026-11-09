@@ -25,6 +25,7 @@ import TipoForm from './pages/admin/tipos/TipoForm'
 import AuditoriaList from './pages/admin/auditoria/AuditoriaList'
 import AuditoriaDetalle from './pages/admin/auditoria/AuditoriaDetalle'
 import ErroresList from './pages/admin/errores/ErroresList'
+import ProcesosList from './pages/admin/procesos/ProcesosList'
 import ErrorDetalle from './pages/admin/errores/ErrorDetalle'
 import RolesList from './pages/admin/roles/RolesList'
 import RoleForm from './pages/admin/roles/RoleForm'
@@ -127,6 +128,7 @@ export default function App() {
         <Route path="auditoria/:id" element={<AuditoriaDetalle />} />
         <Route path="error-logs" element={<ErroresList />} />
         <Route path="error-logs/:id" element={<ErrorDetalle />} />
+        <Route path="procesos" element={<ProcesosList />} />
         <Route path="configuracion" element={<ConfiguracionForm />} />
         <Route path="perfil" element={<Perfil />} />
       </Route>

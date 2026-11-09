@@ -1,0 +1,186 @@
+/* =====================================================================
+   Procesos en segundo plano
+   ===================================================================== */
+.pr-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.pr-barra .pestanas {
+  margin-bottom: 0;
+}
+.pr-busqueda {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 1 420px;
+}
+.pr-busqueda input {
+  flex: 1;
+  min-width: 0;
+  padding-left: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2385837f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+  background-size: 16px;
+}
+
+.pr-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Tarjeta de un proceso */
+.pr-proceso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+}
+.pr-proceso--en_curso {
+  border-left-color: var(--ola);
+}
+.pr-proceso--detenido {
+  border-left-color: var(--error);
+}
+.pr-proceso--terminado {
+  border-left-color: #2f9e6a;
+}
+.pr-proceso--cargando {
+  gap: 0.9rem;
+  padding: 1.4rem 1.25rem;
+}
+.pr-proceso--cargando .esqueleto:last-child {
+  width: 100%;
+  height: 0.6rem;
+}
+
+.pr-proceso__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.pr-proceso__icono {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+}
+.pr-proceso__icono--en_curso {
+  background: var(--ola-suave);
+  color: var(--ola);
+}
+.pr-proceso__icono--en_curso .icono {
+  animation: girar 1.4s linear infinite;
+}
+.pr-proceso__icono--detenido {
+  background: var(--error-fondo);
+  color: var(--error);
+}
+.pr-proceso__icono--terminado {
+  background: var(--ok-fondo);
+  color: var(--ok);
+}
+.pr-proceso__titulo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.pr-proceso__titulo strong {
+  font-size: 0.95rem;
+  color: var(--tinta);
+}
+.pr-proceso__titulo small {
+  font-size: 0.8rem;
+  color: var(--tinta-3);
+}
+
+/* Barra de avance */
+.pr-progreso {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9efef;
+}
+.pr-progreso__barra {
+  height: 100%;
+  border-radius: 999px;
+  background: #2f9e6a;
+  transition: width 0.6s ease;
+}
+.pr-proceso--en_curso .pr-progreso__barra {
+  background: repeating-linear-gradient(-45deg, var(--ola), var(--ola) 8px, #22a3b3 8px, #22a3b3 16px);
+  background-size: 22px 22px;
+  animation: avanzar 0.8s linear infinite;
+}
+.pr-proceso--detenido .pr-progreso__barra {
+  background: var(--error);
+}
+@keyframes avanzar {
+  to {
+    background-position: 22px 0;
+  }
+}
+
+.pr-proceso__datos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  font-size: 0.84rem;
+  color: var(--tinta-2);
+  font-variant-numeric: tabular-nums;
+}
+.pr-proceso__datos strong {
+  color: var(--tinta);
+}
+
+/* Pie: ultima actualizacion */
+.pr-actualizado {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--tinta-3);
+}
+.pr-pulso {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--borde-fuerte);
+}
+.pr-pulso.is-activo {
+  background: var(--ola);
+  box-shadow: 0 0 0 0 rgba(0, 138, 156, 0.5);
+  animation: pulso 1.6s ease-out infinite;
+}
+@keyframes pulso {
+  to {
+    box-shadow: 0 0 0 8px rgba(0, 138, 156, 0);
+  }
+}
+
+@media (max-width: 600px) {
+  .pr-busqueda {
+    flex-basis: 100%;
+  }
+  .pr-proceso__cabecera {
+    flex-wrap: wrap;
+  }
+  .pr-proceso__datos {
+    flex-direction: column;
+  }
+}

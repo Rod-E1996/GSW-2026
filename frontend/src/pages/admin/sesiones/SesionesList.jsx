@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
-
-function fecha(iso) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('es-SV')
-}
+import { Avatar, FilaVacia, FilasCargando, Indicador } from '../../../components/ui'
+import { Dispositivo, Paginacion, fechaHora, haceCuanto } from '../accesos/comun'
+import '../../../styles/admin-accesos.css'
 
 export default function SesionesList() {
   const { can } = useAuth()
@@ -44,7 +42,7 @@ export default function SesionesList() {
 
   async function cerrar(s) {
     if (s.es_actual) return
-    if (!window.confirm('¿Cerrar esta sesión? El usuario deberá iniciar sesión de nuevo.')) return
+    if (!window.confirm(`¿Cerrar la sesión de ${s.usuario || 'este usuario'}? Deberá iniciar sesión de nuevo en ese dispositivo.`)) return
     setError(null)
     setAviso(null)
     try {
@@ -58,29 +56,37 @@ export default function SesionesList() {
 
   return (
     <div>
-      <h1 className="page-title">Sesiones activas</h1>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Sesiones activas</h1>
+          <p className="page-sub">Quién tiene la sesión abierta ahora y desde qué dispositivo. Cerrar una sesión obliga a volver a entrar.</p>
+        </div>
+      </div>
 
       {error && <div className="alerta alerta--error">{error}</div>}
       {aviso && <div className="alerta alerta--ok">{aviso}</div>}
 
       {stats && (
-        <div className="cards-info">
-          <div className="info-card">
-            <span className="info-card__label">Sesiones activas</span>
-            <span className="info-card__value">{stats.total_activas}</span>
-          </div>
-          <div className="info-card">
-            <span className="info-card__label">Usuarios conectados</span>
-            <span className="info-card__value">{stats.usuarios_conectados}</span>
-          </div>
+        <div className="indicadores">
+          <Indicador icono="sesiones" etiqueta="Sesiones abiertas" valor={stats.total_activas} />
+          <Indicador icono="usuarios" tono="azul" etiqueta="Usuarios conectados" valor={stats.usuarios_conectados} />
+          <Indicador
+            icono="reloj"
+            tono="ok"
+            etiqueta="Promedio por usuario"
+            valor={stats.usuarios_conectados ? (stats.total_activas / stats.usuarios_conectados).toFixed(1) : '0'}
+            nota="sesiones abiertas"
+          />
         </div>
       )}
 
       <form className="filtros" onSubmit={buscar}>
         <input
-          placeholder="Buscar por usuario o email…"
+          className="filtros__busqueda"
+          placeholder="Buscar por nombre o correo del usuario…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar sesión"
         />
         <button className="btn btn--ghost">Buscar</button>
       </form>
@@ -92,32 +98,40 @@ export default function SesionesList() {
               <th>Usuario</th>
               <th>Dispositivo</th>
               <th>IP</th>
+              <th>Inicio</th>
               <th>Última actividad</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {cargando && (
-              <tr><td colSpan="5" className="tabla__vacio">Cargando…</td></tr>
-            )}
+            {cargando && <FilasCargando columnas={6} />}
             {!cargando && items.length === 0 && (
-              <tr><td colSpan="5" className="tabla__vacio">Sin sesiones activas.</td></tr>
+              <FilaVacia
+                columnas={6}
+                icono="sesiones"
+                titulo={search ? 'Ninguna sesión coincide' : 'No hay sesiones abiertas'}
+                texto={search ? 'Prueba con otro nombre o correo.' : 'Cuando alguien inicie sesión aparecerá aquí.'}
+              />
             )}
             {!cargando &&
               items.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.usuario || '—'}</td>
-                  <td>{s.device_type_es} · {s.browser || 'Desconocido'}</td>
-                  <td>{s.ip_address}</td>
-                  <td>{fecha(s.ultima_actividad)}</td>
+                <tr key={s.id} className={s.es_actual ? 'ac-fila-actual' : ''}>
+                  <td>
+                    <div className="celda-entidad">
+                      <Avatar nombre={s.usuario} size="sm" />
+                      <div><strong>{s.usuario || '—'}</strong></div>
+                    </div>
+                  </td>
+                  <td><Dispositivo s={s} /></td>
+                  <td className="ac-mono">{s.ip_address}</td>
+                  <td>{fechaHora(s.inicio)}</td>
+                  <td title={fechaHora(s.ultima_actividad)}>{haceCuanto(s.ultima_actividad)}</td>
                   <td className="tabla__acciones">
                     {s.es_actual ? (
-                      <span className="badge badge--ok">Esta sesión</span>
+                      <span className="badge badge--info">Esta sesión</span>
                     ) : (
                       can('session_cerrar') && (
-                        <button className="btn btn--sm btn--danger" onClick={() => cerrar(s)}>
-                          Cerrar
-                        </button>
+                        <button className="btn btn--sm btn--danger" onClick={() => cerrar(s)}>Cerrar</button>
                       )
                     )}
                   </td>
@@ -127,17 +141,7 @@ export default function SesionesList() {
         </table>
       </div>
 
-      {meta && meta.last_page > 1 && (
-        <div className="paginacion">
-          <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Anterior
-          </button>
-          <span>Página {meta.current_page} de {meta.last_page}</span>
-          <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-            Siguiente →
-          </button>
-        </div>
-      )}
+      <Paginacion meta={meta} page={page} setPage={setPage} nombre="sesiones" />
     </div>
   )
 }

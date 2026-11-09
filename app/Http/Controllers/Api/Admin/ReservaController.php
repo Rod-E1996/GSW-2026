@@ -76,8 +76,22 @@ class ReservaController extends Controller
             }
         }
 
+        $query->when($request->get('canal'), fn ($q, $canal) => $q->where('canal', $canal))
+            ->when($request->get('desde'), fn ($q, $desde) => $q->whereDate('fecha_llegada', '>=', $desde))
+            ->when($request->get('hasta'), fn ($q, $hasta) => $q->whereDate('fecha_llegada', '<=', $hasta));
+
         $estado = $request->get('estado');
         $limite = now()->subHours((int) \App\Models\Configuracion::valor('reserva_pendiente_horas', 24));
+
+        //Cuantas reservas hay en cada estado con los demas filtros (pestanas del panel)
+        $porEstado = (clone $query)->toBase()->reorder()->selectRaw('estado_reserva, count(*) as total')
+            ->groupBy('estado_reserva')->pluck('total', 'estado_reserva');
+        $vencidas = (clone $query)->where('estado_reserva', Reserva::PENDIENTE)->where('created_at', '<=', $limite)->count();
+        $conteos = ['todas' => (int) $porEstado->sum(), 'vencida' => $vencidas];
+        foreach (array_keys(Reserva::ESTADOS) as $valor) {
+            $conteos[(string) $valor] = (int) ($porEstado[$valor] ?? 0) - ($valor === Reserva::PENDIENTE ? $vencidas : 0);
+        }
+
         if ($estado === 'vencida') {
             $query->where('estado_reserva', Reserva::PENDIENTE)->where('created_at', '<=', $limite);
         } elseif ($estado === (string) Reserva::PENDIENTE) {
@@ -85,10 +99,6 @@ class ReservaController extends Controller
         } elseif ($estado) {
             $query->where('estado_reserva', (int) $estado);
         }
-
-        $query->when($request->get('canal'), fn ($q, $canal) => $q->where('canal', $canal))
-            ->when($request->get('desde'), fn ($q, $desde) => $q->whereDate('fecha_llegada', '>=', $desde))
-            ->when($request->get('hasta'), fn ($q, $hasta) => $q->whereDate('fecha_llegada', '<=', $hasta));
 
         $pagina = $query->orderByDesc('fecha_llegada')->orderByDesc('id')->paginate(15);
         $vigentes = Reserva::vigentes()->whereIn('id', $pagina->pluck('id'))->pluck('id');
@@ -99,6 +109,7 @@ class ReservaController extends Controller
                 'current_page' => $pagina->currentPage(),
                 'last_page' => $pagina->lastPage(),
                 'total' => $pagina->total(),
+                'conteos' => $conteos,
             ],
         ]);
     }

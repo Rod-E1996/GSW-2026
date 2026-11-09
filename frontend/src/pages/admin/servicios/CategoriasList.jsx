@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import Icono from '../../../components/Icono'
+import { FilaVacia, FilasCargando } from '../../../components/ui'
+import { ICONOS_SUGERIDOS, IconoServicio, tonoCategoria } from './iconosServicio'
+import '../../../styles/admin-catalogo.css'
 
 const VACIO = { nombre: '', nombre_en: '', icono: '', orden: 0 }
 
@@ -42,6 +46,7 @@ export default function CategoriasList() {
   function editar(c) {
     setEditandoId(c.id)
     setErrores({})
+    setMensaje(null)
     setForm({ nombre: c.nombre, nombre_en: c.nombre_en || '', icono: c.icono || '', orden: c.orden ?? 0 })
   }
 
@@ -57,7 +62,7 @@ export default function CategoriasList() {
       } else {
         await api.post('/admin/categorias-servicio', form)
       }
-      setMensaje('Categoría guardada con éxito.')
+      setMensaje(editandoId ? 'Categoría actualizada.' : 'Categoría creada.')
       limpiar()
       cargar()
     } catch (err) {
@@ -86,101 +91,137 @@ export default function CategoriasList() {
   }
 
   const puedeEscribir = editandoId ? can('categoria_servicio_update') : can('categoria_servicio_store')
+  const err = (campo) => errores[campo] && <small className="campo-error">{errores[campo][0]}</small>
+  const tonoForm = tonoCategoria(editandoId || items.length + 1)
 
   return (
-    <div>
+    <div className="catalogo">
+      <Link to="/panel/servicios" className="volver"><Icono nombre="volver" size={16} /> Servicios</Link>
       <div className="page-head">
-        <h1 className="page-title">Categorías de servicio</h1>
-        <Link to="/panel/servicios" className="btn btn--ghost">
-          ← Servicios
-        </Link>
+        <div>
+          <h1 className="page-title">Categorías de servicio</h1>
+          <p className="page-sub">Agrupan el catálogo en el portal. El orden define en qué posición aparece cada grupo.</p>
+        </div>
       </div>
 
       {mensaje && <div className="alerta alerta--ok">{mensaje}</div>}
       {error && <div className="alerta alerta--error">{error}</div>}
 
-      {puedeEscribir && (
-        <form className="form form--seccion" onSubmit={onSubmit}>
-          <h2 className="seccion-title">{editandoId ? 'Editar categoría' : 'Nueva categoría'}</h2>
-          <div className="form-row">
+      <div className={`dos-columnas ${puedeEscribir ? '' : 'dos-columnas--sola'}`}>
+        <div className="tabla-wrap">
+          <table className="tabla">
+            <thead>
+              <tr>
+                <th className="tabla__num">Orden</th>
+                <th>Categoría</th>
+                <th>Servicios</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {cargando && <FilasCargando columnas={4} filas={4} />}
+              {!cargando && items.length === 0 && (
+                <FilaVacia columnas={4} icono="lista" titulo="Sin categorías" texto={puedeEscribir ? 'Crea la primera con el formulario.' : 'Aún no se ha creado ninguna.'} />
+              )}
+              {!cargando &&
+                items.map((c) => (
+                  <tr key={c.id} className={editandoId === c.id ? 'is-editando' : ''}>
+                    <td className="tabla__num">{c.orden ?? 0}</td>
+                    <td>
+                      <div className="celda-entidad">
+                        <IconoServicio icono={c.icono} nombre={c.nombre} tono={tonoCategoria(c.id)} size="sm" />
+                        <div>
+                          <strong>{c.nombre}</strong>
+                          <small>{c.nombre_en || 'Sin nombre en inglés'}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {c.servicios_count > 0 ? (
+                        <Link to={`/panel/servicios?categoria=${c.id}`} className="enlace-conteo">
+                          {c.servicios_count} {c.servicios_count === 1 ? 'servicio' : 'servicios'}
+                        </Link>
+                      ) : (
+                        <span className="form-nota">Vacía</span>
+                      )}
+                    </td>
+                    <td className="tabla__acciones">
+                      {can('categoria_servicio_update') && (
+                        <button className="btn btn--sm btn--ghost" onClick={() => editar(c)}>
+                          <Icono nombre="editar" size={14} /> Editar
+                        </button>
+                      )}
+                      {can('categoria_servicio_destroy') && (
+                        <button
+                          className="btn btn--sm btn--danger btn--icono-sm"
+                          onClick={() => eliminar(c)}
+                          title={c.servicios_count > 0 ? 'Tiene servicios: muévelos antes de eliminarla' : `Eliminar ${c.nombre}`}
+                          aria-label={`Eliminar ${c.nombre}`}
+                        >
+                          <Icono nombre="eliminar" size={14} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+
+        {puedeEscribir && (
+          <form className="form panel-lateral" onSubmit={onSubmit}>
+            <div className="panel-lateral__cabecera">
+              <IconoServicio icono={form.icono} nombre={form.nombre || '?'} tono={tonoForm} />
+              <div>
+                <h2>{editandoId ? 'Editar categoría' : 'Nueva categoría'}</h2>
+                <small className="form-nota">{editandoId ? form.nombre : 'Aparecerá como un grupo del catálogo.'}</small>
+              </div>
+            </div>
             <label>
               Nombre
-              <input value={form.nombre} onChange={(e) => set('nombre', e.target.value)} />
-              {errores.nombre && <small className="campo-error">{errores.nombre[0]}</small>}
+              <input value={form.nombre} onChange={(e) => set('nombre', e.target.value)} placeholder="Ej.: Bienestar" />
+              {err('nombre')}
             </label>
             <label>
               Nombre en inglés
-              <input value={form.nombre_en} onChange={(e) => set('nombre_en', e.target.value)} />
-              {errores.nombre_en && <small className="campo-error">{errores.nombre_en[0]}</small>}
-            </label>
-          </div>
-          <div className="form-row">
-            <label>
-              Ícono de Bootstrap Icons (opcional)
-              <input placeholder="bi-bell" value={form.icono} onChange={(e) => set('icono', e.target.value)} />
-              {errores.icono && <small className="campo-error">{errores.icono[0]}</small>}
+              <input value={form.nombre_en} onChange={(e) => set('nombre_en', e.target.value)} placeholder="Ej.: Wellness" />
+              {err('nombre_en')}
             </label>
             <label>
-              Orden
+              Orden en el catálogo
               <input type="number" min="0" value={form.orden} onChange={(e) => set('orden', e.target.value)} />
-              {errores.orden && <small className="campo-error">{errores.orden[0]}</small>}
+              {err('orden')}
             </label>
-          </div>
-          <div className="form-acciones">
-            {editandoId && (
-              <button type="button" className="btn btn--ghost" onClick={limpiar}>
-                Cancelar
+            <div>
+              <span className="campo-etiqueta">Ícono</span>
+              <div className="selector-icono" role="radiogroup" aria-label="Ícono">
+                {ICONOS_SUGERIDOS.map((nombre) => (
+                  <button
+                    key={nombre}
+                    type="button"
+                    role="radio"
+                    aria-checked={form.icono === nombre}
+                    className={form.icono === nombre ? 'is-elegido' : ''}
+                    onClick={() => set('icono', form.icono === nombre ? '' : nombre)}
+                  >
+                    <IconoServicio icono={nombre} tono={tonoForm} size="sm" />
+                  </button>
+                ))}
+              </div>
+              {err('icono')}
+            </div>
+            <div className="form-acciones">
+              {editandoId && (
+                <button type="button" className="btn btn--ghost" onClick={limpiar}>Cancelar</button>
+              )}
+              <button className="btn" disabled={guardando}>
+                {guardando ? 'Guardando…' : editandoId ? 'Guardar cambios' : 'Crear categoría'}
               </button>
-            )}
-            <button className="btn" disabled={guardando}>
-              {guardando ? 'Guardando…' : 'Guardar'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="tabla-wrap">
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Orden</th>
-              <th>Nombre</th>
-              <th>Nombre en inglés</th>
-              <th>Servicios</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargando && (
-              <tr><td colSpan="5" className="tabla__vacio">Cargando…</td></tr>
-            )}
-            {!cargando && items.length === 0 && (
-              <tr><td colSpan="5" className="tabla__vacio">Sin categorías.</td></tr>
-            )}
-            {!cargando &&
-              items.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.orden ?? 0}</td>
-                  <td>{c.nombre}</td>
-                  <td>{c.nombre_en || '—'}</td>
-                  <td>{c.servicios_count}</td>
-                  <td className="tabla__acciones">
-                    {can('categoria_servicio_update') && (
-                      <button className="btn btn--sm btn--ghost" onClick={() => editar(c)}>
-                        Editar
-                      </button>
-                    )}
-                    {can('categoria_servicio_destroy') && (
-                      <button className="btn btn--sm btn--danger" onClick={() => eliminar(c)}>
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+            </div>
+          </form>
+        )}
       </div>
+
     </div>
   )
 }

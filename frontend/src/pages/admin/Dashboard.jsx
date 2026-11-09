@@ -4,13 +4,18 @@ import { api } from '../../api'
 import { useAuth } from '../../auth/AuthContext'
 import { fechaCorta, formatoUSD } from '../../utils'
 import { COLOR_RESERVA } from './reservas/ReservasList'
+import Icono from '../../components/Icono'
 
-function Lista({ titulo, filas, vacio, detalle }) {
+function Lista({ titulo, icono, filas, vacio, detalle }) {
   return (
     <section className="tarjeta-simple panel-lista">
-      <h3>{titulo}</h3>
+      <h3 className="panel-lista__titulo">
+        <Icono nombre={icono} size={18} />
+        {titulo}
+        <span className="panel-lista__conteo">{filas.length}</span>
+      </h3>
       {filas.length === 0 ? (
-        <p className="form-nota">{vacio}</p>
+        <p className="vacio-mini">{vacio}</p>
       ) : (
         <ul>
           {filas.map((r) => (
@@ -71,21 +76,25 @@ export default function Dashboard() {
         <>
           <div className="cards-info">
             <div className="info-card">
+              <span className="info-card__icono"><Icono nombre="ocupacion" size={20} /></span>
               <span className="info-card__label">Ocupación esta noche</span>
               <span className="info-card__value">{i.ocupacion} %</span>
               <span className="form-nota">{i.ocupadas} de {i.habitaciones} habitaciones</span>
             </div>
             <div className="info-card">
+              <span className="info-card__icono"><Icono nombre="reservas" size={20} /></span>
               <span className="info-card__label">Reservas activas</span>
               <span className="info-card__value">{i.reservas_activas}</span>
               <span className="form-nota">{i.en_estadia} en estadía · {i.pendientes} pendientes de anticipo</span>
             </div>
             <div className="info-card">
+              <span className="info-card__icono"><Icono nombre="entrada" size={20} /></span>
               <span className="info-card__label">Entradas de hoy</span>
               <span className="info-card__value">{i.entradas_registradas} / {i.entradas_hoy}</span>
               <span className="form-nota">registradas · {i.salidas_hoy} salidas por registrar</span>
             </div>
             <div className="info-card">
+              <span className="info-card__icono"><Icono nombre="dinero" size={20} /></span>
               <span className="info-card__label">Ingresos de {i.mes}</span>
               <span className="info-card__value">{formatoUSD(i.ingresos_mes)}</span>
               <span className="form-nota">pagos recibidos</span>
@@ -93,13 +102,13 @@ export default function Dashboard() {
           </div>
 
           <div className="panel-grid">
-            <Lista titulo="Entradas de hoy" filas={panel.entradas} vacio="Nadie llega hoy."
+            <Lista icono="entrada" titulo="Entradas de hoy" filas={panel.entradas} vacio="Nadie llega hoy."
               detalle={(r) => `${habitacion(r)}${r.hora_estimada_llegada ? ` · ${r.hora_estimada_llegada}` : ''}`} />
-            <Lista titulo="Salidas por registrar" filas={panel.salidas} vacio="No hay salidas pendientes."
+            <Lista icono="salir" titulo="Salidas por registrar" filas={panel.salidas} vacio="No hay salidas pendientes."
               detalle={(r) => `${habitacion(r)} · sale ${fechaCorta(r.fecha_salida)}`} />
-            <Lista titulo="Próximas entradas (7 días)" filas={panel.proximas} vacio="Sin llegadas en la próxima semana."
+            <Lista icono="calendario" titulo="Próximas entradas (7 días)" filas={panel.proximas} vacio="Sin llegadas en la próxima semana."
               detalle={(r) => `${fechaCorta(r.fecha_llegada)} · ${habitacion(r)}`} />
-            <Lista titulo="Reservas recientes" filas={panel.recientes} vacio="Todavía no hay reservas."
+            <Lista icono="reservas" titulo="Reservas recientes" filas={panel.recientes} vacio="Todavía no hay reservas."
               detalle={(r) => `${fechaCorta(r.fecha_llegada)} → ${fechaCorta(r.fecha_salida)} · ${formatoUSD(r.total)}`} />
           </div>
         </>

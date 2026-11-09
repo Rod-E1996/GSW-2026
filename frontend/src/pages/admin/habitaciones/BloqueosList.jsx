@@ -2,14 +2,30 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
-import { fechaCorta } from '../../../utils'
+import Icono from '../../../components/Icono'
+import { FilaVacia, FilasCargando } from '../../../components/ui'
+import { fechaCorta, hoyEnHotel } from '../../../utils'
+import '../../../styles/admin-hotel.css'
 
 const VACIO = { habitacion_id: '', fecha_inicio: '', fecha_fin: '', motivo: 'mantenimiento', descripcion: '' }
+
+// Dias que dura un bloqueo, contando el primero y el ultimo
+function duracion(inicio, fin) {
+  if (!inicio || !fin || fin < inicio) return 0
+  return Math.round((new Date(`${fin}T12:00:00`) - new Date(`${inicio}T12:00:00`)) / 86400000) + 1
+}
+
+function situacion(b, hoy) {
+  if (b.fecha_fin < hoy) return { nombre: 'Terminado', clase: '' }
+  if (b.fecha_inicio > hoy) return { nombre: 'Próximo', clase: 'badge--info' }
+  return { nombre: 'En curso', clase: 'badge--aviso' }
+}
 
 export default function BloqueosList() {
   const { can } = useAuth()
   const [params] = useSearchParams()
   const habitacionInicial = params.get('habitacion') || ''
+  const hoy = hoyEnHotel()
 
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState(null)
@@ -64,6 +80,7 @@ export default function BloqueosList() {
   function editar(b) {
     setEditandoId(b.id)
     setErrores({})
+    setMensaje(null)
     setForm({
       habitacion_id: b.habitacion_id,
       fecha_inicio: b.fecha_inicio,
@@ -85,7 +102,7 @@ export default function BloqueosList() {
       } else {
         await api.post('/admin/bloqueos', form)
       }
-      setMensaje('Bloqueo guardado con éxito.')
+      setMensaje(editandoId ? 'Bloqueo actualizado.' : 'Bloqueo registrado: la habitación no se ofrecerá en esas fechas.')
       limpiar()
       cargar()
     } catch (err) {
@@ -113,165 +130,204 @@ export default function BloqueosList() {
     }
   }
 
+  function cambiarHabitacion(valor) {
+    setPage(1)
+    setFiltroHabitacion(valor)
+    if (!editandoId) set('habitacion_id', valor)
+  }
+
+  function cambiarAlcance(conTerminados) {
+    setPage(1)
+    setTerminados(conTerminados)
+  }
+
   const puedeEscribir = editandoId ? can('bloqueo_update') : can('bloqueo_store')
+  const campoError = (campo) => errores[campo] && <small className="campo-error">{errores[campo][0]}</small>
+  const dias = duracion(form.fecha_inicio, form.fecha_fin)
+  const numeroHabitacion = (hid) => habitaciones.find((h) => String(h.id) === String(hid))?.numero
 
   return (
     <div>
+      <Link to="/panel/habitaciones" className="reserva__volver">← Habitaciones</Link>
       <div className="page-head">
-        <h1 className="page-title">Bloqueos de habitación</h1>
-        <Link to="/panel/habitaciones" className="btn btn--ghost">
-          ← Habitaciones
-        </Link>
+        <div>
+          <h1 className="page-title">Bloqueos de habitación</h1>
+          <p className="page-sub">Fechas en que una habitación no se puede reservar, por mantenimiento o uso interno.</p>
+        </div>
       </div>
-      <p className="page-sub">La habitación no se podrá reservar desde el primer hasta el último día indicados.</p>
 
       {mensaje && <div className="alerta alerta--ok">{mensaje}</div>}
       {error && <div className="alerta alerta--error">{error}</div>}
 
-      {puedeEscribir && (
-        <form className="form form--seccion" onSubmit={onSubmit}>
-          <h2 className="seccion-title">{editandoId ? 'Editar bloqueo' : 'Nuevo bloqueo'}</h2>
-          <div className="form-row">
-            <label>
-              Habitación
-              <select value={form.habitacion_id} onChange={(e) => set('habitacion_id', e.target.value)}>
-                <option value="">Selecciona una habitación</option>
-                {habitaciones.map((h) => (
-                  <option key={h.id} value={h.id}>{h.numero}</option>
-                ))}
-              </select>
-              {errores.habitacion_id && <small className="campo-error">{errores.habitacion_id[0]}</small>}
-            </label>
-            <label>
-              Motivo
-              <select value={form.motivo} onChange={(e) => set('motivo', e.target.value)}>
-                {motivos.map((m) => (
-                  <option key={m.valor} value={m.valor}>{m.nombre}</option>
-                ))}
-              </select>
-              {errores.motivo && <small className="campo-error">{errores.motivo[0]}</small>}
-            </label>
-          </div>
-          <div className="form-row">
-            <label>
-              Primer día
-              <input type="date" value={form.fecha_inicio} onChange={(e) => set('fecha_inicio', e.target.value)} />
-              {errores.fecha_inicio && <small className="campo-error">{errores.fecha_inicio[0]}</small>}
-            </label>
-            <label>
-              Último día
-              <input type="date" value={form.fecha_fin} onChange={(e) => set('fecha_fin', e.target.value)} />
-              {errores.fecha_fin && <small className="campo-error">{errores.fecha_fin[0]}</small>}
-            </label>
-          </div>
-          <label>
-            Detalle
-            <textarea rows="2" value={form.descripcion} onChange={(e) => set('descripcion', e.target.value)} />
-          </label>
-          <div className="form-acciones">
-            {editandoId && (
-              <button type="button" className="btn btn--ghost" onClick={limpiar}>
-                Cancelar
+      <div className={`bloqueos ${puedeEscribir ? '' : 'bloqueos--sin-form'}`}>
+        <div className="bloqueos__lista">
+          <div className="bloqueos__barra">
+            <div className="pestanas" role="tablist" aria-label="Bloqueos a mostrar">
+              <button type="button" role="tab" aria-selected={!terminados} className={!terminados ? 'is-activa' : ''} onClick={() => cambiarAlcance(false)}>
+                En curso y próximos
               </button>
-            )}
-            <button className="btn" disabled={guardando}>
-              {guardando ? 'Guardando…' : 'Guardar'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="filtros">
-        <select
-          aria-label="Filtrar por habitación"
-          value={filtroHabitacion}
-          onChange={(e) => {
-            setPage(1)
-            setFiltroHabitacion(e.target.value)
-          }}
-        >
-          <option value="">Todas las habitaciones</option>
-          {habitaciones.map((h) => (
-            <option key={h.id} value={h.id}>{h.numero}</option>
-          ))}
-        </select>
-        <label className="filtros__check">
-          <input
-            type="checkbox"
-            checked={terminados}
-            onChange={(e) => {
-              setPage(1)
-              setTerminados(e.target.checked)
-            }}
-          />
-          Incluir los terminados
-        </label>
-      </div>
-
-      <div className="tabla-wrap">
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Habitación</th>
-              <th>Primer día</th>
-              <th>Último día</th>
-              <th>Motivo</th>
-              <th>Detalle</th>
-              <th>Registrado por</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargando && (
-              <tr><td colSpan="7" className="tabla__vacio">Cargando…</td></tr>
-            )}
-            {!cargando && items.length === 0 && (
-              <tr><td colSpan="7" className="tabla__vacio">Sin bloqueos.</td></tr>
-            )}
-            {!cargando &&
-              items.map((b) => (
-                <tr key={b.id}>
-                  <td>{b.habitacion}</td>
-                  <td>{fechaCorta(b.fecha_inicio)}</td>
-                  <td>{fechaCorta(b.fecha_fin)}</td>
-                  <td>{b.motivo_nombre}</td>
-                  <td className="celda-corta">{b.descripcion || '—'}</td>
-                  <td>{b.registrado_por || '—'}</td>
-                  <td className="tabla__acciones">
-                    {can('bloqueo_update') && (
-                      <button className="btn btn--sm btn--ghost" onClick={() => editar(b)}>
-                        Editar
-                      </button>
-                    )}
-                    {can('bloqueo_destroy') && (
-                      <button className="btn btn--sm btn--danger" onClick={() => eliminar(b)}>
-                        Quitar
-                      </button>
-                    )}
-                  </td>
-                </tr>
+              <button type="button" role="tab" aria-selected={terminados} className={terminados ? 'is-activa' : ''} onClick={() => cambiarAlcance(true)}>
+                Todos
+              </button>
+            </div>
+            <select aria-label="Filtrar por habitación" value={filtroHabitacion} onChange={(e) => cambiarHabitacion(e.target.value)}>
+              <option value="">Todas las habitaciones</option>
+              {habitaciones.map((h) => (
+                <option key={h.id} value={h.id}>Habitación {h.numero}</option>
               ))}
-          </tbody>
-        </table>
-      </div>
+            </select>
+          </div>
 
-      {meta && meta.last_page > 1 && (
-        <div className="paginacion">
-          <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Anterior
-          </button>
-          <span>
-            Página {meta.current_page} de {meta.last_page}
-          </span>
-          <button
-            className="btn btn--ghost"
-            disabled={page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Siguiente →
-          </button>
+          <div className="tabla-wrap">
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th>Habitación</th>
+                  <th>Fechas</th>
+                  <th>Situación</th>
+                  <th>Registrado por</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {cargando && items.length === 0 && <FilasCargando columnas={5} filas={4} />}
+                {!cargando && items.length === 0 && (
+                  <FilaVacia
+                    columnas={5}
+                    icono="candado"
+                    titulo={terminados ? 'No hay bloqueos registrados' : 'No hay bloqueos en curso ni próximos'}
+                    texto="Todas las habitaciones se pueden reservar en cualquier fecha."
+                  />
+                )}
+                {items.map((b) => {
+                  const s = situacion(b, hoy)
+                  return (
+                    <tr key={b.id} className={editandoId === b.id ? 'is-editando' : ''}>
+                      <td>
+                        <div className="celda-entidad">
+                          <span className="hab-numero hab-numero--bloqueo">{b.habitacion}</span>
+                          <div>
+                            <strong>{b.motivo_nombre}</strong>
+                            {b.descripcion && <small title={b.descripcion}>{b.descripcion}</small>}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="celda-entidad">
+                          <div>
+                            <strong>{fechaCorta(b.fecha_inicio)} → {fechaCorta(b.fecha_fin)}</strong>
+                            <small>{duracion(b.fecha_inicio, b.fecha_fin)} {duracion(b.fecha_inicio, b.fecha_fin) === 1 ? 'día' : 'días'}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span className={`badge ${s.clase}`}>{s.nombre}</span></td>
+                      <td>{b.registrado_por || <span className="form-nota">—</span>}</td>
+                      <td className="tabla__acciones">
+                        {can('bloqueo_update') && (
+                          <button className="btn btn--sm btn--ghost" onClick={() => editar(b)}>
+                            Editar
+                          </button>
+                        )}
+                        {can('bloqueo_destroy') && (
+                          <button className="btn btn--sm btn--danger" onClick={() => eliminar(b)}>
+                            Quitar
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {meta && meta.last_page > 1 && (
+            <div className="paginacion">
+              <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                ← Anterior
+              </button>
+              <span>
+                Página {meta.current_page} de {meta.last_page}
+              </span>
+              <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
+                Siguiente →
+              </button>
+            </div>
+          )}
         </div>
-      )}
+
+        {puedeEscribir && (
+          <aside className="bloqueos__panel">
+            <form className="form" onSubmit={onSubmit}>
+              <div className="bloqueos__panel-titulo">
+                <span className="indicador__icono"><Icono nombre={editandoId ? 'editar' : 'candado'} size={18} /></span>
+                <div>
+                  <h3>{editandoId ? 'Editar bloqueo' : 'Nuevo bloqueo'}</h3>
+                  <p className="form-nota">Se bloquean el primer y el último día indicados.</p>
+                </div>
+              </div>
+
+              <label>
+                Habitación
+                <select value={form.habitacion_id} onChange={(e) => set('habitacion_id', e.target.value)}>
+                  <option value="">Selecciona una habitación</option>
+                  {habitaciones.map((h) => (
+                    <option key={h.id} value={h.id}>Habitación {h.numero}</option>
+                  ))}
+                </select>
+                {campoError('habitacion_id')}
+              </label>
+
+              <div className="motivos" role="radiogroup" aria-label="Motivo">
+                {motivos.map((m) => (
+                  <label key={m.valor} className={`motivo ${form.motivo === m.valor ? 'is-elegido' : ''}`}>
+                    <input type="radio" name="motivo" value={m.valor} checked={form.motivo === m.valor} onChange={() => set('motivo', m.valor)} />
+                    {m.nombre}
+                  </label>
+                ))}
+              </div>
+              {campoError('motivo')}
+
+              <div className="form-row">
+                <label>
+                  Primer día
+                  <input type="date" value={form.fecha_inicio} onChange={(e) => set('fecha_inicio', e.target.value)} />
+                  {campoError('fecha_inicio')}
+                </label>
+                <label>
+                  Último día
+                  <input type="date" min={form.fecha_inicio || undefined} value={form.fecha_fin} onChange={(e) => set('fecha_fin', e.target.value)} />
+                  {campoError('fecha_fin')}
+                </label>
+              </div>
+
+              {dias > 0 && (
+                <p className="bloqueos__resumen">
+                  <Icono nombre="info" size={15} />
+                  {numeroHabitacion(form.habitacion_id) ? `La habitación ${numeroHabitacion(form.habitacion_id)}` : 'La habitación'} quedará fuera de venta {dias} {dias === 1 ? 'día' : 'días'}.
+                </p>
+              )}
+
+              <label>
+                Detalle
+                <textarea rows="2" value={form.descripcion} onChange={(e) => set('descripcion', e.target.value)} placeholder="Ej.: cambio del compresor del aire" />
+                {campoError('descripcion')}
+              </label>
+
+              <div className="form-acciones">
+                {editandoId && (
+                  <button type="button" className="btn btn--ghost" onClick={limpiar}>
+                    Cancelar
+                  </button>
+                )}
+                <button className="btn" disabled={guardando}>
+                  {guardando ? 'Guardando…' : editandoId ? 'Guardar cambios' : 'Bloquear fechas'}
+                </button>
+              </div>
+            </form>
+          </aside>
+        )}
+      </div>
     </div>
   )
 }

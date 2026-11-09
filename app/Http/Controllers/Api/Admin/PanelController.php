@@ -116,6 +116,7 @@ class PanelController extends Controller
             'habitaciones' => $habitaciones->map(fn (Habitacion $h) => [
                 'id' => $h->id,
                 'numero' => $h->numero,
+                'piso' => $h->piso,
                 'tipo' => $h->tipoHabitacion?->nombre,
                 'estado_habitacion' => $h->estado_habitacion,
                 'estado_nombre' => $h->estado_nombre,

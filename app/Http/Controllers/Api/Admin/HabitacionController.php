@@ -31,8 +31,11 @@ class HabitacionController extends Controller
             $query->where('estado_habitacion', $estado);
         }
 
+        //El tablero por piso del panel pide todas las habitaciones de una vez (tope de 100)
+        $porPagina = min(max((int) $request->get('per_page', 15), 1), 100);
+
         return HabitacionResource::collection(
-            $query->orderBy('piso')->orderBy('numero')->paginate(15)
+            $query->orderBy('piso')->orderBy('numero')->paginate($porPagina)
         );
     }
 

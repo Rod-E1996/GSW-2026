@@ -2,22 +2,27 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import Icono from '../../../components/Icono'
+import { EstadoVacio } from '../../../components/ui'
 import { rutaImagen, formatoUSD } from '../../../utils'
+import '../../../styles/admin-hotel.css'
 
+// Catalogo de tipos de habitacion en tarjetas: foto principal, capacidad y precio a la vista.
 export default function TiposList() {
   const { can } = useAuth()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [nombre, setNombre] = useState('')
+  const [buscado, setBuscado] = useState('')
   const [page, setPage] = useState(1)
   const [mensaje, setMensaje] = useState(null)
   const [error, setError] = useState(null)
 
-  function cargar() {
+  function cargar(filtro = buscado) {
     setCargando(true)
     api
-      .get('/admin/tipos-habitacion', { params: { nombre: nombre || undefined, page } })
+      .get('/admin/tipos-habitacion', { params: { nombre: filtro || undefined, page } })
       .then((res) => {
         setItems(res.data.data)
         setMeta(res.data.meta)
@@ -33,8 +38,16 @@ export default function TiposList() {
 
   function buscar(e) {
     e.preventDefault()
-    setPage(1)
-    cargar()
+    setBuscado(nombre)
+    if (page === 1) cargar(nombre)
+    else setPage(1)
+  }
+
+  function limpiar() {
+    setNombre('')
+    setBuscado('')
+    if (page === 1) cargar('')
+    else setPage(1)
   }
 
   async function eliminar(tipo) {
@@ -45,6 +58,7 @@ export default function TiposList() {
       setError(null)
       cargar()
     } catch (err) {
+      setMensaje(null)
       setError(err.response?.data?.message || 'No se pudo eliminar.')
     }
   }
@@ -52,10 +66,13 @@ export default function TiposList() {
   return (
     <div>
       <div className="page-head">
-        <h1 className="page-title">Tipos de habitación</h1>
+        <div>
+          <h1 className="page-title">Tipos de habitación</h1>
+          <p className="page-sub">Lo que el huésped elige al reservar: capacidad, precio base y fotos.</p>
+        </div>
         {can('tipo_habitacion_store') && (
           <Link to="/panel/tipos-habitacion/nuevo" className="btn">
-            + Nuevo
+            <Icono nombre="mas" size={16} /> Nuevo tipo
           </Link>
         )}
       </div>
@@ -65,65 +82,90 @@ export default function TiposList() {
 
       <form className="filtros" onSubmit={buscar}>
         <input
+          className="filtros__busqueda"
           placeholder="Buscar por nombre…"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
+          aria-label="Buscar tipo de habitación"
         />
         <button className="btn btn--ghost">Buscar</button>
+        {buscado && <button type="button" className="btn btn--ghost" onClick={limpiar}>Limpiar</button>}
+        {meta && <span className="tipos-total">{meta.total} {meta.total === 1 ? 'tipo' : 'tipos'}</span>}
       </form>
 
-      <div className="tabla-wrap">
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Nombre</th>
-              <th>Capacidad</th>
-              <th>Precio base</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargando && (
-              <tr>
-                <td colSpan="5" className="tabla__vacio">Cargando…</td>
-              </tr>
-            )}
-            {!cargando && items.length === 0 && (
-              <tr>
-                <td colSpan="5" className="tabla__vacio">Sin registros.</td>
-              </tr>
-            )}
-            {!cargando &&
-              items.map((t) => (
-                <tr key={t.id}>
-                  <td>
-                    {rutaImagen(t.imagen_principal) ? (
-                      <img className="thumb" src={rutaImagen(t.imagen_principal)} alt={t.nombre} />
-                    ) : (
-                      <div className="thumb thumb--vacio">—</div>
-                    )}
-                  </td>
-                  <td>{t.nombre}</td>
-                  <td>{t.capacidad}</td>
-                  <td>{formatoUSD(t.precio_base)}</td>
-                  <td className="tabla__acciones">
-                    {can('tipo_habitacion_update') && (
-                      <Link to={`/panel/tipos-habitacion/${t.id}/editar`} className="btn btn--sm btn--ghost">
-                        Editar
-                      </Link>
-                    )}
-                    {can('tipo_habitacion_destroy') && (
-                      <button className="btn btn--sm btn--danger" onClick={() => eliminar(t)}>
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      {cargando && items.length === 0 && (
+        <div className="tipos-grid">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="tipo-card tipo-card--cargando">
+              <div className="tipo-card__foto" />
+              <div className="tipo-card__cuerpo"><span className="esqueleto" /><span className="esqueleto" /></div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!cargando && items.length === 0 && (
+        <div className="tarjeta-simple">
+          {buscado ? (
+            <EstadoVacio
+              icono="buscar"
+              titulo={`Ningún tipo coincide con «${buscado}»`}
+              texto="Revisa el nombre o quita el filtro."
+              accion={<button type="button" className="btn btn--ghost" onClick={limpiar}>Quitar filtro</button>}
+            />
+          ) : (
+            <EstadoVacio
+              icono="cama"
+              titulo="Aún no hay tipos de habitación"
+              texto="Crea al menos uno (por ejemplo, Doble o Suite) para registrar habitaciones y recibir reservas."
+              accion={can('tipo_habitacion_store') && <Link to="/panel/tipos-habitacion/nuevo" className="btn">Nuevo tipo</Link>}
+            />
+          )}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className={`tipos-grid ${cargando ? 'is-recargando' : ''}`}>
+          {items.map((t) => {
+            const foto = rutaImagen(t.imagen_principal)
+            return (
+              <article key={t.id} className="tipo-card">
+                <div className="tipo-card__foto">
+                  {foto ? <img src={foto} alt={t.nombre} loading="lazy" /> : (
+                    <span className="tipo-card__sin-foto"><Icono nombre="foto" size={28} />Sin foto</span>
+                  )}
+                </div>
+                <div className="tipo-card__cuerpo">
+                  <div className="tipo-card__titulo">
+                    <h3>{t.nombre}</h3>
+                    {t.nombre_en && <span>{t.nombre_en}</span>}
+                  </div>
+                  <div className="tipo-card__datos">
+                    <span><Icono nombre="personas" size={15} /> Hasta {t.capacidad} {t.capacidad === 1 ? 'persona' : 'personas'}</span>
+                    <span className="tipo-card__precio">{formatoUSD(t.precio_base)}<small> / noche</small></span>
+                  </div>
+                  {t.descripcion && <p className="tipo-card__desc">{t.descripcion}</p>}
+                  <footer className="tipo-card__pie">
+                    <span className="form-nota">/{t.slug}</span>
+                    <div className="tipo-card__acciones">
+                      {can('tipo_habitacion_update') && (
+                        <Link to={`/panel/tipos-habitacion/${t.id}/editar`} className="btn btn--sm btn--ghost">
+                          <Icono nombre="editar" size={14} /> Editar
+                        </Link>
+                      )}
+                      {can('tipo_habitacion_destroy') && (
+                        <button className="btn btn--sm btn--danger" onClick={() => eliminar(t)} title="Eliminar" aria-label={`Eliminar ${t.nombre}`}>
+                          <Icono nombre="eliminar" size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </footer>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
 
       {meta && meta.last_page > 1 && (
         <div className="paginacion">
@@ -133,11 +175,7 @@ export default function TiposList() {
           <span>
             Página {meta.current_page} de {meta.last_page}
           </span>
-          <button
-            className="btn btn--ghost"
-            disabled={page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-          >
+          <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
             Siguiente →
           </button>
         </div>

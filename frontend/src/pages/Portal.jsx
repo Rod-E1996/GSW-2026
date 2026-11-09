@@ -52,12 +52,17 @@ export default function Portal() {
           </div>
           <h1>Tu descanso frente al mar, a un clic de distancia</h1>
           <p>Reserva directo, sin comisiones. Playa El Tunco, La Libertad.</p>
-          <BuscadorDisponibilidad onBuscar={buscar} />
+          <div id="buscar" className="hero__buscador">
+            <BuscadorDisponibilidad onBuscar={buscar} />
+          </div>
         </div>
       </header>
 
       <main className="contenido">
-        <h2>Nuestras habitaciones</h2>
+        <div className="contenido__encabezado">
+          <h2>Nuestras habitaciones</h2>
+          <p>Todas con baño privado, aire acondicionado y wifi.</p>
+        </div>
 
         {cargando && <p className="estado">Cargando habitaciones…</p>}
         {error && <p className="estado estado--error">{error}</p>}
@@ -80,9 +85,9 @@ export default function Portal() {
                   <span className="precio">
                     {formatoUSD(tipo.precio_base)} <small>/ noche</small>
                   </span>
-                  <button className="btn" disabled>
-                    Reservar
-                  </button>
+                  <a href="#buscar" className="btn btn--ghost btn--sm">
+                    Ver fechas
+                  </a>
                 </div>
               </div>
             </article>
@@ -91,7 +96,9 @@ export default function Portal() {
       </main>
 
       <footer className="pie">
-        HotelLink · Portal de reservas · Frontend React + API Laravel
+        <span className="brand brand--dark">hotel<span className="brand__accent">link</span></span>
+        <span>Playa El Tunco, La Libertad · Reservas directas con el hotel</span>
+        <Link to="/privacidad">Aviso de privacidad</Link>
       </footer>
     </div>
   )

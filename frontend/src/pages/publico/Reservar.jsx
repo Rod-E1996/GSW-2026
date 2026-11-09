@@ -267,7 +267,7 @@ export default function Reservar() {
 
             <section className="form form--seccion">
               <h2 className="seccion-title">Servicios complementarios</h2>
-              {catalogo.length === 0 && <p className="estado">No hay servicios disponibles.</p>}
+              {catalogo.length === 0 && <p className="estado estado--vacio">No hay servicios disponibles.</p>}
               <ul className="servicios-elegibles">
                 {catalogo.map((s) => {
                   const elegido = elegidos[s.id]

@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
 import { descargar, fechaCorta, formatoUSD } from '../../../utils'
+import Icono from '../../../components/Icono'
+import { Avatar, EstadoVacio } from '../../../components/ui'
+import '../../../styles/admin-reservas.css'
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
 
@@ -91,64 +94,102 @@ export default function VerificarComprobante() {
   const r = resultado?.reserva
 
   return (
-    <div className="form-page">
-      <h1 className="page-title">Verificar comprobante</h1>
-      <p className="page-sub">Escanea el código QR del comprobante o escribe el código de la reserva.</p>
-
-      <form className="form verificar__buscar" onSubmit={onSubmit}>
-        <label>
-          Código QR o código de reserva
-          <input
-            autoFocus
-            placeholder="HL-XXXXXXXX"
-            value={entrada}
-            onChange={(e) => setEntrada(e.target.value)}
-          />
-        </label>
-        <div className="form-acciones">
-          <button className="btn" disabled={buscando || !entrada.trim()}>
-            {buscando ? 'Buscando…' : 'Buscar'}
-          </button>
+    <div className="verificar-page">
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Verificar comprobante</h1>
+          <p className="page-sub">Comprueba el comprobante del huésped antes de registrar su entrada.</p>
         </div>
-      </form>
+      </div>
 
-      {error && <div className="alerta alerta--error">{error}</div>}
-      {aviso && <div className="alerta alerta--ok">{aviso}</div>}
+      <div className="vc-grid">
+        <form className="tarjeta-simple vc-buscar" onSubmit={onSubmit}>
+          <span className="vc-buscar__icono"><Icono nombre="qr" size={26} /></span>
+          <h3>Escanea el código QR</h3>
+          <p className="form-nota">Con el lector, apunta al QR del comprobante impreso o en el teléfono del huésped. Si no se puede leer, escribe el código de la reserva.</p>
+          <label className="vc-buscar__campo">
+            <span className="sr-solo">Código QR o código de reserva</span>
+            <input
+              autoFocus
+              placeholder="HL-XXXXXXXX o enlace del QR"
+              value={entrada}
+              onChange={(e) => setEntrada(e.target.value)}
+            />
+          </label>
+          <button className="btn btn--block" disabled={buscando || !entrada.trim()}>
+            <Icono nombre="buscar" size={16} />
+            {buscando ? 'Buscando…' : 'Buscar comprobante'}
+          </button>
+        </form>
 
-      {resultado && (
-        <section className="tarjeta-simple verificar">
-          <div className={`verificar__veredicto ${resultado.valido ? 'verificar__veredicto--ok' : 'verificar__veredicto--mal'}`}>
-            <strong>{resultado.valido ? '✓ ' : '✕ '}{resultado.mensaje}</strong>
-            <span>Comprobante {c.numero} · versión {c.version} · {c.estado}</span>
-          </div>
+        <div className="vc-resultado">
+          {error && <div className="alerta alerta--error">{error}</div>}
+          {aviso && <div className="alerta alerta--ok">{aviso}</div>}
 
-          <dl className="importes">
-            <dt>Reserva</dt><dd><strong>{r.codigo}</strong> · {r.estado_nombre}</dd>
-            <dt>Titular</dt><dd>{r.titular}</dd>
-            {r.documento && (<><dt>Documento</dt><dd>{r.documento}</dd></>)}
-            {r.telefono && (<><dt>Teléfono</dt><dd>{r.telefono}</dd></>)}
-            <dt>Habitación</dt><dd>{r.tipo}{r.habitacion ? ` · ${r.habitacion}` : ''}</dd>
-            <dt>Estadía</dt><dd>{fechaCorta(r.fecha_llegada)} al {fechaCorta(r.fecha_salida)} · {r.noches} {r.noches === 1 ? 'noche' : 'noches'}</dd>
-            <dt>Huéspedes</dt><dd>{r.adultos} {r.adultos === 1 ? 'adulto' : 'adultos'}{r.ninos ? ` y ${r.ninos} ${r.ninos === 1 ? 'niño' : 'niños'}` : ''}</dd>
-            <dt>Total</dt><dd>{formatoUSD(r.total)}</dd>
-            <dt>Pagado</dt><dd>{formatoUSD(r.pagado)}</dd>
-            <dt className="importes__total">Saldo a cobrar</dt><dd className="importes__total">{formatoUSD(r.saldo)}</dd>
-            <dt>Emitido</dt><dd>{fechaHora(c.emitido_at)}</dd>
-            <dt>Verificado</dt>
-            <dd>{c.verificado_at ? `${fechaHora(c.verificado_at)}${c.verificado_por ? ` por ${c.verificado_por}` : ''}` : 'Todavía no'}</dd>
-          </dl>
+          {!resultado && !error && (
+            <div className="tarjeta-simple">
+              <EstadoVacio
+                icono="qr"
+                titulo={buscando ? 'Buscando…' : 'Esperando un comprobante'}
+                texto="Aquí verás si el comprobante es válido, los datos de la reserva y el saldo que falta cobrar."
+              />
+            </div>
+          )}
 
-          <div className="form-acciones">
-            <button type="button" className="btn btn--ghost" onClick={verPdf}>Descargar PDF</button>
-            {can('reserva_show') && <Link className="btn btn--ghost" to={`/panel/reservas/${r.codigo}`}>Abrir reserva</Link>}
-            {resultado.valido && !c.verificado_at && (
-              <button type="button" className="btn" onClick={marcarVerificado} disabled={marcando}>
-                {marcando ? 'Registrando…' : 'Marcar como verificado'}
-              </button>
-            )}
-          </div>
-        </section>
-      )}
+          {resultado && (
+            <section className="tarjeta-simple verificar">
+              <div className={`verificar__veredicto ${resultado.valido ? 'verificar__veredicto--ok' : 'verificar__veredicto--mal'}`}>
+                <span className="verificar__icono"><Icono nombre={resultado.valido ? 'check' : 'cerrar'} size={22} /></span>
+                <div>
+                  <strong>{resultado.mensaje}</strong>
+                  <span>Comprobante {c.numero} · versión {c.version} · {c.estado}</span>
+                </div>
+              </div>
+
+              <div className="vc-titular">
+                <Avatar nombre={r.titular} size="lg" />
+                <div>
+                  <strong>{r.titular}</strong>
+                  <span className="form-nota">{[r.documento, r.telefono].filter(Boolean).join(' · ') || 'Sin documento ni teléfono'}</span>
+                </div>
+                <span className="vc-titular__codigo">
+                  <span className="form-nota">Reserva</span>
+                  <strong className="codigo-reserva">{r.codigo}</strong>
+                  <span className="form-nota">{r.estado_nombre}</span>
+                </span>
+              </div>
+
+              <dl className="ra-datos ra-datos--4">
+                <div><dt>Habitación</dt><dd>{r.tipo}{r.habitacion ? ` · ${r.habitacion}` : ''}</dd></div>
+                <div><dt>Llegada</dt><dd>{fechaCorta(r.fecha_llegada)}</dd></div>
+                <div><dt>Salida</dt><dd>{fechaCorta(r.fecha_salida)} · {r.noches} {r.noches === 1 ? 'noche' : 'noches'}</dd></div>
+                <div><dt>Huéspedes</dt><dd>{r.adultos} {r.adultos === 1 ? 'adulto' : 'adultos'}{r.ninos ? ` y ${r.ninos} ${r.ninos === 1 ? 'niño' : 'niños'}` : ''}</dd></div>
+              </dl>
+
+              <div className="vc-cuenta">
+                <div><span>Total</span><strong>{formatoUSD(r.total)}</strong></div>
+                <div><span>Pagado</span><strong>{formatoUSD(r.pagado)}</strong></div>
+                <div className={r.saldo > 0 ? 'is-pendiente' : ''}><span>Saldo a cobrar</span><strong>{formatoUSD(r.saldo)}</strong></div>
+              </div>
+
+              <p className="form-nota vc-fechas">
+                Emitido {fechaHora(c.emitido_at)} · {c.verificado_at ? `Verificado ${fechaHora(c.verificado_at)}${c.verificado_por ? ` por ${c.verificado_por}` : ''}` : 'Todavía no se ha verificado'}
+              </p>
+
+              <div className="form-acciones">
+                <button type="button" className="btn btn--ghost" onClick={verPdf}><Icono nombre="descargar" size={16} /> Descargar PDF</button>
+                {can('reserva_show') && <Link className="btn btn--ghost" to={`/panel/reservas/${r.codigo}`}>Abrir reserva</Link>}
+                {resultado.valido && !c.verificado_at && (
+                  <button type="button" className="btn" onClick={marcarVerificado} disabled={marcando}>
+                    <Icono nombre="check" size={16} />
+                    {marcando ? 'Registrando…' : 'Marcar como verificado'}
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

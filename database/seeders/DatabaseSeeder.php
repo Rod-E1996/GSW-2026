@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         	HabitacionesSeeder::class,
         	ServiciosSeeder::class,
         	TemporadasSeeder::class,
-        	ReservasSeeder::class
+        	DemoHotelSeeder::class
         ]);
     }
 }

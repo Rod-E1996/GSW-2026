@@ -20,10 +20,16 @@ class TemporadasSeeder extends Seeder
         }
 
         $temporadas = [
-            ['nombre' => 'Media',            'nombre_en' => 'Mid season',     'fecha_inicio' => '2027-02-01', 'fecha_fin' => '2027-03-20', 'multiplicador' => 1.15, 'prioridad' => 1, 'color' => '#2F80ED'],
-            ['nombre' => 'Semana Santa',     'nombre_en' => 'Holy Week',      'fecha_inicio' => '2027-03-21', 'fecha_fin' => '2027-04-04', 'multiplicador' => 1.45, 'prioridad' => 2, 'color' => '#9B51E0'],
-            ['nombre' => 'Fiestas agostinas','nombre_en' => 'August holidays','fecha_inicio' => '2027-08-01', 'fecha_fin' => '2027-08-07', 'multiplicador' => 1.30, 'prioridad' => 2, 'color' => '#F2994A'],
-            ['nombre' => 'Fin de año',       'nombre_en' => 'Year end',       'fecha_inicio' => '2026-12-15', 'fecha_fin' => '2027-01-06', 'multiplicador' => 1.40, 'prioridad' => 2, 'color' => '#EB5757'],
+            //Historico: le da precios de temporada a las reservas de ejemplo ya pasadas
+            ['nombre' => 'Media 2026',             'nombre_en' => 'Mid season 2026',       'fecha_inicio' => '2026-02-01', 'fecha_fin' => '2026-03-27', 'multiplicador' => 1.15, 'prioridad' => 1, 'color' => '#2F80ED'],
+            ['nombre' => 'Semana Santa 2026',      'nombre_en' => 'Holy Week 2026',        'fecha_inicio' => '2026-03-28', 'fecha_fin' => '2026-04-05', 'multiplicador' => 1.45, 'prioridad' => 2, 'color' => '#9B51E0'],
+            ['nombre' => 'Fiestas agostinas 2026', 'nombre_en' => 'August holidays 2026',  'fecha_inicio' => '2026-08-01', 'fecha_fin' => '2026-08-07', 'multiplicador' => 1.30, 'prioridad' => 2, 'color' => '#F2994A'],
+            ['nombre' => 'Puente de Independencia 2026', 'nombre_en' => 'Independence weekend 2026', 'fecha_inicio' => '2026-09-12', 'fecha_fin' => '2026-09-15', 'multiplicador' => 1.20, 'prioridad' => 2, 'color' => '#27AE60'],
+
+            ['nombre' => 'Fin de año 2026',        'nombre_en' => 'Year end 2026',         'fecha_inicio' => '2026-12-15', 'fecha_fin' => '2027-01-06', 'multiplicador' => 1.40, 'prioridad' => 2, 'color' => '#EB5757'],
+            ['nombre' => 'Media 2027',             'nombre_en' => 'Mid season 2027',       'fecha_inicio' => '2027-02-01', 'fecha_fin' => '2027-03-20', 'multiplicador' => 1.15, 'prioridad' => 1, 'color' => '#2F80ED'],
+            ['nombre' => 'Semana Santa 2027',      'nombre_en' => 'Holy Week 2027',        'fecha_inicio' => '2027-03-21', 'fecha_fin' => '2027-04-04', 'multiplicador' => 1.45, 'prioridad' => 2, 'color' => '#9B51E0'],
+            ['nombre' => 'Fiestas agostinas 2027', 'nombre_en' => 'August holidays 2027',  'fecha_inicio' => '2027-08-01', 'fecha_fin' => '2027-08-07', 'multiplicador' => 1.30, 'prioridad' => 2, 'color' => '#F2994A'],
         ];
 
         foreach ($temporadas as $temporada) {

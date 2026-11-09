@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import Icono from '../../../components/Icono'
+import { Avatar, FormSeccion } from '../../../components/ui'
+import '../../../styles/admin-accesos.css'
+
+// Que puede hacer cada rol del hotel, para elegir con criterio
+const DESCRIPCION_ROL = {
+  'Super Administrador': 'Acceso total: configuración, usuarios, roles y todos los módulos.',
+  Recepcionista: 'Operación diaria: reservas, entradas, salidas y consulta de catálogos.',
+  'Huésped': 'Portal de reservas: sus datos y sus propias reservas.',
+}
 
 export default function UsuarioForm() {
   const { id } = useParams()
@@ -11,8 +21,10 @@ export default function UsuarioForm() {
 
   const [rolesCatalogo, setRolesCatalogo] = useState([])
   const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' })
+  const [usuario, setUsuario] = useState(null)
   const [rolesSel, setRolesSel] = useState([])
   const [loginNotif, setLoginNotif] = useState(0)
+  const [verClave, setVerClave] = useState(false)
   const [errores, setErrores] = useState({})
   const [error, setError] = useState(null)
   const [aviso, setAviso] = useState(null)
@@ -24,6 +36,7 @@ export default function UsuarioForm() {
     const cargarUser = editando
       ? api.get(`/admin/usuarios/${id}`).then((res) => {
           const u = res.data.data
+          setUsuario(u)
           setForm({ name: u.name, email: u.email, password: '', password_confirmation: '' })
           setRolesSel(u.roles_ids)
           setLoginNotif(u.login_notificacion)
@@ -55,8 +68,10 @@ export default function UsuarioForm() {
       else await api.post('/admin/usuarios', payload)
       navigate('/panel/usuarios')
     } catch (err) {
-      if (err.response?.status === 422) setErrores(err.response.data.errors || {})
-      else setError(err.response?.data?.message || 'No se pudo guardar.')
+      if (err.response?.status === 422) {
+        setErrores(err.response.data.errors || {})
+        setError('Revisa los campos marcados.')
+      } else setError(err.response?.data?.message || 'No se pudo guardar.')
     } finally {
       setGuardando(false)
     }
@@ -72,84 +87,128 @@ export default function UsuarioForm() {
     }
   }
 
-  if (cargando) return <p className="estado">Cargando…</p>
+  if (cargando) {
+    return (
+      <div className="form-page">
+        <div className="tarjeta-simple"><span className="esqueleto" /><br /><span className="esqueleto" /></div>
+      </div>
+    )
+  }
 
   return (
     <div className="form-page">
-      <h1 className="page-title">{editando ? 'Editar usuario' : 'Nuevo usuario'}</h1>
+      <Link to="/panel/usuarios" className="ac-volver"><Icono nombre="volver" size={15} /> Usuarios</Link>
+
+      {editando && usuario ? (
+        <div className="ac-cabecera">
+          <Avatar nombre={form.name || usuario.name} size="lg" />
+          <div className="ac-cabecera__datos">
+            <h1 className="page-title">{usuario.name}</h1>
+            <p>
+              {usuario.email}
+              <span className={`badge ${usuario.estado === 1 ? 'badge--ok' : 'badge--danger'}`}>
+                {usuario.estado === 1 ? 'Activo' : 'Inactivo'}
+              </span>
+            </p>
+          </div>
+          {can('usuario_sessiones') && (
+            <Link to={`/panel/usuarios/${id}/sesiones`} className="btn btn--ghost ac-cabecera__accion">
+              <Icono nombre="sesiones" size={16} /> Ver sesiones
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="page-head">
+          <div>
+            <h1 className="page-title">Nuevo usuario</h1>
+            <p className="page-sub">La cuenta queda activa y puede iniciar sesión con el correo y la contraseña que definas.</p>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alerta alerta--error">{error}</div>}
       {aviso && <div className="alerta alerta--ok">{aviso}</div>}
 
       <form className="form" onSubmit={onSubmit}>
-        <label>
-          Nombre
-          <input value={form.name} onChange={(e) => set('name', e.target.value)} autoFocus />
-          {errores.name && <small className="campo-error">{errores.name[0]}</small>}
-        </label>
-
-        <label>
-          Correo electrónico
-          <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
-          {errores.email && <small className="campo-error">{errores.email[0]}</small>}
-        </label>
-
-        <div className="form-row">
+        <FormSeccion titulo="Datos de la cuenta" descripcion="El correo es el usuario para iniciar sesión y adonde llegan los avisos.">
           <label>
-            {editando ? 'Nueva contraseña (opcional)' : 'Contraseña'}
-            <input
-              type="password"
-              value={form.password}
-              onChange={(e) => set('password', e.target.value)}
-              autoComplete="new-password"
-              placeholder={editando ? 'Dejar vacío para no cambiarla' : 'Mínimo 8 caracteres'}
-            />
-            {errores.password && <small className="campo-error">{errores.password[0]}</small>}
+            Nombre completo
+            <input value={form.name} onChange={(e) => set('name', e.target.value)} autoFocus={!editando} />
+            {errores.name && <small className="campo-error">{errores.name[0]}</small>}
           </label>
           <label>
-            Confirmar contraseña
-            <input
-              type="password"
-              value={form.password_confirmation}
-              onChange={(e) => set('password_confirmation', e.target.value)}
-              autoComplete="new-password"
-            />
+            Correo electrónico
+            <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
+            {errores.email && <small className="campo-error">{errores.email[0]}</small>}
           </label>
-        </div>
+        </FormSeccion>
 
-        <fieldset className="roles-fieldset">
-          <legend>Roles</legend>
-          <div className="roles-check">
+        <FormSeccion
+          titulo="Contraseña"
+          descripcion={editando ? 'Déjala vacía para conservar la actual.' : 'Mínimo 8 caracteres. Compártela con la persona por un medio seguro.'}
+        >
+          <div className="form-row">
+            <label>
+              {editando ? 'Nueva contraseña' : 'Contraseña'}
+              <input
+                type={verClave ? 'text' : 'password'}
+                value={form.password}
+                onChange={(e) => set('password', e.target.value)}
+                autoComplete="new-password"
+                placeholder={editando ? 'Sin cambios' : ''}
+              />
+              {errores.password && <small className="campo-error">{errores.password[0]}</small>}
+            </label>
+            <label>
+              Confirmar contraseña
+              <input
+                type={verClave ? 'text' : 'password'}
+                value={form.password_confirmation}
+                onChange={(e) => set('password_confirmation', e.target.value)}
+                autoComplete="new-password"
+              />
+            </label>
+          </div>
+          <label className="form-check">
+            <input type="checkbox" checked={verClave} onChange={(e) => setVerClave(e.target.checked)} />
+            Mostrar contraseña
+          </label>
+        </FormSeccion>
+
+        <FormSeccion titulo="Roles" descripcion="Definen qué módulos ve y qué puede hacer. Puede tener más de uno.">
+          <div className="ac-roles">
             {rolesCatalogo.map((r) => (
-              <label key={r.id} className="roles-check__item">
-                <input
-                  type="checkbox"
-                  checked={rolesSel.includes(r.id)}
-                  onChange={() => toggleRol(r.id)}
-                />
-                {r.name}
+              <label key={r.id} className={`ac-rol ${rolesSel.includes(r.id) ? 'is-elegido' : ''}`}>
+                <input type="checkbox" checked={rolesSel.includes(r.id)} onChange={() => toggleRol(r.id)} />
+                <span>
+                  <strong>{r.name}</strong>
+                  {DESCRIPCION_ROL[r.name] && <small>{DESCRIPCION_ROL[r.name]}</small>}
+                </span>
               </label>
             ))}
           </div>
           {errores.roles && <small className="campo-error">{errores.roles[0]}</small>}
-        </fieldset>
+        </FormSeccion>
 
         {editando && can('usuario_login_notificacion') && (
-          <div className="switch-row">
-            <div>
-              <strong>Aviso de nuevos inicios de sesión</strong>
-              <p className="switch-row__hint">
-                Enviar un correo al usuario cuando inicie sesión desde un dispositivo nuevo.
-              </p>
+          <FormSeccion titulo="Seguridad" descripcion="Avisos al usuario sobre accesos a su cuenta.">
+            <div className="switch-row">
+              <div>
+                <strong>Aviso de nuevos inicios de sesión</strong>
+                <p className="switch-row__hint">Envía un correo cuando la cuenta inicia sesión desde un dispositivo nuevo.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={loginNotif === 1}
+                className={`ac-interruptor ${loginNotif === 1 ? 'is-activo' : ''}`}
+                onClick={toggleNotif}
+              >
+                <span className="ac-interruptor__perilla" />
+                <span className="ac-interruptor__texto">{loginNotif === 1 ? 'Activado' : 'Desactivado'}</span>
+              </button>
             </div>
-            <button
-              type="button"
-              className={`btn btn--sm ${loginNotif === 1 ? '' : 'btn--ghost'}`}
-              onClick={toggleNotif}
-            >
-              {loginNotif === 1 ? 'Activado' : 'Desactivado'}
-            </button>
-          </div>
+          </FormSeccion>
         )}
 
         <div className="form-acciones">
@@ -157,7 +216,7 @@ export default function UsuarioForm() {
             Cancelar
           </button>
           <button className="btn" disabled={guardando}>
-            {guardando ? 'Guardando…' : 'Guardar'}
+            {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Crear usuario'}
           </button>
         </div>
       </form>

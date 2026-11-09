@@ -1,0 +1,904 @@
+/* =====================================================================
+   Accesos y sistema: usuarios, sesiones, roles, permisos, auditoria,
+   error logs, configuracion y perfil. Prefijo .ac-
+   ===================================================================== */
+
+/* ---------- Comunes ---------- */
+.ac-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+  text-decoration: none;
+  transition: color var(--rapido);
+}
+.ac-volver:hover {
+  color: var(--ola);
+}
+.ac-mono {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.82em;
+}
+.ac-codigo {
+  padding: 0.1rem 0.4rem;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.76rem;
+  color: var(--tinta-2);
+  background: var(--espuma);
+  border: 1px solid var(--linea);
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.ac-titulo {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+.ac-subtitulo {
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tinta-3);
+}
+.ac-titulo-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ac-titulo-barra .ac-titulo,
+.ac-titulo-barra .pestanas {
+  margin: 0;
+}
+.ac-total {
+  margin-top: 0.85rem;
+  padding: 0 0.25rem;
+  font-size: 0.85rem;
+  color: var(--tinta-3);
+}
+.ac-paginas {
+  display: flex;
+  gap: 0.4rem;
+}
+.ac-empujar {
+  margin-left: auto;
+}
+
+/* Barra con pestanas y buscador en una sola fila */
+.ac-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.ac-barra .pestanas {
+  margin-bottom: 0;
+}
+.ac-buscar {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 340px;
+  max-width: 560px;
+}
+.ac-buscar input {
+  flex: 1;
+  min-width: 0;
+  padding-left: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2385837f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+  background-size: 16px;
+}
+
+/* Cabecera de detalle con avatar o icono */
+.ac-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+}
+.ac-cabecera__datos {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.ac-cabecera__datos .page-title {
+  margin-bottom: 0.2rem;
+}
+.ac-cabecera__datos p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--tinta-3);
+}
+.ac-cabecera__sub {
+  font-weight: 500;
+  color: var(--tinta-3);
+}
+.ac-cabecera__accion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ac-cabecera__icono {
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--ola-suave);
+  color: var(--ola);
+}
+.ac-cabecera__icono.is-ok {
+  background: var(--ok-fondo);
+  color: var(--ok);
+}
+.ac-cabecera__icono.is-error {
+  background: var(--error-fondo);
+  color: var(--error);
+}
+
+/* Ficha de datos clave en una fila */
+.ac-ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+}
+.ac-ficha > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.95rem 1.2rem;
+  border-left: 1px solid var(--linea);
+}
+.ac-ficha > div:first-child {
+  border-left: none;
+}
+.ac-ficha span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+}
+.ac-ficha strong {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-weight: 650;
+  color: var(--tinta);
+  overflow-wrap: anywhere;
+}
+
+/* Chips (roles) */
+.ac-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.ac-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--pacifico);
+  background: var(--bruma);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Filas de tabla */
+.ac-fila-inactiva td {
+  color: var(--tinta-3);
+}
+.ac-fila-inactiva .avatar {
+  background: #b9c3c4;
+}
+.ac-fila-actual td {
+  background: #f6fbfb;
+}
+.ac-fila-pendiente td:first-child {
+  box-shadow: inset 3px 0 0 var(--error);
+}
+.ac-tabla-clic tbody tr:not(.tabla__fila-vacia):not(.tabla__fila-cargando) {
+  cursor: pointer;
+}
+.ac-fecha {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.ac-fecha strong {
+  font-weight: 600;
+  color: var(--tinta);
+}
+.ac-fecha small {
+  color: var(--tinta-3);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.ac-ver {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--tinta-3);
+  border-radius: var(--radio-xs);
+  transition: background var(--rapido), color var(--rapido);
+}
+.ac-ver:hover,
+tr:hover .ac-ver {
+  color: var(--ola);
+  background: var(--ola-suave);
+}
+.ac-celda-error {
+  max-width: 560px;
+}
+.ac-celda-error strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 600;
+  color: var(--tinta);
+  line-height: 1.4;
+}
+.ac-celda-error small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--tinta-3);
+}
+
+/* Sesiones */
+.ac-sesiones {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ola);
+  text-decoration: none;
+}
+.ac-sesiones:hover {
+  text-decoration: underline;
+}
+.ac-sesiones--texto {
+  color: var(--tinta-2);
+}
+.ac-dispositivo {
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--espuma);
+  color: var(--tinta-2);
+}
+.ac-dos-columnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+.ac-dos-columnas .tarjeta-simple {
+  margin-bottom: 0;
+}
+
+/* Lista de sesiones abiertas */
+.ac-lista {
+  list-style: none;
+}
+.ac-lista li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--linea);
+}
+.ac-lista li:first-child {
+  border-top: none;
+  padding-top: 0.25rem;
+}
+.ac-lista li > .celda-entidad {
+  flex: 1 1 200px;
+}
+.ac-lista__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--tinta-2);
+}
+.ac-lista__meta small {
+  color: var(--tinta-3);
+}
+
+/* Linea de tiempo de inicios de sesion */
+.ac-linea {
+  list-style: none;
+  position: relative;
+}
+.ac-linea li {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.6rem 0 0.6rem 1.35rem;
+}
+.ac-linea li::before {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--linea);
+}
+.ac-linea li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.95rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--superficie);
+  border: 2px solid var(--borde-fuerte);
+}
+.ac-linea li.is-activa::after {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+.ac-linea li > div:first-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ac-linea strong {
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+.ac-linea small {
+  font-size: 0.78rem;
+  color: var(--tinta-3);
+}
+.ac-linea__fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--tinta-2);
+  white-space: nowrap;
+}
+.ac-ver-mas {
+  margin-top: 0.5rem;
+}
+
+/* Formulario de usuario: roles como tarjetas */
+.ac-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.6rem;
+}
+.form .ac-rol {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  cursor: pointer;
+  transition: border-color var(--rapido), background var(--rapido), box-shadow var(--rapido);
+}
+.form .ac-rol:hover {
+  border-color: #a9bbbd;
+}
+.form .ac-rol.is-elegido {
+  border-color: var(--ola);
+  background: var(--ola-suave);
+  box-shadow: 0 0 0 1px var(--ola);
+}
+.ac-rol input {
+  margin-top: 0.15rem;
+}
+.ac-rol span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.ac-rol strong {
+  font-size: 0.9rem;
+  color: var(--tinta);
+}
+.ac-rol small {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--tinta-3);
+  line-height: 1.4;
+}
+
+/* Interruptor */
+.ac-interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.ac-interruptor__perilla {
+  position: relative;
+  width: 2.5rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--borde-fuerte);
+  transition: background var(--rapido);
+}
+.ac-interruptor__perilla::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform var(--rapido);
+}
+.ac-interruptor.is-activo {
+  color: var(--ok);
+}
+.ac-interruptor.is-activo .ac-interruptor__perilla {
+  background: var(--ok);
+}
+.ac-interruptor.is-activo .ac-interruptor__perilla::after {
+  transform: translateX(1.1rem);
+}
+.ac-interruptor:focus-visible {
+  outline: none;
+}
+.ac-interruptor:focus-visible .ac-interruptor__perilla {
+  box-shadow: var(--anillo);
+}
+
+/* ---------- Roles ---------- */
+.ac-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+.ac-rol-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+  transition: box-shadow var(--rapido), border-color var(--rapido);
+}
+.ac-rol-tarjeta:hover {
+  border-color: var(--borde-fuerte);
+  box-shadow: var(--sombra-2);
+}
+.ac-rol-tarjeta__cabeza {
+  display: flex;
+  gap: 0.85rem;
+}
+.ac-rol-tarjeta__icono {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ola-suave);
+  color: var(--ola);
+}
+.ac-rol-tarjeta h3 {
+  font-size: 1.02rem;
+  color: var(--tinta);
+}
+.ac-rol-tarjeta p {
+  margin-top: 0.15rem;
+  font-size: 0.84rem;
+  color: var(--tinta-3);
+  line-height: 1.45;
+}
+.ac-rol-tarjeta__medida {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  color: var(--tinta-2);
+}
+.ac-rol-tarjeta__medida strong {
+  font-size: 1.05rem;
+  color: var(--tinta);
+}
+.ac-barra-progreso {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--espuma);
+  overflow: hidden;
+}
+.ac-barra-progreso span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ola);
+}
+.ac-rol-tarjeta__acciones {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--linea);
+}
+
+/* Permisos de un rol, por modulo */
+.ac-permisos-pagina {
+  padding-bottom: 5rem;
+}
+/* Columnas tipo mosaico: cada modulo ocupa su alto sin dejar huecos */
+.ac-modulos {
+  columns: 300px;
+  column-gap: 1rem;
+}
+.ac-modulo {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+  overflow: hidden;
+}
+.ac-modulo.tiene-marcados {
+  border-color: #b9dde2;
+}
+.ac-modulo__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafa;
+  border-bottom: 1px solid var(--linea);
+}
+.ac-modulo__todo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+.ac-modulo__todo strong {
+  font-size: 0.92rem;
+  color: var(--tinta);
+}
+.ac-modulo__conteo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tinta-3);
+  font-variant-numeric: tabular-nums;
+}
+.ac-modulo ul {
+  list-style: none;
+  padding: 0.35rem 0;
+}
+.ac-permiso {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.87rem;
+  color: var(--tinta);
+  cursor: pointer;
+  transition: background var(--rapido);
+}
+.ac-permiso:hover {
+  background: #f7fafa;
+}
+.ac-permiso input {
+  margin-top: 0.15rem;
+}
+.ac-permiso span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.ac-permiso code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--tinta-3);
+}
+.ac-permiso.is-cambiado {
+  background: var(--mango-suave);
+}
+
+/* Barra fija para guardar */
+.ac-guardar {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
+  font-size: 0.88rem;
+  color: var(--tinta-2);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-2);
+}
+.ac-guardar.is-visible {
+  border-color: var(--mango);
+  box-shadow: 0 0 0 1px var(--mango), var(--sombra-3);
+  color: var(--tinta);
+  font-weight: 600;
+}
+.ac-guardar > div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- Catalogo de permisos ---------- */
+.ac-permisos-barra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 1rem;
+}
+.filtros.ac-nuevo-permiso input {
+  flex: 1 1 auto;
+  padding-left: 0.75rem;
+  background-image: none;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.88rem;
+}
+.ac-lista-modulos {
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+  overflow: hidden;
+}
+.ac-modulo-fila + .ac-modulo-fila {
+  border-top: 1px solid var(--linea);
+}
+.ac-lista-modulos .ac-modulo-fila:has(.esqueleto) {
+  padding: 1rem 1.25rem;
+}
+.ac-modulo-fila__cabeza {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  font: inherit;
+  text-align: left;
+  color: var(--tinta);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--rapido);
+}
+.ac-modulo-fila__cabeza:hover {
+  background: #f7fafa;
+}
+.ac-modulo-fila__cabeza strong {
+  font-size: 0.93rem;
+}
+.ac-modulo-fila__flecha {
+  color: var(--tinta-3);
+  transition: transform var(--rapido);
+}
+.ac-modulo-fila.is-abierto .ac-modulo-fila__flecha {
+  transform: rotate(90deg);
+  color: var(--ola);
+}
+.ac-modulo-fila.is-abierto .ac-modulo-fila__cabeza {
+  background: #f8fafa;
+  border-bottom: 1px solid var(--linea);
+}
+.ac-tabla-permisos td {
+  padding: 0.6rem 1.25rem;
+}
+.ac-tabla-permisos td:first-child {
+  width: 34%;
+  padding-left: 3.1rem;
+}
+
+/* ---------- Auditoria: comparacion campo por campo ---------- */
+.ac-tabla-diff {
+  box-shadow: none;
+}
+.ac-tabla-diff td {
+  vertical-align: top;
+}
+.ac-tabla-diff td:first-child {
+  width: 22%;
+  white-space: nowrap;
+}
+.ac-valor {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.8rem;
+  color: var(--tinta-2);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.ac-valor--antes {
+  background: #fdf1f0 !important;
+  color: #8f2a24;
+  text-decoration: line-through;
+  text-decoration-color: rgba(143, 42, 36, 0.35);
+}
+.ac-valor--despues {
+  background: #edf8f1 !important;
+  color: #17603a;
+  font-weight: 600;
+}
+.ac-ruta {
+  margin-top: 0.6rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Configuracion ---------- */
+.ac-parametro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding: 0.85rem 1rem;
+  margin: 0 -1rem;
+  border-radius: var(--radio-sm);
+  transition: background var(--rapido);
+}
+.ac-parametro + .ac-parametro {
+  border-top: 1px solid var(--linea);
+}
+.ac-parametro.is-cambiado {
+  background: var(--mango-suave);
+}
+.form .ac-parametro__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--tinta);
+  line-height: 1.45;
+}
+.ac-parametro__texto small:not(.campo-error) {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--mango-oscuro);
+}
+.ac-parametro__campo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+.ac-unidad {
+  display: flex;
+  align-items: stretch;
+  width: 170px;
+}
+.ac-unidad input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ac-unidad span {
+  display: grid;
+  place-items: center;
+  min-width: 3.4rem;
+  padding: 0 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+  background: var(--espuma);
+  border: 1px solid var(--borde-fuerte);
+  border-left: none;
+  border-radius: 0 var(--radio-sm) var(--radio-sm) 0;
+}
+.ac-acciones-con-texto {
+  align-items: center;
+}
+.ac-acciones-con-texto > .form-nota {
+  margin-right: auto;
+}
+
+/* ---------- Perfil ---------- */
+.ac-cabecera--perfil {
+  padding: 1.25rem 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+}
+.ac-cabecera--perfil .ac-chip {
+  margin-left: 0.15rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .ac-permisos-barra {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ac-permisos-barra .filtros {
+    margin-bottom: 0;
+  }
+  .ac-permisos-barra {
+    margin-bottom: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .ac-dos-columnas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ac-ficha > div {
+    border-left: none;
+    border-top: 1px solid var(--linea);
+  }
+  .ac-ficha > div:first-child {
+    border-top: none;
+  }
+  .ac-parametro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ac-parametro__campo {
+    align-items: flex-start;
+  }
+  .ac-lista__meta {
+    align-items: flex-start;
+  }
+  .ac-tabla-permisos td:first-child {
+    padding-left: 1.25rem;
+  }
+  .ac-buscar {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .ac-cabecera__accion {
+    width: 100%;
+  }
+}

@@ -33,6 +33,11 @@ class UserController extends Controller
             });
         }
 
+        // Filtro opcional por estado (1 activos, 0 inactivos); sin el parametro se listan todos
+        if (in_array($request->get('estado'), ['0', '1'], true)) {
+            $query->where('estado', (int) $request->get('estado'));
+        }
+
         $usuarios = $query->latest()->paginate(10);
 
         // Conteo de sesiones (tokens) activas por usuario para la pagina actual.
@@ -41,7 +46,13 @@ class UserController extends Controller
             $u->sesiones_activas = (int) ($conteos[$u->id] ?? 0);
         });
 
-        return UsuarioResource::collection($usuarios);
+        return UsuarioResource::collection($usuarios)->additional([
+            'resumen' => [
+                'total' => User::count(),
+                'activos' => User::where('estado', 1)->count(),
+                'inactivos' => User::where('estado', '!=', 1)->count(),
+            ],
+        ]);
     }
 
     //Catalogo de roles para el selector del formulario.

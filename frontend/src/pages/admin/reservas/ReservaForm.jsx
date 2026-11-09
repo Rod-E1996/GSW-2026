@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../../../api'
 import { fechaCorta, formatoUSD, hoyEnHotel, sumarDias } from '../../../utils'
+import Icono from '../../../components/Icono'
+import { Avatar, FormSeccion } from '../../../components/ui'
+import '../../../styles/admin-reservas.css'
 
 const DOCUMENTOS = ['DUI', 'Pasaporte', 'Carné de residente', 'Otro']
 const HUESPED_VACIO = { nombres: '', apellidos: '', tipo_documento: 'DUI', documento: '', email: '', telefono: '' }
@@ -17,8 +20,11 @@ export default function ReservaForm() {
   const editando = Boolean(codigo)
   const navigate = useNavigate()
   const hoy = hoyEnHotel()
+  // Desde el calendario llega la fecha del dia elegido: ?llegada=AAAA-MM-DD
+  const [params] = useSearchParams()
+  const llegadaInicial = /^\d{4}-\d{2}-\d{2}$/.test(params.get('llegada') || '') && params.get('llegada') >= hoy ? params.get('llegada') : hoy
 
-  const [estadia, setEstadia] = useState({ fecha_llegada: hoy, fecha_salida: sumarDias(hoy, 1), adultos: 1, ninos: 0 })
+  const [estadia, setEstadia] = useState({ fecha_llegada: llegadaInicial, fecha_salida: sumarDias(llegadaInicial, 1), adultos: 1, ninos: 0 })
   const [extra, setExtra] = useState({ hora_estimada_llegada: '', notas: '', canal: 'telefono' })
   const [habitaciones, setHabitaciones] = useState(null)
   const [habitacionId, setHabitacionId] = useState(null)
@@ -205,24 +211,39 @@ export default function ReservaForm() {
 
   if (cargando) return <p className="estado">Cargando…</p>
 
+  const personas = Number(estadia.adultos || 0) + Number(estadia.ninos || 0)
+  const noches = Math.max(0, Math.round((new Date(`${estadia.fecha_salida}T12:00:00`) - new Date(`${estadia.fecha_llegada}T12:00:00`)) / 86400000))
+  // Lo que falta para poder guardar, en el orden en que se llena el formulario
+  const pasos = [
+    ['Fechas y huéspedes', noches > 0 && personas > 0],
+    ['Habitación', Boolean(habitacionId)],
+    ...(editando ? [] : [['Huésped titular', Boolean(huesped)]]),
+  ]
+
   return (
-    <div className="form-page reserva-admin">
-      <Link to={volver} className="reserva__volver">← {editando ? `Reserva ${codigo}` : 'Reservas'}</Link>
-      <h1 className="page-title">{editando ? `Modificar ${codigo}` : 'Nueva reserva'}</h1>
-      <p className="page-sub">
-        {editando
-          ? 'Al guardar se revalida la disponibilidad, se recalculan los importes y se avisa al huésped por correo.'
-          : 'Reserva tomada por teléfono o en recepción. Queda pendiente hasta registrar el anticipo.'}
-      </p>
+    <div className="form-page reserva-admin rf">
+      <Link to={volver} className="reserva__volver"><Icono nombre="volver" size={15} /> {editando ? `Reserva ${codigo}` : 'Reservas'}</Link>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">{editando ? `Modificar ${codigo}` : 'Nueva reserva'}</h1>
+          <p className="page-sub">
+            {editando
+              ? 'Al guardar se revalida la disponibilidad, se recalculan los importes y se avisa al huésped por correo.'
+              : 'Reserva tomada por teléfono o en recepción. Queda pendiente hasta registrar el anticipo.'}
+          </p>
+        </div>
+      </div>
 
       {error && <div className="alerta alerta--error">{error}</div>}
 
       {(!editando || habitaciones !== null || habitacionId) && (
         <form className="reserva-admin__grid" onSubmit={guardar}>
-          <div className="reserva-admin__columna">
-            <section className="form form--seccion">
-              <h2 className="seccion-title">1. Estadía</h2>
-              <div className="form-row">
+          <div className="form rf-principal">
+            <FormSeccion
+              titulo="Estadía"
+              descripcion="Elige las fechas y cuántas personas se hospedan; después busca una habitación libre."
+            >
+              <div className="form-row form-row--4">
                 <label>
                   Llegada
                   <input type="date" min={hoy} value={estadia.fecha_llegada} onChange={(e) => cambiarEstadia('fecha_llegada', e.target.value)} />
@@ -243,15 +264,17 @@ export default function ReservaForm() {
                   <input type="number" min="0" max="20" value={estadia.ninos} onChange={(e) => cambiarEstadia('ninos', e.target.value)} />
                 </label>
               </div>
-              <div className="form-acciones form-acciones--izq">
+              <div className="rf-buscar">
                 <button type="button" className="btn btn--ghost" onClick={() => buscarHabitaciones()} disabled={buscandoHab}>
+                  <Icono nombre="buscar" size={16} />
                   {buscandoHab ? 'Buscando…' : habitaciones ? 'Volver a buscar' : 'Ver habitaciones disponibles'}
                 </button>
+                <span className="form-nota">{noches} {noches === 1 ? 'noche' : 'noches'} · {personas} {personas === 1 ? 'persona' : 'personas'}</span>
               </div>
 
               {habitaciones && (
                 habitaciones.length === 0 ? (
-                  <p className="form-nota">No hay habitaciones libres para esas fechas y personas.</p>
+                  <p className="vacio-mini">No hay habitaciones libres para esas fechas y personas. Prueba con otras fechas.</p>
                 ) : (
                   <div className="habitaciones-elegibles" role="radiogroup" aria-label="Habitación">
                     {habitaciones.map((h) => (
@@ -267,19 +290,24 @@ export default function ReservaForm() {
                 )
               )}
               {campoError('habitacion_id')}
-            </section>
+            </FormSeccion>
 
-            <section className="form form--seccion">
-              <h2 className="seccion-title">2. Huésped titular</h2>
+            <FormSeccion
+              titulo="Huésped titular"
+              descripcion={editando ? 'El titular no cambia al modificar la reserva.' : 'Búscalo por documento, correo, teléfono o nombre. Si es la primera vez, regístralo.'}
+            >
               {huesped ? (
                 <div className="huesped-elegido">
-                  <div>
-                    <strong>{huesped.nombre_completo}</strong>
-                    <span className="form-nota">
-                      {[huesped.tipo_documento && `${huesped.tipo_documento} ${huesped.documento || ''}`, huesped.email, huesped.telefono].filter(Boolean).join(' · ')}
-                    </span>
-                    {huesped.tiene_cuenta && <span className="badge badge--info">Tiene cuenta en el portal</span>}
+                  <div className="celda-entidad">
+                    <Avatar nombre={huesped.nombre_completo} />
+                    <div>
+                      <strong>{huesped.nombre_completo}</strong>
+                      <small>
+                        {[huesped.tipo_documento && `${huesped.tipo_documento} ${huesped.documento || ''}`, huesped.email, huesped.telefono].filter(Boolean).join(' · ')}
+                      </small>
+                    </div>
                   </div>
+                  {huesped.tiene_cuenta && <span className="badge badge--info">Tiene cuenta en el portal</span>}
                   {!editando && <button type="button" className="btn btn--sm btn--ghost" onClick={() => setHuesped(null)}>Cambiar</button>}
                 </div>
               ) : nuevoHuesped ? (
@@ -302,7 +330,7 @@ export default function ReservaForm() {
                     <label>Teléfono<input value={nuevoHuesped.telefono} onChange={(e) => setNuevoHuesped({ ...nuevoHuesped, telefono: e.target.value })} />{campoError('telefono')}</label>
                   </div>
                   <small className="form-nota">Con correo, el huésped recibe el aviso de la reserva y el comprobante.</small>
-                  <div className="form-acciones form-acciones--izq">
+                  <div className="form-acciones">
                     <button type="button" className="btn btn--ghost" onClick={() => setNuevoHuesped(null)}>Cancelar</button>
                     <button type="button" className="btn" onClick={registrarHuesped}>Registrar huésped</button>
                   </div>
@@ -317,20 +345,23 @@ export default function ReservaForm() {
                       onKeyDown={(e) => e.key === 'Enter' && buscarHuesped(e)}
                       aria-label="Buscar huésped"
                     />
-                    <button type="button" className="btn btn--ghost" onClick={buscarHuesped}>Buscar</button>
-                    <button type="button" className="btn btn--ghost" onClick={() => setNuevoHuesped({ ...HUESPED_VACIO })}>+ Nuevo huésped</button>
+                    <button type="button" className="btn btn--ghost" onClick={buscarHuesped}><Icono nombre="buscar" size={16} /> Buscar</button>
+                    <button type="button" className="btn btn--ghost" onClick={() => setNuevoHuesped({ ...HUESPED_VACIO })}><Icono nombre="mas" size={16} /> Nuevo huésped</button>
                   </div>
                   {encontrados && (
                     encontrados.length === 0 ? (
-                      <p className="form-nota">Nadie coincide. Registra al huésped como nuevo.</p>
+                      <p className="vacio-mini">Nadie coincide. Registra al huésped como nuevo.</p>
                     ) : (
                       <ul className="lista-huespedes">
                         {encontrados.map((h) => (
                           <li key={h.id}>
-                            <span>
-                              <strong>{h.nombre_completo}</strong>
-                              <small className="form-nota"> {[h.documento && `${h.tipo_documento} ${h.documento}`, h.email, h.telefono].filter(Boolean).join(' · ')} · {h.reservas} reserva(s)</small>
-                            </span>
+                            <div className="celda-entidad">
+                              <Avatar nombre={h.nombre_completo} size="sm" />
+                              <div>
+                                <strong>{h.nombre_completo}</strong>
+                                <small>{[h.documento && [h.tipo_documento, h.documento].filter(Boolean).join(' '), h.email, h.telefono].filter(Boolean).join(' · ')} · {h.reservas} reserva(s)</small>
+                              </div>
+                            </div>
                             <button type="button" className="btn btn--sm" onClick={() => setHuesped(h)}>Elegir</button>
                           </li>
                         ))}
@@ -341,7 +372,7 @@ export default function ReservaForm() {
                 </>
               )}
               {!editando && (
-                <label>
+                <label className="rf-canal">
                   Canal
                   <select value={extra.canal} onChange={(e) => setExtra({ ...extra, canal: e.target.value })}>
                     <option value="telefono">Teléfono</option>
@@ -349,18 +380,21 @@ export default function ReservaForm() {
                   </select>
                 </label>
               )}
-            </section>
+            </FormSeccion>
 
-            <section className="form form--seccion">
-              <h2 className="seccion-title">3. Servicios y notas</h2>
-              <ul className="servicios-elegibles">
+            <FormSeccion
+              titulo="Servicios y notas"
+              descripcion="Servicios que el huésped contrata desde ya. Los consumos durante la estadía se cargan después, desde la reserva."
+            >
+              <ul className="servicios-elegibles rf-servicios">
                 {catalogo.map((s) => {
                   const elegido = elegidos[s.id]
                   return (
                     <li key={s.id} className={elegido ? 'is-elegido' : ''}>
                       <label className="form-check">
                         <input type="checkbox" checked={Boolean(elegido)} onChange={() => alternar(s)} />
-                        <span><strong>{s.nombre}</strong> · {formatoUSD(s.precio)} {s.forma_cobro_nombre.toLowerCase()}</span>
+                        <span className="rf-servicios__nombre"><strong>{s.nombre}</strong><small className="form-nota">{s.forma_cobro_nombre}</small></span>
+                        <span className="rf-servicios__precio">{formatoUSD(s.precio)}</span>
                       </label>
                       {elegido && (s.forma_cobro === 'fijo' || s.requiere_fecha) && (
                         <div className="servicios-elegibles__detalle">
@@ -379,7 +413,7 @@ export default function ReservaForm() {
                   )
                 })}
               </ul>
-              <div className="form-row">
+              <div className="form-row rf-extra">
                 <label>
                   Hora estimada de llegada
                   <input type="time" value={extra.hora_estimada_llegada} onChange={(e) => setExtra({ ...extra, hora_estimada_llegada: e.target.value })} />
@@ -387,36 +421,45 @@ export default function ReservaForm() {
               </div>
               <label>
                 Notas
-                <textarea rows="2" maxLength="1000" value={extra.notas} onChange={(e) => setExtra({ ...extra, notas: e.target.value })} />
+                <textarea rows="3" maxLength="1000" placeholder="Peticiones del huésped, celebraciones, alergias…" value={extra.notas} onChange={(e) => setExtra({ ...extra, notas: e.target.value })} />
               </label>
-            </section>
+            </FormSeccion>
           </div>
 
           <aside className="tarjeta-simple reserva-admin__resumen">
             <h3>Resumen</h3>
-            {!habitacionId && <p className="form-nota">Elige una habitación para ver los importes.</p>}
+            <ul className="rf-pasos">
+              {pasos.map(([nombre, listo]) => (
+                <li key={nombre} className={listo ? 'is-listo' : ''}>
+                  <span className="rf-pasos__marca">{listo && <Icono nombre="check" size={12} />}</span>
+                  {nombre}
+                </li>
+              ))}
+            </ul>
             {errorResumen && <div className="alerta alerta--error">{errorResumen}</div>}
-            {resumen && (
+            {resumen ? (
               <>
-              <p className="reserva-admin__estadia">
-                <strong>{resumen.habitacion.tipo} · {resumen.habitacion.numero}</strong>
-                <span className="form-nota">{fechaCorta(estadia.fecha_llegada)} → {fechaCorta(estadia.fecha_salida)} · {resumen.noches.length} {resumen.noches.length === 1 ? 'noche' : 'noches'}</span>
-              </p>
-              <dl className="importes">
-                <dt>Alojamiento</dt><dd>{formatoUSD(resumen.subtotal_alojamiento)}</dd>
-                {resumen.servicios.map((s) => (
-                  <div key={s.servicio_id} className="importes__linea"><dt>{s.nombre} × {s.cantidad}</dt><dd>{formatoUSD(s.subtotal)}</dd></div>
-                ))}
-                <dt>Impuestos ({resumen.impuesto_porcentaje} %)</dt><dd>{formatoUSD(resumen.impuesto)}</dd>
-                <dt className="importes__total">Total</dt><dd className="importes__total">{formatoUSD(resumen.total)}</dd>
-                <dt className="importes__anticipo">Anticipo ({resumen.anticipo_porcentaje} %)</dt><dd className="importes__anticipo">{formatoUSD(resumen.anticipo_requerido)}</dd>
-              </dl>
+                <p className="reserva-admin__estadia">
+                  <strong>{resumen.habitacion.tipo} · {resumen.habitacion.numero}</strong>
+                  <span className="form-nota">{fechaCorta(estadia.fecha_llegada)} → {fechaCorta(estadia.fecha_salida)} · {resumen.noches.length} {resumen.noches.length === 1 ? 'noche' : 'noches'}</span>
+                </p>
+                <dl className="importes">
+                  <dt>Alojamiento</dt><dd>{formatoUSD(resumen.subtotal_alojamiento)}</dd>
+                  {resumen.servicios.map((s) => (
+                    <div key={s.servicio_id} className="importes__linea"><dt>{s.nombre} × {s.cantidad}</dt><dd>{formatoUSD(s.subtotal)}</dd></div>
+                  ))}
+                  <dt>Impuestos ({resumen.impuesto_porcentaje} %)</dt><dd>{formatoUSD(resumen.impuesto)}</dd>
+                  <dt className="importes__total">Total</dt><dd className="importes__total">{formatoUSD(resumen.total)}</dd>
+                  <dt className="importes__anticipo">Anticipo ({resumen.anticipo_porcentaje} %)</dt><dd className="importes__anticipo">{formatoUSD(resumen.anticipo_requerido)}</dd>
+                </dl>
               </>
+            ) : (
+              !errorResumen && <p className="vacio-mini">Elige una habitación para ver los importes.</p>
             )}
             <button className="btn btn--block" disabled={guardando || !habitacionId || !resumen || (!editando && !huesped)}>
               {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Registrar reserva'}
             </button>
-            {!editando && !huesped && <small className="form-nota">Falta elegir al huésped titular.</small>}
+            <Link to={volver} className="btn btn--ghost btn--block">Cancelar</Link>
           </aside>
         </form>
       )}

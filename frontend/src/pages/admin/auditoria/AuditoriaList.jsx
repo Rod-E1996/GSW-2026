@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../../../api'
-
-function fecha(iso) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleString('es-SV')
-}
+import Icono from '../../../components/Icono'
+import { Avatar, FilaVacia, FilasCargando } from '../../../components/ui'
+import { COLOR_ACCION, Paginacion, fechaHora, haceCuanto, nombreEntidad } from '../accesos/comun'
+import '../../../styles/admin-accesos.css'
 
 export default function AuditoriaList() {
+  const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState(null)
   const [cargando, setCargando] = useState(true)
@@ -40,49 +40,78 @@ export default function AuditoriaList() {
 
   return (
     <div>
-      <h1 className="page-title">Auditoría</h1>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Auditoría</h1>
+          <p className="page-sub">Registro de quién creó, modificó o eliminó cada dato del sistema. Abre un registro para ver qué cambió.</p>
+        </div>
+      </div>
+
       {error && <div className="alerta alerta--error">{error}</div>}
 
       <form className="filtros" onSubmit={buscar}>
         <input
-          placeholder="Buscar por usuario, entidad o fecha…"
+          className="filtros__busqueda"
+          placeholder="Buscar por usuario, tabla (p. ej. reservas) o fecha (AAAA-MM-DD)…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar en la auditoría"
         />
         <button className="btn btn--ghost">Buscar</button>
       </form>
 
       <div className="tabla-wrap">
-        <table className="tabla">
+        <table className="tabla ac-tabla-clic">
           <thead>
             <tr>
+              <th>Fecha</th>
               <th>Usuario</th>
               <th>Acción</th>
               <th>Entidad</th>
-              <th>Nombre modificado</th>
-              <th>Fecha</th>
+              <th>Registro</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {cargando && (
-              <tr><td colSpan="6" className="tabla__vacio">Cargando…</td></tr>
-            )}
+            {cargando && <FilasCargando columnas={6} />}
             {!cargando && items.length === 0 && (
-              <tr><td colSpan="6" className="tabla__vacio">Sin registros.</td></tr>
+              <FilaVacia
+                columnas={6}
+                icono="auditoria"
+                titulo={search ? 'Ningún registro coincide' : 'Aún no hay registros'}
+                texto={search ? 'Prueba con otro usuario, otra tabla u otra fecha.' : 'Cada cambio en los datos quedará registrado aquí.'}
+              />
             )}
             {!cargando &&
               items.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.usuario || '—'}</td>
-                  <td>{a.accion || '—'}</td>
-                  <td>{a.entidad || '—'}</td>
-                  <td>{a.nombre_modificado || '—'}</td>
-                  <td>{fecha(a.fecha)}</td>
+                <tr key={a.id} onClick={() => navigate(`/panel/auditoria/${a.id}`)}>
+                  <td>
+                    <div className="ac-fecha">
+                      <strong>{haceCuanto(a.fecha)}</strong>
+                      <small>{fechaHora(a.fecha)}</small>
+                    </div>
+                  </td>
+                  <td>
+                    {a.usuario ? (
+                      <div className="celda-entidad"><Avatar nombre={a.usuario} size="sm" /><div><strong>{a.usuario}</strong></div></div>
+                    ) : (
+                      <span className="form-nota">Sistema</span>
+                    )}
+                  </td>
+                  <td>
+                    <span className={`badge ${COLOR_ACCION[a.accion] || ''}`}>
+                      {a.accion ? a.accion.charAt(0).toUpperCase() + a.accion.slice(1) : '—'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="ac-fecha">
+                      <strong>{nombreEntidad(a.entidad)}</strong>
+                      <small className="ac-mono">{a.entidad}</small>
+                    </div>
+                  </td>
+                  <td className="celda-corta">{a.nombre_modificado || <span className="form-nota">—</span>}</td>
                   <td className="tabla__acciones">
-                    <Link to={`/panel/auditoria/${a.id}`} className="btn btn--sm btn--ghost">
-                      Ver
-                    </Link>
+                    <Link to={`/panel/auditoria/${a.id}`} className="ac-ver" aria-label="Ver detalle" onClick={(e) => e.stopPropagation()}><Icono nombre="flecha" size={16} /></Link>
                   </td>
                 </tr>
               ))}
@@ -90,17 +119,7 @@ export default function AuditoriaList() {
         </table>
       </div>
 
-      {meta && meta.last_page > 1 && (
-        <div className="paginacion">
-          <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Anterior
-          </button>
-          <span>Página {meta.current_page} de {meta.last_page}</span>
-          <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-            Siguiente →
-          </button>
-        </div>
-      )}
+      <Paginacion meta={meta} page={page} setPage={setPage} nombre="registros" />
     </div>
   )
 }

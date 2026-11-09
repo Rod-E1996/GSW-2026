@@ -1,0 +1,397 @@
+/* =====================================================================
+   Calendario de ocupacion (linea de tiempo por habitacion)
+   ===================================================================== */
+
+/* Selector de mes */
+.cal-mes {
+  display: inline-flex;
+  align-items: center;
+  height: var(--campo-alto);
+  background: var(--superficie);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-1);
+  overflow: hidden;
+}
+.cal-mes button {
+  width: 2.4rem;
+  height: 100%;
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--pacifico);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--rapido);
+}
+.cal-mes button:hover {
+  background: var(--espuma);
+}
+.cal-mes strong {
+  min-width: 9.5rem;
+  padding: 0 0.5rem;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--tinta);
+  border-left: 1px solid var(--linea);
+  border-right: 1px solid var(--linea);
+  line-height: var(--campo-alto);
+}
+
+/* Filtro y leyenda */
+.cal-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 0.85rem;
+}
+.cal-barra select {
+  width: auto;
+  min-width: 200px;
+}
+.cal-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  font-size: 0.82rem;
+  color: var(--tinta-2);
+}
+.cal-leyenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.cal-muestra {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 4px;
+}
+.cal-muestra--pendiente { background: #f5c451; }
+.cal-muestra--confirmada { background: #2f9e6a; }
+.cal-muestra--estadia { background: var(--ola); }
+.cal-muestra--finalizada { background: #a7b3b5; }
+.cal-muestra--bloqueo {
+  background: repeating-linear-gradient(45deg, #e8908a, #e8908a 3px, #fbe3e1 3px, #fbe3e1 6px);
+}
+
+/* Contenedor */
+.cal {
+  --cal-etiqueta: 150px;
+  --cal-fila: 46px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.cal__scroll {
+  overflow-x: auto;
+}
+.cal__scroll > * {
+  min-width: calc(var(--cal-etiqueta) + var(--cal-dias, 31) * 34px);
+}
+.cal__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+}
+
+/* Filas */
+.cal__fila {
+  display: grid;
+  grid-template-columns: var(--cal-etiqueta) minmax(0, 1fr);
+  min-height: var(--cal-fila);
+  border-bottom: 1px solid var(--linea);
+}
+.cal__fila:hover .cal__etiqueta {
+  background: #f6fafa;
+}
+.cal__fila--cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  min-height: 0;
+  background: #f8fafa;
+  border-bottom-color: var(--borde);
+}
+.cal__fila--pie {
+  min-height: 0;
+  background: #f8fafa;
+  border-top: 1px solid var(--borde);
+  border-bottom: none;
+}
+
+/* Columna de habitaciones */
+.cal__etiqueta {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  align-content: center;
+  gap: 0 0.45rem;
+  padding: 0.35rem 0.85rem;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+  transition: background var(--rapido);
+}
+.cal__etiqueta strong {
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: var(--tinta);
+}
+.cal__etiqueta small {
+  font-size: 0.75rem;
+  color: var(--tinta-3);
+}
+.cal__etiqueta--cabecera {
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tinta-3);
+  background: #f8fafa;
+}
+.cal__fisico {
+  flex-basis: 100%;
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+.cal__fisico--limpieza { color: #a16207; }
+.cal__fisico--mantenimiento { color: var(--error); }
+
+/* Encabezado de grupo (piso) */
+.cal__piso {
+  position: sticky;
+  left: 0;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--pacifico);
+  background: var(--espuma);
+  border-bottom: 1px solid var(--linea);
+}
+.cal__piso span {
+  margin-left: 0.4rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--tinta-3);
+}
+
+/* Pista de dias: todas las piezas en la misma fila del grid */
+.cal__pista {
+  display: grid;
+  grid-template-rows: 1fr;
+  position: relative;
+}
+.cal__pista > * {
+  grid-row: 1;
+}
+
+/* Encabezado: letra y numero del dia */
+.cal__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0;
+  line-height: 1.15;
+  border-left: 1px solid var(--linea);
+}
+.cal__dia span {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+}
+.cal__dia strong {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--tinta-2);
+}
+.cal__dia.is-finde {
+  background: #f0f4f4;
+}
+.cal__dia.is-hoy strong {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--mango);
+  color: #fff;
+}
+
+/* Celdas de fondo (clic: nueva reserva desde ese dia) */
+.cal__celda {
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--linea);
+  background: transparent;
+  cursor: default;
+}
+.cal__celda.is-finde {
+  background: #f7fafa;
+}
+.cal__celda.is-hoy {
+  background: rgba(217, 138, 28, 0.07);
+  box-shadow: inset 1px 0 0 rgba(217, 138, 28, 0.45), inset -1px 0 0 rgba(217, 138, 28, 0.45);
+}
+.cal__celda:hover {
+  background: var(--ola-suave);
+  cursor: pointer;
+}
+
+/* Barras de estadia */
+.cal__estadia {
+  z-index: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  height: calc(var(--cal-fila) - 12px);
+  margin: 0 1px;
+  padding: 0 0.55rem;
+  overflow: hidden;
+  color: #fff;
+  text-decoration: none;
+  line-height: 1.15;
+  border-radius: 7px;
+  box-shadow: 0 1px 2px rgba(16, 42, 46, 0.15);
+  transition: filter var(--rapido), transform var(--rapido), box-shadow var(--rapido);
+}
+.cal__estadia:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 42, 46, 0.2);
+}
+.cal__estadia strong,
+.cal__estadia span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal__estadia strong {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.cal__estadia span {
+  font-size: 0.66rem;
+  opacity: 0.85;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+.cal__estadia--pendiente {
+  background: #fdf0c8;
+  color: #7a5200;
+  box-shadow: inset 0 0 0 1.5px #f0c552;
+}
+.cal__estadia--confirmada { background: #2f9e6a; }
+.cal__estadia--estadia { background: linear-gradient(135deg, var(--ola), #0b7480); }
+.cal__estadia--finalizada {
+  background: #e6ebec;
+  color: #56605f;
+  box-shadow: none;
+}
+.cal__estadia.is-continua-izq {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.cal__estadia.is-continua-der {
+  margin-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Bloqueos */
+.cal__bloqueo {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 5px 0;
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #9b2c25;
+  border-radius: 6px;
+  background: repeating-linear-gradient(45deg, #f6c9c5, #f6c9c5 4px, #fdeceb 4px, #fdeceb 8px);
+  pointer-events: auto;
+}
+.cal__bloqueo span {
+  padding: 0.05rem 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+}
+
+/* Ocupacion por noche (pie) */
+.cal__ocupacion {
+  display: grid;
+  place-items: center;
+  padding: 0.45rem 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta-2);
+  border-left: 1px solid var(--linea);
+  background: rgba(0, 138, 156, calc(var(--nivel) * 0.32));
+}
+.cal__ocupacion.is-hoy {
+  box-shadow: inset 0 -3px 0 var(--mango);
+}
+
+/* Reservas sin habitacion */
+.cal-sin-asignar h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cal-sin-asignar h3 .icono {
+  color: var(--mango);
+}
+.cal-sin-asignar ul {
+  list-style: none;
+}
+.cal-sin-asignar li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  font-size: 0.875rem;
+  border-top: 1px solid var(--linea);
+}
+.cal-sin-asignar li a {
+  color: inherit;
+  text-decoration: none;
+}
+.cal-sin-asignar li a:hover strong {
+  color: var(--ola);
+}
+.cal-sin-asignar li .cal-muestra {
+  margin-left: auto;
+}
+
+@media (max-width: 600px) {
+  .cal {
+    --cal-etiqueta: 96px;
+  }
+  .cal__etiqueta small {
+    display: none;
+  }
+}

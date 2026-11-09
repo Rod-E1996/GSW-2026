@@ -2,6 +2,16 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import Icono from '../../../components/Icono'
+import { EstadoVacio } from '../../../components/ui'
+import { Paginacion } from '../accesos/comun'
+import '../../../styles/admin-accesos.css'
+
+const DESCRIPCION_ROL = {
+  'Super Administrador': 'Acceso total al sistema. Sus permisos clave no se pueden quitar.',
+  Recepcionista: 'Operación diaria: reservas, entradas, salidas y consulta de catálogos.',
+  'Huésped': 'Portal de reservas: sus datos y sus propias reservas.',
+}
 
 export default function RolesList() {
   const { can } = useAuth()
@@ -37,7 +47,7 @@ export default function RolesList() {
   }
 
   async function eliminar(r) {
-    if (!window.confirm(`¿Eliminar el rol "${r.name}"?`)) return
+    if (!window.confirm(`¿Eliminar el rol "${r.name}"? Los usuarios que lo tengan perderán sus permisos.`)) return
     setError(null)
     setAviso(null)
     try {
@@ -49,12 +59,18 @@ export default function RolesList() {
     }
   }
 
+  // El rol con mas permisos marca el 100 % de la barra
+  const maximo = Math.max(1, ...items.map((r) => r.permisos_count ?? 0))
+
   return (
     <div>
       <div className="page-head">
-        <h1 className="page-title">Roles</h1>
+        <div>
+          <h1 className="page-title">Roles</h1>
+          <p className="page-sub">Cada rol agrupa los permisos de un tipo de usuario. Un usuario puede tener varios.</p>
+        </div>
         {can('role_create') && (
-          <Link to="/panel/roles/nuevo" className="btn">+ Nuevo rol</Link>
+          <Link to="/panel/roles/nuevo" className="btn"><Icono nombre="mas" size={16} /> Nuevo rol</Link>
         )}
       </div>
 
@@ -63,68 +79,75 @@ export default function RolesList() {
 
       <form className="filtros" onSubmit={buscar}>
         <input
-          placeholder="Buscar por nombre…"
+          className="filtros__busqueda"
+          placeholder="Buscar rol por nombre…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar rol"
         />
         <button className="btn btn--ghost">Buscar</button>
       </form>
 
-      <div className="tabla-wrap">
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Rol</th>
-              <th>Permisos</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargando && (
-              <tr><td colSpan="3" className="tabla__vacio">Cargando…</td></tr>
-            )}
-            {!cargando && items.length === 0 && (
-              <tr><td colSpan="3" className="tabla__vacio">Sin registros.</td></tr>
-            )}
-            {!cargando &&
-              items.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.name}</td>
-                  <td>{r.permisos_count ?? 0}</td>
-                  <td className="tabla__acciones">
-                    {can('role_move_permiso') && (
-                      <Link to={`/panel/roles/${r.id}/permisos`} className="btn btn--sm btn--ghost">
-                        Permisos
-                      </Link>
-                    )}
-                    {can('role_update') && (
-                      <Link to={`/panel/roles/${r.id}/editar`} className="btn btn--sm btn--ghost">
-                        Editar
-                      </Link>
-                    )}
-                    {can('role_destroy') && (
-                      <button className="btn btn--sm btn--danger" onClick={() => eliminar(r)}>
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-
-      {meta && meta.last_page > 1 && (
-        <div className="paginacion">
-          <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Anterior
-          </button>
-          <span>Página {meta.current_page} de {meta.last_page}</span>
-          <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-            Siguiente →
-          </button>
+      {cargando && (
+        <div className="ac-tarjetas">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="ac-rol-tarjeta"><span className="esqueleto" /><span className="esqueleto" /></div>
+          ))}
         </div>
       )}
+
+      {!cargando && items.length === 0 && (
+        <div className="tarjeta-simple">
+          <EstadoVacio
+            icono="roles"
+            titulo={search ? 'Ningún rol coincide' : 'Aún no hay roles'}
+            texto={search ? 'Prueba con otro nombre.' : 'Crea un rol y asígnale los permisos que necesita.'}
+            accion={!search && can('role_create') && <Link to="/panel/roles/nuevo" className="btn">Nuevo rol</Link>}
+          />
+        </div>
+      )}
+
+      {!cargando && items.length > 0 && (
+        <div className="ac-tarjetas">
+          {items.map((r) => {
+            const total = r.permisos_count ?? 0
+            return (
+              <article key={r.id} className="ac-rol-tarjeta">
+                <div className="ac-rol-tarjeta__cabeza">
+                  <span className="ac-rol-tarjeta__icono"><Icono nombre="roles" size={18} /></span>
+                  <div>
+                    <h3>{r.name}</h3>
+                    <p>{DESCRIPCION_ROL[r.name] || 'Rol personalizado.'}</p>
+                  </div>
+                </div>
+                <div className="ac-rol-tarjeta__medida">
+                  <span><strong>{total}</strong> {total === 1 ? 'permiso' : 'permisos'}</span>
+                  <div className="ac-barra-progreso"><span style={{ width: `${(total / maximo) * 100}%` }} /></div>
+                </div>
+                <div className="ac-rol-tarjeta__acciones">
+                  {can('role_move_permiso') && (
+                    <Link to={`/panel/roles/${r.id}/permisos`} className="btn btn--sm">
+                      <Icono nombre="permisos" size={14} /> Permisos
+                    </Link>
+                  )}
+                  {can('role_update') && (
+                    <Link to={`/panel/roles/${r.id}/editar`} className="btn btn--sm btn--ghost">
+                      <Icono nombre="editar" size={14} /> Renombrar
+                    </Link>
+                  )}
+                  {can('role_destroy') && (
+                    <button className="btn btn--sm btn--danger ac-empujar" onClick={() => eliminar(r)} title="Eliminar rol">
+                      <Icono nombre="eliminar" size={14} />
+                    </button>
+                  )}
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
+
+      <Paginacion meta={meta} page={page} setPage={setPage} nombre="roles" />
     </div>
   )
 }

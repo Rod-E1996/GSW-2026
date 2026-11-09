@@ -1,0 +1,778 @@
+/* =====================================================================
+   Panel · Reservas: listado, ficha, formulario y verificacion
+   ===================================================================== */
+
+/* ----- Utilidades del grupo ----- */
+.tabla .tabla__num {
+  text-align: right;
+  white-space: nowrap;
+}
+.codigo-reserva {
+  white-space: nowrap;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+}
+.sr-solo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.reserva__volver {
+  margin-bottom: 0.75rem;
+}
+.form-row--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.form-row--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.tarjeta-simple > h3 {
+  font-size: 1rem;
+}
+
+/* ----- Listado ----- */
+.reservas-lista .pestanas {
+  margin-bottom: 0.85rem;
+}
+.tabla--reservas td {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+.tabla__fila-clic {
+  cursor: pointer;
+}
+.tabla__fila-clic:hover .codigo-reserva {
+  color: var(--ola);
+}
+.estadia-rango {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+.estadia-rango .icono {
+  color: var(--tinta-3);
+}
+
+/* ----- Ficha de la reserva ----- */
+.ra-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.ra-cabecera__linea {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.ra-cabecera .detalle-reserva__codigo {
+  font-size: 1.75rem;
+}
+.ra-cabecera .badge {
+  font-size: 0.8rem;
+}
+.ra-cabecera__titulo .form-nota {
+  margin-top: 0.2rem;
+}
+.ra-cabecera__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Recorrido de estados */
+.ra-pasos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.25rem;
+  list-style: none;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+}
+.ra-pasos li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--tinta-3);
+}
+.ra-pasos__punto {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 50%;
+  border: 2px solid var(--borde-fuerte);
+  background: var(--superficie);
+  color: var(--tinta-3);
+}
+.ra-pasos li.is-hecho {
+  color: var(--tinta-2);
+}
+.ra-pasos li.is-hecho .ra-pasos__punto {
+  border-color: var(--ola);
+  background: var(--ola);
+  color: #fff;
+}
+.ra-pasos li.is-actual {
+  color: var(--pacifico);
+}
+.ra-pasos li.is-actual .ra-pasos__punto {
+  border-color: var(--pacifico);
+  color: var(--pacifico);
+  box-shadow: 0 0 0 4px var(--bruma);
+}
+
+/* Formularios de accion (confirmar, entrada, salida, consumo, cancelar) */
+.accion-form {
+  margin-bottom: 1.25rem;
+  border-left: 4px solid var(--ola);
+}
+.accion-form--peligro {
+  border-left-color: var(--error);
+}
+.accion-form__cabecera h3 {
+  margin-bottom: 0.2rem;
+  font-size: 1.02rem;
+  color: var(--tinta);
+}
+.ra-verificacion {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: #fbfcfc;
+}
+
+/* Rejilla principal: columna lateral un poco mas ancha */
+.ra .reserva-admin__grid,
+.rf .reserva-admin__grid {
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+.ra-lateral {
+  position: sticky;
+  top: 5.5rem;
+}
+
+/* Fechas de la estadia */
+.ra-fechas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.1rem;
+  background: #f8fbfb;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+.ra-fechas > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.ra-fechas strong {
+  font-size: 0.98rem;
+  color: var(--tinta);
+}
+.ra-fechas small {
+  color: var(--tinta-3);
+  font-size: 0.8rem;
+}
+.ra-fechas__noches {
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--pacifico);
+  flex-direction: row !important;
+  gap: 0.4rem !important;
+}
+.ra-etiqueta,
+.ra-datos dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tinta-3);
+}
+
+/* Datos en rejilla */
+.ra-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.ra-datos--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.ra-datos dd {
+  margin-top: 0.2rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+.ra-nota {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radio-sm);
+  background: var(--mango-suave);
+  color: #6b4500;
+  font-size: 0.88rem;
+}
+.ra-nota .icono {
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+/* Huesped */
+.ra-huesped {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+.ra-huesped__datos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.ra-huesped__datos strong {
+  font-size: 1.05rem;
+  color: var(--tinta);
+}
+.ra-huesped__contacto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+.ra-huesped__contacto a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--pacifico);
+}
+.ra-huesped__contacto a:hover {
+  color: var(--ola);
+  text-decoration: underline;
+}
+
+/* Tabla dentro de una tarjeta */
+.tabla-wrap--plana {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0 -1.5rem -1.35rem;
+  border-top: 1px solid var(--linea);
+}
+.tabla-wrap--plana .tabla th:first-child,
+.tabla-wrap--plana .tabla td:first-child {
+  padding-left: 1.5rem;
+}
+.tabla-wrap--plana .tabla th:last-child,
+.tabla-wrap--plana .tabla td:last-child {
+  padding-right: 1.5rem;
+}
+
+/* Linea de tiempo del historial */
+.linea-tiempo {
+  list-style: none;
+  position: relative;
+  padding-left: 1.4rem;
+}
+.linea-tiempo::before {
+  content: "";
+  position: absolute;
+  left: 0.36rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: var(--linea);
+}
+.linea-tiempo li {
+  position: relative;
+  padding-bottom: 1rem;
+}
+.linea-tiempo li:last-child {
+  padding-bottom: 0;
+}
+.linea-tiempo li::before {
+  content: "";
+  position: absolute;
+  left: -1.4rem;
+  top: 0.32rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--superficie);
+  border: 2px solid var(--borde-fuerte);
+}
+.linea-tiempo li.is-estado::before {
+  border-color: var(--ola);
+  background: var(--ola);
+}
+.linea-tiempo li:first-child::before {
+  box-shadow: 0 0 0 4px var(--bruma);
+}
+.linea-tiempo__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+}
+.linea-tiempo__cabecera strong {
+  font-size: 0.9rem;
+  color: var(--tinta);
+}
+.linea-tiempo p {
+  margin-top: 0.2rem;
+  font-size: 0.86rem;
+  color: var(--tinta-2);
+}
+
+/* Cuenta */
+.ra-cuenta__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.ra-cuenta__total span {
+  font-size: 0.85rem;
+  color: var(--tinta-3);
+}
+.ra-cuenta__total strong {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+.ra-progreso {
+  height: 8px;
+  margin: 0.75rem 0 0.25rem;
+  border-radius: 999px;
+  background: var(--espuma);
+  overflow: hidden;
+}
+.ra-progreso span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ok);
+  transition: width 0.3s ease;
+}
+.ra-cuenta .importes {
+  margin: 0.75rem 0 0;
+}
+.ra-cuenta__desglose {
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--borde);
+  font-size: 0.84rem;
+}
+.ra-cuenta__desglose dt,
+.ra-cuenta__desglose dd {
+  color: var(--tinta-3);
+}
+
+/* Pagos y correos */
+.ra-pagos {
+  list-style: none;
+}
+.ra-pagos li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--linea);
+}
+.ra-pagos li:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+.ra-pagos__linea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ra-pagos__linea strong {
+  font-size: 0.88rem;
+}
+.ra-pagos .form-nota {
+  font-size: 0.78rem;
+}
+.ra-pagos__reembolso {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: var(--error-fondo);
+  color: var(--error);
+}
+
+/* Comprobante */
+.ra-comprobante {
+  display: flex;
+  gap: 0.75rem;
+}
+.ra-comprobante > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.ra-comprobante__icono {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ola-suave);
+  color: var(--ola);
+}
+.ra-comprobante .form-nota {
+  font-size: 0.8rem;
+}
+.ra-comprobante__acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+/* ----- Formulario de reserva ----- */
+.form-page.reserva-admin.rf {
+  max-width: none;
+}
+.rf .form-row.form-row--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.rf-principal {
+  gap: 0;
+}
+.rf-buscar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.rf-canal {
+  max-width: 280px;
+}
+.rf .huesped-elegido {
+  flex-wrap: wrap;
+}
+.rf .huesped-elegido > .celda-entidad {
+  flex: 1;
+}
+.rf .lista-huespedes li:first-child {
+  border-top: none;
+}
+.rf-servicios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.6rem;
+}
+.rf-servicios li,
+.rf-servicios li:first-child {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  transition: border-color var(--rapido), background var(--rapido);
+}
+.rf-servicios li.is-elegido {
+  border-color: var(--ola);
+  background: var(--ola-suave);
+}
+.rf-servicios .form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.rf-servicios__nombre {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}
+.rf-servicios__nombre small {
+  font-size: 0.76rem;
+}
+.rf-servicios__precio {
+  font-weight: 700;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+.rf-servicios .servicios-elegibles__detalle {
+  margin: 0.6rem 0 0;
+}
+.rf-servicios .servicios-elegibles__detalle label {
+  min-width: 0;
+  flex: 1 1 110px;
+}
+.rf-extra {
+  max-width: 560px;
+}
+.rf-pasos {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--linea);
+  font-size: 0.86rem;
+  color: var(--tinta-3);
+}
+.rf-pasos li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.rf-pasos li.is-listo {
+  color: var(--tinta);
+  font-weight: 600;
+}
+.rf-pasos__marca {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--borde-fuerte);
+  color: #fff;
+}
+.rf-pasos li.is-listo .rf-pasos__marca {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+.reserva-admin__resumen .btn--block + .btn--block {
+  margin-top: 0.5rem;
+}
+
+/* ----- Verificar comprobante ----- */
+.vc-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.vc-buscar {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0;
+}
+.vc-buscar h3 {
+  margin-bottom: 0 !important;
+}
+.vc-buscar__icono {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--ola-suave);
+  color: var(--ola);
+}
+.vc-buscar__campo input {
+  min-height: 3rem;
+  font-size: 1.05rem;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+.vc-resultado .tarjeta-simple {
+  margin-bottom: 0;
+}
+.vc-resultado .verificar {
+  max-width: none;
+}
+.verificar__veredicto {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.9rem !important;
+}
+.verificar__veredicto > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.verificar__icono {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--ok);
+}
+.verificar__veredicto--mal .verificar__icono {
+  background: var(--error);
+}
+.vc-titular {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.25rem 0 1.1rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 1px solid var(--linea);
+}
+.vc-titular > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.vc-titular > div strong {
+  font-size: 1.1rem;
+}
+.vc-titular__codigo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+.vc-cuenta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.vc-cuenta > div {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radio-sm);
+  background: #f8fbfb;
+  border: 1px solid var(--linea);
+}
+.vc-cuenta span {
+  font-size: 0.78rem;
+  color: var(--tinta-3);
+}
+.vc-cuenta strong {
+  font-size: 1.15rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.vc-cuenta .is-pendiente {
+  background: var(--mango-suave);
+  border-color: #f5dcae;
+}
+.vc-cuenta .is-pendiente strong {
+  color: var(--mango-oscuro);
+}
+.vc-fechas {
+  margin-top: 1rem;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 1100px) {
+  .ra .reserva-admin__grid,
+  .rf .reserva-admin__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ra-lateral {
+    position: static;
+  }
+  .form-row--4,
+  .rf .form-row.form-row--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 860px) {
+  .vc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vc-buscar {
+    position: static;
+  }
+  .ra-datos--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .reservas-lista .pestanas {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .reservas-lista .pestanas button {
+    flex: none;
+  }
+  .ra-cabecera__acciones {
+    width: 100%;
+  }
+  .ra-cabecera__acciones .btn {
+    flex: 1 1 auto;
+  }
+  .ra-pasos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .ra-fechas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ra-fechas__noches {
+    justify-self: start;
+  }
+  .ra-datos,
+  .form-row--3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ra-huesped {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .ra-huesped__contacto {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+  .vc-cuenta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vc-titular {
+    flex-wrap: wrap;
+  }
+  .vc-titular__codigo {
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+  .tabla-wrap--plana {
+    margin: 0 -1.1rem -1.1rem;
+  }
+}

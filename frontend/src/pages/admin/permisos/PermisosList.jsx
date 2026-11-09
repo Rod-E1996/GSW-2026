@@ -1,14 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import Icono from '../../../components/Icono'
+import { EstadoVacio, Indicador } from '../../../components/ui'
+import { accionDe, agruparPorModulo } from '../accesos/comun'
+import '../../../styles/admin-accesos.css'
+
+// Catalogo completo de permisos agrupado por modulo. La API pagina de 15 en 15,
+// asi que se piden todas las paginas para poder agrupar y filtrar sin saltos.
+async function cargarTodos() {
+  const primera = await api.get('/admin/permisos', { params: { page: 1 } })
+  const ultima = primera.data.meta?.last_page || 1
+  const resto = await Promise.all(
+    Array.from({ length: ultima - 1 }, (_, i) => api.get('/admin/permisos', { params: { page: i + 2 } }))
+  )
+  return [primera, ...resto].flatMap((r) => r.data.data)
+}
 
 export default function PermisosList() {
   const { can } = useAuth()
   const [items, setItems] = useState([])
-  const [meta, setMeta] = useState(null)
   const [cargando, setCargando] = useState(true)
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
+  const [filtro, setFiltro] = useState('')
+  const [abiertos, setAbiertos] = useState(new Set())
   const [error, setError] = useState(null)
   const [aviso, setAviso] = useState(null)
 
@@ -19,26 +33,15 @@ export default function PermisosList() {
 
   function cargar() {
     setCargando(true)
-    api
-      .get('/admin/permisos', { params: { search: search || undefined, page } })
-      .then((res) => {
-        setItems(res.data.data)
-        setMeta(res.data.meta)
-      })
+    cargarTodos()
+      .then(setItems)
       .catch(() => setError('No se pudieron cargar los permisos.'))
       .finally(() => setCargando(false))
   }
 
   useEffect(() => {
     cargar()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page])
-
-  function buscar(e) {
-    e.preventDefault()
-    setPage(1)
-    cargar()
-  }
+  }, [])
 
   async function crear(e) {
     e.preventDefault()
@@ -48,9 +51,8 @@ export default function PermisosList() {
     setCreando(true)
     try {
       await api.post('/admin/permisos', { name: nuevo.trim() })
-      setAviso('Permiso creado con éxito.')
+      setAviso(`Permiso «${nuevo.trim()}» creado. Asígnalo a un rol desde Roles › Permisos.`)
       setNuevo('')
-      setPage(1)
       cargar()
     } catch (err) {
       const data = err.response?.data
@@ -73,83 +75,131 @@ export default function PermisosList() {
     }
   }
 
+  function alternar(clave) {
+    setAbiertos((s) => {
+      const n = new Set(s)
+      if (n.has(clave)) n.delete(clave)
+      else n.add(clave)
+      return n
+    })
+  }
+
+  const q = filtro.trim().toLowerCase()
+  const modulos = useMemo(() => {
+    const visibles = items.filter((p) => !q || p.name.toLowerCase().includes(q) || accionDe(p.name).toLowerCase().includes(q))
+    return agruparPorModulo(visibles, (p) => p.name)
+  }, [items, q])
+
+  const sinUso = items.filter((p) => (p.roles_count ?? 0) === 0).length
+
   return (
     <div>
-      <h1 className="page-title">Permisos</h1>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Permisos</h1>
+          <p className="page-sub">Cada acción del sistema tiene un permiso. Se asignan a los roles, no directamente a las personas.</p>
+        </div>
+      </div>
 
       {error && <div className="alerta alerta--error">{error}</div>}
       {aviso && <div className="alerta alerta--ok">{aviso}</div>}
 
-      {puedeGestionar && (
-        <form className="filtros" onSubmit={crear}>
-          <input
-            placeholder="Nombre del nuevo permiso…"
-            value={nuevo}
-            onChange={(e) => setNuevo(e.target.value)}
-          />
-          <button className="btn" disabled={creando}>
-            {creando ? 'Creando…' : '+ Crear permiso'}
-          </button>
-        </form>
+      {!cargando && (
+        <div className="indicadores">
+          <Indicador icono="permisos" etiqueta="Permisos" valor={items.length} />
+          <Indicador icono="cuadricula" tono="azul" etiqueta="Módulos" valor={agruparPorModulo(items, (p) => p.name).length} />
+          <Indicador icono="alerta" tono="mango" etiqueta="Sin asignar a ningún rol" valor={sinUso} nota="se pueden eliminar" />
+        </div>
       )}
 
-      <form className="filtros" onSubmit={buscar}>
-        <input
-          placeholder="Buscar por nombre…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button className="btn btn--ghost">Buscar</button>
-      </form>
+      <div className={puedeGestionar ? 'ac-permisos-barra' : ''}>
+        <div className="filtros">
+          <input
+            className="filtros__busqueda"
+            placeholder="Filtrar por módulo, acción o código…"
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            aria-label="Filtrar permisos"
+          />
+          <button type="button" className="btn btn--ghost" onClick={() => setAbiertos(new Set(modulos.map((m) => m.clave)))}>Expandir todo</button>
+          <button type="button" className="btn btn--ghost" onClick={() => setAbiertos(new Set())}>Contraer</button>
+        </div>
 
-      <div className="tabla-wrap">
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Permiso</th>
-              <th>Roles que lo usan</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargando && (
-              <tr><td colSpan="3" className="tabla__vacio">Cargando…</td></tr>
-            )}
-            {!cargando && items.length === 0 && (
-              <tr><td colSpan="3" className="tabla__vacio">Sin registros.</td></tr>
-            )}
-            {!cargando &&
-              items.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.name}</td>
-                  <td>{p.roles_count ?? 0}</td>
-                  <td className="tabla__acciones">
-                    {puedeGestionar && (
-                      <button
-                        className="btn btn--sm btn--danger"
-                        onClick={() => eliminar(p)}
-                        disabled={(p.roles_count ?? 0) > 0}
-                        title={(p.roles_count ?? 0) > 0 ? 'Está asignado a uno o más roles' : 'Eliminar'}
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        {puedeGestionar && (
+          <form className="filtros ac-nuevo-permiso" onSubmit={crear}>
+            <input
+              placeholder="modulo_accion, p. ej. reporte_exportar"
+              value={nuevo}
+              onChange={(e) => setNuevo(e.target.value.replace(/\s+/g, '_').toLowerCase())}
+              aria-label="Nombre del nuevo permiso"
+            />
+            <button className="btn" disabled={creando || !nuevo.trim()}>
+              <Icono nombre="mas" size={15} /> {creando ? 'Creando…' : 'Crear'}
+            </button>
+          </form>
+        )}
       </div>
 
-      {meta && meta.last_page > 1 && (
-        <div className="paginacion">
-          <button className="btn btn--ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Anterior
-          </button>
-          <span>Página {meta.current_page} de {meta.last_page}</span>
-          <button className="btn btn--ghost" disabled={page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-            Siguiente →
-          </button>
+      {cargando && (
+        <div className="ac-lista-modulos">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="ac-modulo-fila"><span className="esqueleto" /></div>)}
+        </div>
+      )}
+
+      {!cargando && modulos.length === 0 && (
+        <div className="tarjeta-simple">
+          <EstadoVacio icono="permisos" titulo="Ningún permiso coincide" texto="Prueba con otra palabra, por ejemplo «reserva» o «eliminar»." />
+        </div>
+      )}
+
+      {!cargando && modulos.length > 0 && (
+        <div className="ac-lista-modulos">
+          {modulos.map((m) => {
+            const abierto = Boolean(q) || abiertos.has(m.clave)
+            const libres = m.permisos.filter((p) => (p.roles_count ?? 0) === 0).length
+            return (
+              <section key={m.clave} className={`ac-modulo-fila ${abierto ? 'is-abierto' : ''}`}>
+                <button type="button" className="ac-modulo-fila__cabeza" onClick={() => alternar(m.clave)} aria-expanded={abierto}>
+                  <Icono nombre="flecha" size={14} className="ac-modulo-fila__flecha" />
+                  <strong>{m.nombre}</strong>
+                  <span className="form-nota">{m.permisos.length} {m.permisos.length === 1 ? 'permiso' : 'permisos'}</span>
+                  {libres > 0 && <span className="badge badge--aviso">{libres} sin asignar</span>}
+                </button>
+                {abierto && (
+                  <table className="tabla ac-tabla-permisos">
+                    <tbody>
+                      {m.permisos.map((p) => {
+                        const roles = p.roles_count ?? 0
+                        return (
+                          <tr key={p.id}>
+                            <td>{accionDe(p.name)}</td>
+                            <td><code className="ac-codigo">{p.name}</code></td>
+                            <td>
+                              <span className={`badge ${roles ? 'badge--info' : ''}`}>
+                                {roles ? `${roles} ${roles === 1 ? 'rol' : 'roles'}` : 'Sin rol'}
+                              </span>
+                            </td>
+                            <td className="tabla__acciones">
+                              {puedeGestionar && (
+                                <button
+                                  className="btn btn--sm btn--danger"
+                                  onClick={() => eliminar(p)}
+                                  disabled={roles > 0}
+                                  title={roles > 0 ? 'Quítalo primero de los roles que lo usan' : 'Eliminar permiso'}
+                                >
+                                  <Icono nombre="eliminar" size={14} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </section>
+            )
+          })}
         </div>
       )}
     </div>

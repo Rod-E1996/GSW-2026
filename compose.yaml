@@ -51,7 +51,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/"]
       interval: 15s
-      timeout: 5s
+      timeout: 30s          # el bind mount de Windows hace lenta la 1a peticion; 5s se quedaba corto
       retries: 5
       # Holgado: la primera vez entrypoint.sh ejecuta composer install sobre el bind mount.
       start_period: 10m
@@ -89,7 +89,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/"]
       interval: 15s
-      timeout: 5s
+      timeout: 30s
       retries: 5
       start_period: 30s
 

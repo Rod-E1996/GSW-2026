@@ -50,14 +50,4 @@ return [
         ['archivo' => 'img/hotel/04-terraza-mar.jpg',      'titulo' => 'Terraza frente al mar'],
     ],
 
-    //Servicios complementarios que se muestran en el sitio publico.
-    //PENDIENTE: reemplazar por la tabla "servicios" cuando exista ese modulo.
-    'servicios' => [
-        ['icono' => 'bi-cup-hot',        'nombre' => 'Alimentación',          'descripcion' => 'Desayuno, almuerzo y cena en el restaurante o en tu habitación.'],
-        ['icono' => 'bi-basket',         'nombre' => 'Lavandería',            'descripcion' => 'Servicio de lavado y planchado con entrega el mismo día.'],
-        ['icono' => 'bi-car-front',      'nombre' => 'Transporte',            'descripcion' => 'Traslados desde y hacia el aeropuerto y tours por la zona.'],
-        ['icono' => 'bi-people',         'nombre' => 'Salón de eventos',      'descripcion' => 'Espacio para reuniones, celebraciones y bodas frente al mar.'],
-        ['icono' => 'bi-water',          'nombre' => 'Actividades recreativas','descripcion' => 'Clases de surf, kayak y caminatas guiadas.'],
-    ],
-
 ];

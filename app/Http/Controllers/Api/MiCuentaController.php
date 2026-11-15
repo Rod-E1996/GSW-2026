@@ -206,6 +206,9 @@ class MiCuentaController extends Controller
             'cancelada_at' => $r->cancelada_at?->toIso8601String(),
             'motivo_cancelacion' => $r->motivo_cancelacion,
             'cancelacion' => $this->cancelaciones->evaluar($r),
+            //Una estadia finalizada se puede valorar una vez
+            'valoracion' => $r->valoracion?->only(['puntuacion', 'comentario', 'estado', 'respuesta']),
+            'puede_valorar' => (int) $r->estado_reserva === Reserva::FINALIZADA && !$r->valoracion,
         ];
     }
 }

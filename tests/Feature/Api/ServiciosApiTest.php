@@ -55,17 +55,18 @@ class ServiciosApiTest extends ApiTestCase
     public function test_crud_de_categorias()
     {
         $id = $this->como($this->admin())
-            ->postJson('/api/admin/categorias-servicio', ['nombre' => 'Bienestar', 'nombre_en' => 'Wellness', 'orden' => 9])
+            //"Bienestar" ya viene en ServiciosSeeder: se usa una categoria que no existe
+            ->postJson('/api/admin/categorias-servicio', ['nombre' => 'Deportes', 'nombre_en' => 'Sports', 'orden' => 9])
             ->assertCreated()
             ->json('data.id');
 
         $this->como($this->admin())
-            ->postJson('/api/admin/categorias-servicio', ['nombre' => 'Bienestar'])
+            ->postJson('/api/admin/categorias-servicio', ['nombre' => 'Deportes'])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['nombre']);
 
         $this->como($this->admin())
-            ->putJson("/api/admin/categorias-servicio/$id", ['nombre' => 'Bienestar', 'orden' => 2])
+            ->putJson("/api/admin/categorias-servicio/$id", ['nombre' => 'Deportes', 'orden' => 2])
             ->assertOk()
             ->assertJsonPath('data.orden', 2);
 

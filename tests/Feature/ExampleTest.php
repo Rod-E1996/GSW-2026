@@ -14,8 +14,7 @@ class ExampleTest extends TestCase
      */
     public function test_example()
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        //Laravel ya no sirve pantallas: la raiz manda al portal React
+        $this->get('/')->assertRedirect(config('app.frontend_url'));
     }
 }

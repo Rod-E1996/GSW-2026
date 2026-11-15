@@ -153,18 +153,6 @@ class RegistroVerificacionApiTest extends ApiTestCase
             ->assertJsonPath('message', 'Tu correo ya está verificado.');
     }
 
-    public function test_el_registro_por_blade_tambien_manda_el_enlace_del_portal()
-    {
-        $this->post('/register', [
-            'name' => 'Blade Verificar',
-            'email' => 'blade.verificar@test.com',
-            'password' => '12345678',
-            'password_confirmation' => '12345678',
-        ]);
-
-        Notification::assertSentTo(User::where('email', 'blade.verificar@test.com')->firstOrFail(), VerificarCorreoNotification::class);
-    }
-
     public function test_las_cuentas_de_ejemplo_vienen_verificadas()
     {
         $this->assertTrue($this->huesped()->hasVerifiedEmail());

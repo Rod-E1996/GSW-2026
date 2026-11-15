@@ -76,9 +76,11 @@ Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
 });
 
 // ===== Portal publico (sin autenticacion) =====
+Route::get('/hotel', [\App\Http\Controllers\Api\HotelController::class, 'show']);
 Route::get('/tipos-habitacion', [TipoHabitacionController::class, 'index']);
 Route::get('/disponibilidad', [DisponibilidadController::class, 'index']);
 Route::get('/servicios', [ServicioController::class, 'index']);
+Route::get('/valoraciones', [\App\Http\Controllers\Api\ValoracionController::class, 'index']);
 Route::post('/reservas/cotizar', [ReservaController::class, 'cotizar'])->middleware('throttle:60,1');
 
 // ===== Reserva en linea =====
@@ -93,6 +95,7 @@ Route::middleware('auth:sanctum')->prefix('mi-cuenta')->group(function () {
     Route::post('/reservas/{codigo}/cancelar', [MiCuentaController::class, 'cancelar'])->middleware('throttle:10,1');
     Route::post('/reservas/{codigo}/pagar', [MiCuentaController::class, 'pagar'])->middleware(['correo.verificado', 'throttle:10,1']);
     Route::get('/reservas/{codigo}/comprobante', [MiCuentaController::class, 'comprobante'])->middleware('throttle:20,1');
+    Route::post('/reservas/{codigo}/valoracion', [\App\Http\Controllers\Api\ValoracionController::class, 'store'])->middleware('throttle:10,1');
 });
 
 // ===== Pago del anticipo =====
@@ -302,6 +305,26 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         ->middleware('permission:comprobante_verificar,sanctum');
 
     // Parametros del sistema
+    //Reportes
+    Route::get('/reportes', [\App\Http\Controllers\Api\Admin\ReporteController::class, 'index'])
+        ->middleware('permission:reporte_index,sanctum');
+    Route::get('/reportes/pdf', [\App\Http\Controllers\Api\Admin\ReporteController::class, 'pdf'])
+        ->middleware('permission:reporte_exportar,sanctum');
+
+    //Valoraciones
+    Route::get('/valoraciones', [\App\Http\Controllers\Api\Admin\ValoracionController::class, 'index'])
+        ->middleware('permission:valoracion_index,sanctum');
+    Route::put('/valoraciones/{id}', [\App\Http\Controllers\Api\Admin\ValoracionController::class, 'update'])
+        ->middleware('permission:valoracion_moderar,sanctum');
+
+    //Respaldos
+    Route::get('/respaldos', [\App\Http\Controllers\Api\Admin\RespaldoController::class, 'index'])
+        ->middleware('permission:respaldo_index,sanctum');
+    Route::post('/respaldos', [\App\Http\Controllers\Api\Admin\RespaldoController::class, 'store'])
+        ->middleware(['permission:respaldo_store,sanctum', 'throttle:6,1']);
+    Route::get('/respaldos/{id}/descargar', [\App\Http\Controllers\Api\Admin\RespaldoController::class, 'descargar'])
+        ->middleware('permission:respaldo_index,sanctum');
+
     Route::get('/configuraciones', [AdminConfiguracionController::class, 'index'])
         ->middleware('permission:configuracion_index,sanctum');
     Route::put('/configuraciones', [AdminConfiguracionController::class, 'update'])

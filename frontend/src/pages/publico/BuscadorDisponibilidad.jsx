@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api'
 import { hoyEnHotel, sumarDias } from '../../utils'
+import { useIdioma } from '../../i18n'
 
 // Buscador del portal: lo usan la pagina de inicio y la pantalla de resultados.
 export default function BuscadorDisponibilidad({ inicial = {}, onBuscar }) {
+  const { t, campo } = useIdioma()
   const hoy = hoyEnHotel()
 
   const [form, setForm] = useState({
@@ -35,11 +37,11 @@ export default function BuscadorDisponibilidad({ inicial = {}, onBuscar }) {
   function onSubmit(e) {
     e.preventDefault()
     if (!form.llegada || !form.salida) {
-      setError('Indica las fechas de llegada y de salida.')
+      setError(t('bus.error_fechas'))
       return
     }
     if (form.salida <= form.llegada) {
-      setError('La salida debe ser posterior a la llegada.')
+      setError(t('bus.error_orden'))
       return
     }
     setError(null)
@@ -49,11 +51,11 @@ export default function BuscadorDisponibilidad({ inicial = {}, onBuscar }) {
   return (
     <form className="buscador" onSubmit={onSubmit}>
       <label>
-        Llegada
+        {t('bus.llegada')}
         <input type="date" min={hoy} value={form.llegada} onChange={(e) => cambiarLlegada(e.target.value)} />
       </label>
       <label>
-        Salida
+        {t('bus.salida')}
         <input
           type="date"
           min={form.llegada ? sumarDias(form.llegada, 1) : sumarDias(hoy, 1)}
@@ -62,7 +64,7 @@ export default function BuscadorDisponibilidad({ inicial = {}, onBuscar }) {
         />
       </label>
       <label>
-        Huéspedes
+        {t('bus.huespedes')}
         <input
           type="number"
           min="1"
@@ -72,15 +74,15 @@ export default function BuscadorDisponibilidad({ inicial = {}, onBuscar }) {
         />
       </label>
       <label>
-        Tipo de habitación
+        {t('bus.tipo')}
         <select value={form.tipo_habitacion_id} onChange={(e) => set('tipo_habitacion_id', e.target.value)}>
-          <option value="">Todos</option>
-          {tipos.map((t) => (
-            <option key={t.id} value={t.id}>{t.nombre}</option>
+          <option value="">{t('bus.todos')}</option>
+          {tipos.map((tipo) => (
+            <option key={tipo.id} value={tipo.id}>{campo(tipo, 'nombre')}</option>
           ))}
         </select>
       </label>
-      <button className="btn">Buscar</button>
+      <button className="btn">{t('bus.buscar')}</button>
       {error && <p className="buscador__error">{error}</p>}
     </form>
   )

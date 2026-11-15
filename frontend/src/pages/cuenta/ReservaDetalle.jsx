@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../../api'
 import { descargar, fechaCorta, formatoUSD, irAPasarela } from '../../utils'
 import { COLOR_ESTADO } from './MisReservas'
+import ValorarEstadia from './ValorarEstadia'
 
 function fechaHora(iso) {
   return iso ? new Date(iso).toLocaleString('es-SV', { dateStyle: 'short', timeStyle: 'short' }) : '—'
@@ -211,6 +212,8 @@ export default function ReservaDetalle() {
           </ul>
         </section>
       )}
+
+      <ValorarEstadia reserva={reserva} />
 
       <section className="tarjeta-simple">
         <h3>Historial</h3>

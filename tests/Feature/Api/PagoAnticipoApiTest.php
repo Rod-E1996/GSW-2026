@@ -491,7 +491,7 @@ class PagoAnticipoApiTest extends ApiTestCase
         $huesped = $this->huesped();
         $llegada = '2041-08-01';
 
-        $this->como($huesped)->postJson('/api/reservas', [
+        $codigo = $this->como($huesped)->postJson('/api/reservas', [
             'habitacion_id' => $this->habitacion->id,
             'fecha_llegada' => $llegada,
             'fecha_salida' => '2041-08-03',
@@ -501,9 +501,13 @@ class PagoAnticipoApiTest extends ApiTestCase
             'tipo_documento' => 'DUI',
             'documento' => '01234567-8',
             'telefono' => '70000000',
-        ])->assertCreated();
+        ])->assertCreated()->json('data.codigo');
 
+        //Solo los avisos de esta reserva: la cuenta de prueba ya trae reservas de los datos de demostracion
         Mail::assertSent(ReservaRegistradaMail::class, 1);
-        $this->assertSame(1, Notificacion::where('tipo', Notificacion::REGISTRO)->where('user_id', $huesped->id)->count());
+        $this->assertSame(1, Notificacion::where('tipo', Notificacion::REGISTRO)
+            ->where('user_id', $huesped->id)
+            ->where('reserva_id', Reserva::where('codigo', $codigo)->value('id'))
+            ->count());
     }
 }

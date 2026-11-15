@@ -21,6 +21,14 @@ export const MENU = [
     ],
   },
   {
+    grupo: 'Gestión',
+    items: [
+      { label: 'Reportes', path: '/panel/reportes', permiso: 'reporte_index', icon: 'ocupacion' },
+      { label: 'Valoraciones', path: '/panel/valoraciones', permiso: 'valoracion_index', icon: 'check' },
+      { label: 'Respaldos', path: '/panel/respaldos', permiso: 'respaldo_index', icon: 'descargar' },
+    ],
+  },
+  {
     grupo: 'Accesos',
     items: [
       { label: 'Usuarios', path: '/panel/usuarios', permiso: 'usuario_index', icon: 'usuarios' },

@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { SelectorIdioma, useIdioma } from '../i18n'
 
 // Barra superior de las paginas publicas y de Mi cuenta.
 export default function BarraPublica() {
   const { user, logout } = useAuth()
+  const { t } = useIdioma()
   const navigate = useNavigate()
 
   async function salir() {
@@ -17,11 +19,12 @@ export default function BarraPublica() {
         hotel<span className="brand__accent">link</span>
       </Link>
       <nav className="barra-publica__nav">
-        {user?.acceso_panel && <Link to="/panel" className="barra-publica__login">Panel</Link>}
-        <Link to="/mi-cuenta" className="barra-publica__login">Mi cuenta</Link>
+        <SelectorIdioma />
+        {user?.acceso_panel && <Link to="/panel" className="barra-publica__login">{t('barra.panel')}</Link>}
+        <Link to="/mi-cuenta" className="barra-publica__login">{t('barra.cuenta')}</Link>
         {user && (
           <button type="button" className="barra-publica__salir" onClick={salir}>
-            Salir
+            {t('barra.salir')}
           </button>
         )}
       </nav>

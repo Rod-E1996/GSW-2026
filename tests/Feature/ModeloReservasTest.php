@@ -207,21 +207,14 @@ class ModeloReservasTest extends TestCase
         $this->assertSame('Ana María Pérez', $ficha->nombre_completo);
     }
 
-    public function test_el_registro_por_blade_tambien_crea_la_ficha()
-    {
-        $this->post('/register', [
-            'name' => 'Blade Huésped',
-            'email' => 'blade.huesped@test.com',
-            'password' => '12345678',
-            'password_confirmation' => '12345678',
-        ]);
-
-        $this->assertNotNull(User::where('email', 'blade.huesped@test.com')->firstOrFail()->huesped);
-    }
-
     public function test_registrarse_con_un_correo_ajeno_no_da_acceso_a_sus_reservas()
     {
-        $ficha = Reserva::firstOrFail()->huesped;
+        //Una ficha con correo y sin cuenta (los datos de demostracion tambien traen huespedes con cuenta)
+        $ficha = Reserva::whereHas('huesped', fn ($q) => $q->whereNull('user_id')
+            ->whereNotNull('email')
+            ->whereNotIn('email', User::select('email')))
+            ->firstOrFail()
+            ->huesped;
 
         $this->postJson('/api/register', [
             'nombres' => 'Persona',

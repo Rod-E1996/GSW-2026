@@ -1,19 +1,23 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// El dev server corre dentro de un contenedor Node.
-// Proxy interno: /api y /storage van al contenedor "app" (Laravel) por la red de Docker,
-// asi el navegador solo habla con el front y no hay problemas de CORS.
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    host: true,
-    port: 5173,
-    // El bind-mount en Windows/Docker necesita polling para que el HMR detecte cambios
-    watch: { usePolling: true },
-    proxy: {
-      '/api': { target: 'http://back', changeOrigin: true },
-      '/storage': { target: 'http://back', changeOrigin: true },
+// Proxy: /api y /storage van a Laravel, asi el navegador solo habla con el front y no hay problemas de CORS.
+// Por defecto apunta al contenedor "back" (Docker). Fuera de Docker (Herd, XAMPP) se define
+// API_PROXY_TARGET en frontend/.env.local, por ejemplo: API_PROXY_TARGET=http://gsw-2026.test
+export default defineConfig(({ mode }) => {
+  const target = loadEnv(mode, process.cwd(), '').API_PROXY_TARGET || 'http://back'
+
+  return {
+    plugins: [react()],
+    server: {
+      host: true,
+      port: 5173,
+      // El bind-mount en Windows/Docker necesita polling para que el HMR detecte cambios
+      watch: { usePolling: true },
+      proxy: {
+        '/api': { target, changeOrigin: true },
+        '/storage': { target, changeOrigin: true },
+      },
     },
-  },
+  }
 })

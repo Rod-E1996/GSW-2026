@@ -23,6 +23,7 @@ class ServicioController extends Controller
             'data' => $servicios->map(fn (Servicio $s) => [
                 'id' => $s->id,
                 'categoria' => $s->categoria->nombre,
+                'categoria_en' => $s->categoria->nombre_en,
                 'nombre' => $s->nombre,
                 'nombre_en' => $s->nombre_en,
                 'descripcion' => $s->descripcion,

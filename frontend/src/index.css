@@ -2996,3 +2996,247 @@ fieldset {
     padding: 2rem 1rem 3rem;
   }
 }
+
+/* ===== Portada: navegacion y secciones de servicios, galeria y contacto ===== */
+.hero__top {
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+.hero__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0 auto 0 1rem;
+}
+.hero__nav a {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.hero__nav a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.portal-seccion {
+  scroll-margin-top: 1.5rem;
+}
+.portal-seccion + .portal-seccion {
+  margin-top: 3.5rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--linea);
+}
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.servicio-item,
+.contacto-card {
+  padding: 1.1rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
+}
+.servicio-item__categoria,
+.contacto-lista strong {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ola);
+}
+.servicio-item h3,
+.contacto-card h3 {
+  margin-top: 0.2rem;
+  font-size: 1.05rem;
+  color: var(--tinta);
+}
+.servicio-item p,
+.contacto-card > p {
+  margin: 0.3rem 0 0.6rem;
+  font-size: 0.9rem;
+  color: var(--tinta-2);
+}
+.servicio-item__precio {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pacifico);
+}
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.galeria-item {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radio);
+}
+.galeria-item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.galeria-item span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+.contacto-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+.contacto-lista {
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+}
+.contacto-lista li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow-wrap: anywhere;
+}
+.contacto-lista a {
+  color: var(--pacifico);
+  font-weight: 600;
+}
+.contacto-card__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+@media (max-width: 860px) {
+  .hero__nav {
+    order: 3;
+    width: 100%;
+    margin: 0;
+  }
+  .contacto-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ===== Reportes: grafico de ocupacion por dia ===== */
+.grafico-ocupacion {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 160px;
+  padding-top: 0.5rem;
+  border-bottom: 1px solid var(--borde-fuerte);
+  background: repeating-linear-gradient(to top, var(--linea) 0 1px, transparent 1px 25%);
+}
+.grafico-ocupacion__dia {
+  flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.grafico-ocupacion__dia span {
+  width: 100%;
+  max-width: 24px;
+  background: var(--ola);
+  border-radius: 4px 4px 0 0;
+}
+.grafico-ocupacion__dia:hover span {
+  filter: brightness(1.15);
+}
+.grafico-ocupacion__eje {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--tinta-3);
+}
+
+/* ===== Valoraciones ===== */
+.valorar__estrellas {
+  color: var(--mango);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+.valorar form {
+  display: grid;
+  gap: 0.6rem;
+}
+.valorar__selector button {
+  padding: 0 0.15rem;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--borde-fuerte);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.valorar__selector button.is-activa {
+  color: var(--mango);
+}
+.valorar__respuesta {
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.88rem;
+  background: var(--bruma);
+  border-radius: var(--radio-sm);
+}
+.valoraciones-lista {
+  display: grid;
+  gap: 1rem;
+}
+.valoracion-item {
+  display: grid;
+  gap: 0.5rem;
+}
+.valoracion-item__cabecera,
+.valoracion-item__acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.valoracion-item__cabecera {
+  justify-content: space-between;
+}
+
+/* ===== Selector de idioma ES | EN (portada y barra publica) ===== */
+.hero__acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.selector-idioma {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radio-sm);
+}
+.selector-idioma button {
+  min-width: 2.2rem;
+  padding: 0.25rem 0.45rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radio-xs);
+  cursor: pointer;
+}
+.selector-idioma button.is-activo {
+  color: var(--pacifico);
+  background: #fff;
+}

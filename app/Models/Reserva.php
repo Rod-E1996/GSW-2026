@@ -230,6 +230,11 @@ class Reserva extends Model
             ->orderByDesc('version');
     }
 
+    public function valoracion()
+    {
+        return $this->hasOne(Valoracion::class, 'reserva_id', 'id');
+    }
+
     public function notificaciones()
     {
         return $this->hasMany(Notificacion::class, 'reserva_id', 'id')->orderBy('id');

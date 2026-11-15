@@ -16,8 +16,9 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
+        //Laravel ya no tiene pantalla de inicio de sesion: se manda al login del portal
         if (! $request->expectsJson()) {
-            return route('login');
+            return rtrim(config('app.frontend_url'), '/') . '/login';
         }
     }
 

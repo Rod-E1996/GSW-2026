@@ -30,8 +30,15 @@ class DatabaseSeeder extends Seeder
         	ValoracionesSeeder::class,
         	ActividadSistemaSeeder::class,
         	EjemplosSeeder::class,
-        	//Siempre al final: el respaldo inicial vuelca todo lo anterior
-        	RespaldosSeeder::class,
         ]);
+
+        //Garantia: el Super Administrador queda con todos los permisos que existan,
+        //sin importar el orden de los seeders o los modulos que se agreguen despues
+        \Spatie\Permission\Models\Role::where('name', 'Super Administrador')->first()
+            ?->syncPermissions(\Spatie\Permission\Models\Permission::all());
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        //Siempre al final: el respaldo inicial vuelca todo lo anterior
+        $this->call(RespaldosSeeder::class);
     }
 }

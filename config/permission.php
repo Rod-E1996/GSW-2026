@@ -156,6 +156,9 @@ return [
          * file. Using 'default' here means to use the `default` set in cache.php.
          */
 
-        'store' => 'default',
+        //'array' = cache solo durante la peticion. Con la cache de archivo (24 h) un
+        //migrate:fresh --seed dejaba al panel con permisos viejos: el web (www-data) y la
+        //consola escriben la cache con dueños distintos y el seeder no siempre la borraba.
+        'store' => env('PERMISSION_CACHE_STORE', 'array'),
     ],
 ];

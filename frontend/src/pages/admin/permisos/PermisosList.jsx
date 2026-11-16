@@ -166,7 +166,7 @@ export default function PermisosList() {
                   {libres > 0 && <span className="badge badge--aviso">{libres} sin asignar</span>}
                 </button>
                 {abierto && (
-                  <table className="tabla ac-tabla-permisos">
+                  <table className="tabla tabla--fija ac-tabla-permisos">
                     <tbody>
                       {m.permisos.map((p) => {
                         const roles = p.roles_count ?? 0

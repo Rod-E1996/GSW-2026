@@ -13,8 +13,15 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthApiTest extends ApiTestCase
 {
-    private function credenciales(string $email = 'admin@gmail.com', string $password = '12345678'): array
+    //Sin contrasena usa la que los seeders le dan a esa cuenta segun su rol
+    private function credenciales(string $email = 'admin@gmail.com', ?string $password = null): array
     {
+        $password ??= match ($email) {
+            'recepcion@hotellink.com' => \Database\Seeders\ContrasenasDemo::RECEPCION,
+            'huesped@hotellink.com' => \Database\Seeders\ContrasenasDemo::HUESPED,
+            default => \Database\Seeders\ContrasenasDemo::ADMIN,
+        };
+
         return ['email' => $email, 'password' => $password];
     }
 
@@ -234,7 +241,7 @@ class AuthApiTest extends ApiTestCase
             'password_confirmation' => 'corta',
         ])->assertStatus(422)->assertJsonValidationErrors('password');
 
-        $this->assertTrue(Hash::check('12345678', $admin->fresh()->password));
+        $this->assertTrue(Hash::check(\Database\Seeders\ContrasenasDemo::ADMIN, $admin->fresh()->password));
     }
 
     public function test_cors_solo_autoriza_al_portal()

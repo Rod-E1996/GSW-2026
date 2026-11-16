@@ -50,7 +50,7 @@ export default function RespaldosList() {
         {can('respaldo_store') && (
           <div className="page-head__acciones">
             <button type="button" className="btn" onClick={generar} disabled={generando}>
-              {generando ? 'Generando…' : '+ Generar respaldo'}
+              {generando ? 'Generando…' : <><Icono nombre="mas" size={16} /> Generar respaldo</>}
             </button>
           </div>
         )}
@@ -64,16 +64,16 @@ export default function RespaldosList() {
             <tr><th>Fecha</th><th>Archivo</th><th>Tamaño</th><th>Origen</th><th>Generado por</th><th></th></tr>
           </thead>
           <tbody>
-            {respaldos === null && <tr><td colSpan="6">Cargando…</td></tr>}
-            {respaldos?.length === 0 && <tr><td colSpan="6">Todavía no hay respaldos.</td></tr>}
+            {respaldos === null && <tr><td colSpan="6" className="tabla__vacio">Cargando…</td></tr>}
+            {respaldos?.length === 0 && <tr><td colSpan="6" className="tabla__vacio">Todavía no hay respaldos.</td></tr>}
             {respaldos?.map((r) => (
               <tr key={r.id}>
-                <td>{fechaHora(r.fecha)}</td>
-                <td>{r.archivo}</td>
-                <td>{tamano(r.tamano)}</td>
+                <td className="celda-sin-corte">{fechaHora(r.fecha)}</td>
+                <td className="celda-sin-corte">{r.archivo}</td>
+                <td className="celda-sin-corte">{tamano(r.tamano)}</td>
                 <td>{r.origen === 'programado' ? 'Automático' : 'Manual'}</td>
                 <td>{r.usuario || '—'}</td>
-                <td>
+                <td className="tabla__acciones">
                   <button type="button" className="btn btn--ghost btn--sm" onClick={() => descargar(api, `/admin/respaldos/${r.id}/descargar`, r.archivo)}>
                     <Icono nombre="descargar" size={15} /> Descargar
                   </button>

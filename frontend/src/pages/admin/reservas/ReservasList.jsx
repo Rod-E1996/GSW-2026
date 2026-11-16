@@ -124,7 +124,7 @@ export default function ReservasList() {
       <form className="filtros" onSubmit={buscar}>
         <input
           className="filtros__busqueda"
-          placeholder="Código, documento, correo, teléfono, nombre o QR…"
+          placeholder="Código, nombre, documento, teléfono o QR…"
           value={filtros.q}
           onChange={(e) => setFiltro('q', e.target.value)}
           aria-label="Buscar reserva"

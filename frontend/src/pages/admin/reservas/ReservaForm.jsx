@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../../../api'
 import { fechaCorta, formatoUSD, hoyEnHotel, sumarDias } from '../../../utils'
@@ -303,7 +303,9 @@ export default function ReservaForm() {
                     <div>
                       <strong>{huesped.nombre_completo}</strong>
                       <small>
-                        {[huesped.tipo_documento && `${huesped.tipo_documento} ${huesped.documento || ''}`, huesped.email, huesped.telefono].filter(Boolean).join(' · ')}
+                        {[huesped.tipo_documento && `${huesped.tipo_documento} ${huesped.documento || ''}`, huesped.email, huesped.telefono]
+                          .filter(Boolean)
+                          .map((dato, i) => <Fragment key={i}>{i > 0 && ' · '}<span className="dato-junto">{dato}</span></Fragment>)}
                       </small>
                     </div>
                   </div>

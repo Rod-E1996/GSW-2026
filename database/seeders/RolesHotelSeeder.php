@@ -69,7 +69,7 @@ class RolesHotelSeeder extends Seeder
         'perfil_cerrar_session',
     ];
 
-    //Usuarios de prueba, uno por rol (contraseña: 12345678)
+    //Usuarios de prueba, uno por rol (contraseñas en ContrasenasDemo)
     public static $usuariosPrueba = [
         ['name' => 'Recepción Hotel',     'email' => 'recepcion@hotellink.com',     'rol' => 'Recepcionista'],
         ['name' => 'Huésped de Prueba',   'email' => 'huesped@hotellink.com',       'rol' => 'Huésped'],
@@ -94,7 +94,7 @@ class RolesHotelSeeder extends Seeder
                 ['email' => $datos['email']],
                 [
                     'name' => $datos['name'],
-                    'password' => Hash::make('12345678'),
+                    'password' => Hash::make(ContrasenasDemo::paraRol($datos['rol'])),
                 ]
             );
 

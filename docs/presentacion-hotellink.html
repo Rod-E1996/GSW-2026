@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demostración HotelLink</title>
+<style>
+:root {
+  --bg: #f3f6f7; --card: #ffffff; --fg: #11262d; --muted: #5b6f75; --line: #d5e0e3; --chip: #e8eff1;
+  --admin: #0b6e72; --recep: #b5651d; --huesped: #6a4fb3;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1a1e; --card: #142529; --fg: #e3eef0; --muted: #94abb1; --line: #24393e; --chip: #1c3237;
+    --admin: #4fc3c7; --recep: #e59a55; --huesped: #a993ea; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 32px 16px 48px; background: var(--bg); color: var(--fg);
+  font: 16px/1.5 "Segoe UI", system-ui, sans-serif; }
+.wrap { max-width: 1100px; margin: 0 auto; }
+h1 { margin: 0 0 4px; font-size: 30px; }
+.sub { margin: 0 0 24px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--c);
+  border-radius: 12px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.num { font-size: 13px; color: var(--muted); }
+.card h2 { margin: 0; font-size: 24px; }
+.rol { color: var(--c); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; }
+.cred { background: var(--chip); border-radius: 8px; padding: 10px 12px; font-family: Consolas, ui-monospace, monospace; font-size: 14px; }
+.cred div { overflow-wrap: anywhere; }
+.cred span { color: var(--muted); font-family: "Segoe UI", system-ui, sans-serif; font-size: 12px; display: block; }
+ol { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+li b { font-weight: 600; }
+li small { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
+.nota { margin-top: 24px; color: var(--muted); font-size: 14px; }
+code { font-family: Consolas, ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Demostración HotelLink</h1>
+  <p class="sub">4 minutos por persona · solo mostrar, sin crear registros · <code>https://hotellink.fastcode.store/</code></p>
+
+  <div class="grid">
+    <div class="card" style="--c: var(--admin)">
+      <div class="num">1 · 4 min</div>
+      <h2>Nancy</h2>
+      <div class="rol">Administrador</div>
+      <div class="cred"><span>Correo</span><div>admin@gmail.com</div><span>Contraseña</span><div>Admin#26</div></div>
+      <ol>
+        <li><b>Tipos de habitación</b><small>Sencilla, Doble, Suite y Familiar, con fotos, capacidad y precio base.</small></li>
+        <li><b>Habitaciones y bloqueos</b><small>Cada habitación con su estado; los bloqueos la sacan de venta por mantenimiento.</small></li>
+        <li><b>Servicios</b><small>Lo que el huésped puede agregar: alimentación, masajes, lavandería y actividades.</small></li>
+        <li><b>Configuración del hotel</b><small>Anticipo, impuestos y política de cancelación que se aplican solos a cada reserva.</small></li>
+        <li><b>Usuarios</b><small>El personal y los huéspedes con cuenta; se pueden activar o desactivar.</small></li>
+      </ol>
+    </div>
+
+    <div class="card" style="--c: var(--admin)">
+      <div class="num">2 · 4 min</div>
+      <h2>Alexis</h2>
+      <div class="rol">Administrador</div>
+      <div class="cred"><span>Correo</span><div>gerencia@hotellink.com</div><span>Contraseña</span><div>Admin#26</div></div>
+      <ol>
+        <li><b>Tarifas y temporadas</b><small>Precios que cambian según la temporada alta o baja.</small></li>
+        <li><b>Reportes</b><small>Ocupación por día y servicios más solicitados para tomar decisiones.</small></li>
+        <li><b>Valoraciones de huéspedes</b><small>Todas las opiniones que dejan los clientes al terminar su estadía.</small></li>
+        <li><b>Roles y permisos</b><small>Qué puede hacer cada rol; por eso recepción y huésped ven menos opciones.</small></li>
+        <li><b>Sesiones</b><small>Quién está conectado y desde dónde; se puede cerrar una sesión.</small></li>
+        <li><b>Auditoría</b><small>Registro de quién cambió qué y cuándo.</small></li>
+      </ol>
+    </div>
+
+    <div class="card" style="--c: var(--recep)">
+      <div class="num">3 · 4 min</div>
+      <h2>Alejandro</h2>
+      <div class="rol">Recepcionista</div>
+      <div class="cred"><span>Correo</span><div>recepcion@hotellink.com</div><span>Contraseña</span><div>Recep#26</div></div>
+      <ol>
+        <li><b>Panel del día</b><small>Lo primero que ve recepción: quién llega hoy, quién sale y las próximas llegadas.</small></li>
+        <li><b>Reservas</b><small>Listado con filtros por estado y canal (web, teléfono, presencial).</small></li>
+        <li><b>Calendario de ocupación</b><small>Qué habitaciones están ocupadas cada día, de un vistazo.</small></li>
+        <li><b>Reserva en estadía (solo señalar)</b><small>Los botones para registrar la llegada, la salida y cargar consumos a la cuenta.</small></li>
+        <li><b>Pagos y comprobante PDF</b><small>Lo pagado, lo pendiente y el comprobante que se descarga.</small></li>
+        <li><b>Verificar comprobante (QR)</b><small>Confirmar que el comprobante del huésped es válido.</small></li>
+      </ol>
+    </div>
+
+    <div class="card" style="--c: var(--huesped)">
+      <div class="num">4 · 4 min</div>
+      <h2>Rodrigo</h2>
+      <div class="rol">Huésped</div>
+      <div class="cred"><span>Correo</span><div>huesped@hotellink.com</div><span>Contraseña</span><div>Guest#26</div></div>
+      <ol>
+        <li><b>Portal público e idioma ES/EN</b><small>La página del hotel: habitaciones, servicios, opiniones, galería y contacto.</small></li>
+        <li><b>Buscar disponibilidad y precios</b><small>Elegir fechas y ver qué habitaciones hay libres y cuánto cuestan.</small></li>
+        <li><b>Mis reservas</b><small>Todas sus reservas y el estado de cada una: confirmada, pendiente, finalizada o cancelada.</small></li>
+        <li><b>Detalle de una reserva</b><small>Cómo ve el cliente su estadía, lo que pagó y su historial.</small></li>
+        <li><b>Valorar la estadía</b><small>Dónde el cliente deja su opinión al terminar.</small></li>
+        <li><b>Mi perfil</b><small>Sus datos personales y el cambio de contraseña.</small></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

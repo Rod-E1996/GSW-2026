@@ -36,11 +36,10 @@ use Illuminate\Support\Str;
  * a mano para que parezcan reales y la auditoria no se llena con la carga inicial.
  * Solo corre si la tabla de reservas esta vacia.
  *
- * Todas las cuentas usan la contrasena 12345678.
+ * Las contrasenas son las de ContrasenasDemo, segun el rol de cada cuenta.
  */
 class DemoHotelSeeder extends Seeder
 {
-    const PASSWORD = '12345678';
 
     //Dias de historia y de reservas futuras alrededor de hoy
     const DIAS_ATRAS = 180;
@@ -191,7 +190,7 @@ class DemoHotelSeeder extends Seeder
         $user->fill([
             'name' => $nombre,
             'phone' => $telefono,
-            'password' => Hash::make(self::PASSWORD),
+            'password' => Hash::make(ContrasenasDemo::paraRol($rol)),
             'idioma' => $idioma,
             'estado' => $estado,
         ]);
@@ -307,7 +306,9 @@ class DemoHotelSeeder extends Seeder
                 'descripcion' => $descripcion,
                 'user_id' => $this->gerencia?->id,
             ]);
-            $bloqueo->created_at = $inicio->copy()->subDays(mt_rand(3, 15))->setTime(9, 30);
+            //Un bloqueo futuro se registro hace poco, nunca despues de hoy
+            $bloqueo->created_at = $inicio->copy()->subDays(mt_rand(3, 15))->setTime(9, 30)
+                ->min($this->ahora->copy()->subHours(mt_rand(2, 72)));
             $bloqueo->save();
 
             for ($d = $inicio->copy(); $d->lte($fin); $d->addDay()) {

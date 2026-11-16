@@ -26,7 +26,12 @@ class DatabaseSeeder extends Seeder
         	HabitacionesSeeder::class,
         	ServiciosSeeder::class,
         	TemporadasSeeder::class,
-        	DemoHotelSeeder::class
+        	DemoHotelSeeder::class,
+        	ValoracionesSeeder::class,
+        	ActividadSistemaSeeder::class,
+        	EjemplosSeeder::class,
+        	//Siempre al final: el respaldo inicial vuelca todo lo anterior
+        	RespaldosSeeder::class,
         ]);
     }
 }

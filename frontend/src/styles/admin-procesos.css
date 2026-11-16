@@ -177,8 +177,16 @@
   .pr-busqueda {
     flex-basis: 100%;
   }
+  /* El titulo ocupa todo el ancho; la etiqueta de estado baja debajo, alineada con el texto */
   .pr-proceso__cabecera {
     flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+  .pr-proceso__titulo {
+    flex: 1 1 calc(100% - 3.25rem);
+  }
+  .pr-proceso__cabecera > .badge {
+    margin-left: 3.1rem;
   }
   .pr-proceso__datos {
     flex-direction: column;

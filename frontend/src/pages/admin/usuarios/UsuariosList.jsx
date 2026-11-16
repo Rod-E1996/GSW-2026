@@ -184,7 +184,7 @@ export default function UsuariosList() {
                     )}
                     {can('usuario_estado') && (
                       <button
-                        className={`btn btn--sm ${u.estado === 1 ? 'btn--danger' : 'btn--ghost'}`}
+                        className={`btn btn--sm ac-btn-estado ${u.estado === 1 ? 'btn--danger' : 'btn--ghost'}`}
                         onClick={() => cambiarEstado(u)}
                       >
                         {u.estado === 1 ? 'Desactivar' : 'Activar'}

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Obra HotelLink</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: el proyecto como un hotel en obra. Cada piso es una fase, cada ventana un requisito, y su nivel de luz el avance real. */
+:root{
+  --bg:#EDF3F2; --surface:#F9FBFA; --fg:#14302F; --muted:#526A68; --line:#C8D7D4;
+  --accent:#0B6B66; --accent-fg:#FFFFFF; --lit:#E9A21B; --unlit:#D9E4E2; --facade:#DCE7E5;
+  --ok:#17744B; --warn:#99600A; --bad:#B23A2C; --sand:#D9C49A; --sea:#6FA9A8;
+  --display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1B1F; --surface:#142529; --fg:#E5F0EE; --muted:#9DB4B1; --line:#2B4247;
+  --accent:#57C4BB; --accent-fg:#06211F; --lit:#F2B134; --unlit:#25393E; --facade:#1A2E33;
+  --ok:#5BCB95; --warn:#E9B45A; --bad:#F08B7C; --sand:#6E5F3F; --sea:#2C5F63; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1B1F; --surface:#142529; --fg:#E5F0EE; --muted:#9DB4B1; --line:#2B4247;
+  --accent:#57C4BB; --accent-fg:#06211F; --lit:#F2B134; --unlit:#25393E; --facade:#1A2E33;
+  --ok:#5BCB95; --warn:#E9B45A; --bad:#F08B7C; --sand:#6E5F3F; --sea:#2C5F63; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 15px/1.5 var(--body)}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+code,.mono{font-family:var(--mono);font-size:.84em}
+code{overflow-wrap:anywhere}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.top{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:end}
+.top h1{font-size:clamp(30px,4.6vw,46px);font-weight:700}
+.lede{max-width:60ch;color:var(--muted);margin-top:10px}
+.here{margin-top:14px;display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:600}
+.here b{background:var(--accent);color:var(--accent-fg);border-radius:4px;padding:2px 9px;font:500 13px var(--mono)}
+.score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.big{font:700 clamp(62px,9vw,92px)/.9 var(--display);font-variant-numeric:tabular-nums}
+.big small{font-size:.42em}
+.tally{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.tally li{display:flex;gap:9px;align-items:center;font-variant-numeric:tabular-nums}
+.tally b{min-width:2ch;text-align:right}
+
+.mini{width:13px;height:16px;flex:none;border:1.5px solid var(--muted);border-radius:2px 2px 0 0;background:linear-gradient(to top,var(--lit) var(--p,0%),var(--unlit) var(--p,0%))}
+
+.bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 36px;border-block:1px solid var(--line);padding-block:16px}
+.bars h2{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.bar{display:grid;grid-template-columns:7.2rem minmax(0,1fr) 3rem;gap:9px;align-items:center;margin-top:5px}
+.track{height:9px;background:var(--unlit);border-radius:2px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent)}
+.bar span:last-child{text-align:right;font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+.tabs button{background:none;border:0;padding:9px 14px;margin-bottom:-2px;border-bottom:2px solid transparent;cursor:pointer;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-color:var(--accent)}
+.tabs button:hover{color:var(--fg)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:13.5px;display:inline-flex;gap:6px;align-items:center}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.chip-gap{width:12px}
+
+.obra{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;margin-top:14px}
+.hotel{min-width:0}
+.sign{display:flex;justify-content:center}
+.sign span{font:700 15px var(--display);letter-spacing:.18em;background:var(--fg);color:var(--bg);padding:3px 16px 2px;border-radius:3px 3px 0 0}
+.floors{background:var(--facade);border:2px solid var(--fg);border-bottom:0}
+.floor{display:grid;grid-template-columns:48px minmax(0,1fr);border-top:1px solid var(--line)}
+.floor:first-child{border-top:0}
+.shaft{border-right:2px solid var(--fg);display:flex;align-items:center;justify-content:center;font:500 13px var(--mono);color:var(--muted);background:var(--surface);padding:5px 2px}
+.floor.now .shaft{background:var(--accent);color:var(--accent-fg);font-weight:500}
+.room-area{padding:9px 12px 11px;min-width:0}
+.fl-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:7px}
+.fl-head h3{font-size:15px;font-weight:700}
+.fl-head .here-tag{font:500 11px var(--mono);color:var(--accent);margin-left:6px;white-space:nowrap}
+.fl-head span.pct{font:500 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:7px}
+.room{background:none;border:0;padding:0;cursor:pointer;display:grid;gap:2px;justify-items:center;transition:opacity .12s}
+.window{width:100%;max-width:44px;height:36px;border:2px solid var(--fg);border-radius:3px 3px 0 0;background:linear-gradient(to top,var(--lit) var(--p),var(--unlit) var(--p));position:relative}
+.room .num{font:400 11px var(--mono);color:var(--muted)}
+.room[aria-pressed="true"] .window{outline:3px solid var(--accent);outline-offset:2px}
+.room[aria-pressed="true"] .num{color:var(--fg);font-weight:500}
+.room.dim{opacity:.18}
+.room:hover .window{transform:translateY(-1px)}
+.ground{height:26px;background:linear-gradient(to bottom,var(--sand) 0 12px,var(--sea) 12px);border-top:3px solid var(--fg);display:flex;align-items:end;justify-content:flex-end;padding:0 8px;font:400 10px var(--mono);color:var(--fg)}
+
+.detail{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:12px;min-width:0}
+.detail h3{font-size:20px;font-weight:700}
+.status{display:inline-block;font:500 12px var(--mono);padding:2px 8px;border-radius:3px;border:1px solid currentColor}
+.s-hecho{color:var(--ok)} .s-parcial{color:var(--warn)} .s-falta{color:var(--bad)}
+.layers{display:grid;gap:5px}
+.layer{display:grid;grid-template-columns:4.5rem minmax(0,1fr) 4.4rem;gap:8px;align-items:center;font-size:13.5px}
+.layer span:last-child{white-space:nowrap;text-align:right;font:400 12px var(--mono)}
+.layer.na{color:var(--muted)}
+.detail dl{margin:0;display:grid;gap:8px}
+.detail dt{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.detail dd{margin:1px 0 0}
+
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.filters input,.filters select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 10px;max-width:100%}
+.filters input{flex:1 1 240px;min-width:0}
+.count{align-self:center;color:var(--muted);font-size:13.5px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:14px}
+th{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;text-align:left;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--facade)}
+.cell{display:inline-block;width:22px;height:18px;border:1px solid var(--muted);border-radius:2px;vertical-align:middle;background:linear-gradient(to top,var(--lit) var(--p,0%),transparent var(--p,0%))}
+.cell.na{border-style:dashed;opacity:.45}
+.num-col{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.phases{display:grid;gap:8px;margin-top:14px}
+details.phase{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+details.phase summary{cursor:pointer;padding:12px 16px;display:grid;grid-template-columns:3.2rem minmax(0,1fr) 5.5rem 4rem;gap:10px;align-items:center;list-style:none}
+details.phase summary::-webkit-details-marker{display:none}
+.ph-n{font:500 13px var(--mono);color:var(--muted)}
+.ph-t{font:700 17px var(--display)}
+.ph-d,.ph-p{font:500 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ph-body{padding:0 16px 16px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:22px}
+.ph-body h4{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.ph-body ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.ph-side{display:grid;gap:12px;align-content:start}
+.ph-track{height:5px;background:var(--unlit);margin:0 16px 12px}
+.ph-track i{display:block;height:100%;background:var(--lit)}
+.note{color:var(--muted);font-size:13.5px;margin-top:12px;max-width:80ch}
+
+.finds{display:grid;gap:28px;margin-top:14px}
+.finds h2{font-size:22px;font-weight:700;margin-bottom:10px}
+.find{display:grid;grid-template-columns:4rem minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.find h3{font:600 15px var(--body)}
+.find code{color:var(--muted);display:block;margin-top:3px}
+.sev{font:500 12px var(--mono)} .sev-Alta{color:var(--bad)} .sev-Media{color:var(--warn)}
+.dec{grid-template-columns:7rem minmax(0,1fr)}
+.dec b{font:500 13px var(--mono)}
+.rec{color:var(--muted);margin-top:2px}
+.alert{border:1px solid var(--warn);border-radius:6px;padding:14px 16px;background:var(--surface)}
+.alert h2{font-size:18px;margin-bottom:5px}
+.method{font-size:13.5px;color:var(--muted)}
+.method summary{cursor:pointer;font-weight:600;color:var(--fg)}
+.method ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px;max-width:85ch}
+
+@media (max-width:860px){
+  .top,.bars,.obra{grid-template-columns:minmax(0,1fr)}
+  .detail{position:static}
+  .ph-body{grid-template-columns:minmax(0,1fr)}
+  details.phase summary{grid-template-columns:2.6rem minmax(0,1fr) 3.2rem}
+  .ph-d{display:none}
+}
+@media (max-width:480px){
+  .score{grid-template-columns:minmax(0,1fr)}
+  .floor{grid-template-columns:38px minmax(0,1fr)}
+  .room-area{padding-inline:9px}
+  .bar{grid-template-columns:6rem minmax(0,1fr) 2.8rem}
+  .dec,.find{grid-template-columns:minmax(0,1fr);gap:3px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Equipo 6 · ITCA-FEPADE · Actualizado el 15 de noviembre de 2026 · commit c4970fb</p>
+      <h1>El avance de HotelLink, piso por piso</h1>
+      <p class="lede">Cruce de la Entrega 5 con el código del repositorio. Cada ventana es un requisito y su nivel de luz muestra cuánto está construido.</p>
+      <p class="here"><b id="hereTag"></b><span id="hereTxt"></span></p>
+    </div>
+    <div class="score">
+      <div class="big" id="big"></div>
+      <ul class="tally" id="tally"></ul>
+    </div>
+  </header>
+
+  <section class="bars" aria-label="Resumen del avance">
+    <div><h2>Avance por capa</h2><div id="barCapa"></div></div>
+    <div><h2>Avance por usuario</h2><div id="barRol"></div></div>
+  </section>
+
+  <details class="method">
+    <summary>Cómo se calculó el porcentaje</summary>
+    <ul>
+      <li>Son <span id="mN"></span> requisitos tomados de los alcances, el manual de usuario, el manual técnico y el diccionario de datos.</li>
+      <li>Cada uno se puntúa en cuatro capas: datos (20 %), lógica (35 %), pantalla React (30 %) y pruebas (15 %). Una capa vale 0, 0.5 o 1, y las que no aplican se excluyen.</li>
+      <li>Lo que solo funciona en Blade vale 0.5 en lógica, porque el manual fija React y la API como destino.</li>
+      <li>El peso de cada requisito (1 a 5) es una estimación de esfuerzo y criticidad. Mide trabajo pendiente, no líneas de código, así que el resultado es orientativo.</li>
+      <li>«Desarrollado» significa que datos, lógica y pantalla están completos; aun así puede faltarle pruebas.</li>
+      <li>Verificado el 15 de noviembre: 292 pruebas en verde sobre SQLite (2 997 comprobaciones). Bajaron de 309 porque se eliminaron las pruebas del panel Blade retirado. El ciclo de recepción se recorrió en Chrome el 7 de noviembre; reportes, valoraciones, respaldos y el portal bilingüe se verificaron solo por código y pruebas de API, no en el navegador.</li>
+    </ul>
+  </details>
+
+  <div class="alert">
+    <h2>Fases 7 y 8 casi listas; falta el cierre</h2>
+    <p>Reportes con PDF, moderación de valoraciones, respaldos, aviso de privacidad y galería y contacto en React ya están construidos, y el panel Blade se retiró. Quedan la valoración por servicio, traducir al inglés el flujo de reserva completo, la tabla de galería, la revisión responsiva y toda la Fase 9 (producción, Laravel, pruebas de aceptación, documentación y capacitación).</p>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Vistas">
+    <button role="tab" data-v="edificio" id="t-edificio">Edificio</button>
+    <button role="tab" data-v="requisitos" id="t-requisitos">Requisitos</button>
+    <button role="tab" data-v="plan" id="t-plan">Plan de trabajo</button>
+    <button role="tab" data-v="hallazgos" id="t-hallazgos">Hallazgos y decisiones</button>
+  </nav>
+
+  <section id="v-edificio" role="tabpanel" aria-labelledby="t-edificio">
+    <div class="chips" id="chips"></div>
+    <div class="obra">
+      <div class="hotel">
+        <div class="sign"><span>HOTELLINK</span></div>
+        <div class="floors" id="floors"></div>
+        <div class="ground" aria-hidden="true">Playa El Tunco</div>
+      </div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section id="v-requisitos" role="tabpanel" aria-labelledby="t-requisitos" hidden>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Buscar requisito, archivo o sección del informe" aria-label="Buscar requisito">
+      <select id="fFase" aria-label="Filtrar por fase"></select>
+      <select id="fEst" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option><option value="hecho">Desarrollado</option><option value="parcial">Parcial</option><option value="falta">Falta</option>
+      </select>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>N.º</th><th>Requisito</th><th>Fase</th><th>Estado</th><th title="Datos">Dat</th><th title="Lógica">Lóg</th><th title="Pantalla React">Pan</th><th title="Pruebas">Pru</th><th>Peso</th><th>Avance</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <p class="note">Selecciona una fila para ver su detalle en el edificio. Un recuadro punteado indica que esa capa no aplica.</p>
+  </section>
+
+  <section id="v-plan" role="tabpanel" aria-labelledby="t-plan" hidden>
+    <div class="phases" id="phases"></div>
+    <p class="note" id="planNote"></p>
+  </section>
+
+  <section id="v-hallazgos" role="tabpanel" aria-labelledby="t-hallazgos" hidden>
+    <div class="finds">
+      <div><h2>Decisiones que el equipo debe tomar</h2><div id="dDec"></div></div>
+      <div><h2>Riesgos en lo ya construido</h2><div id="dRie"></div></div>
+      <div><h2>Diferencias entre el informe y el código</h2><div id="dDis"></div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+// Para actualizar el avance: cambia los valores D, L, P y T de cada requisito (0, 0.5, 1 o null). Todo se recalcula solo.
+const DATA = {"items":[{"id":"001","f":0,"t":"Inicio y cierre de sesión","r":"H R A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Login por token, «Recordarme», logout y límite de intentos, con pruebas.","m":"Nada: requisito cerrado.","ref":"Alcances: cuentas de usuario","ev":"Api/AuthController.php, Login.jsx"},{"id":"002","f":0,"t":"Recuperar contraseña","r":"H R A","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Correo con enlace, pantalla en React y cierre de sesiones al restablecer, con pruebas.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 2.4","ev":"Api/AuthController.php, ResetPassword.jsx"},{"id":"003","f":0,"t":"Roles y permisos","r":"A T","w":2,"D":1,"L":1,"P":1,"T":1,"h":"CRUD de roles, asignación y catálogo de permisos, con pruebas de API.","m":"Nada: requisito cerrado.","ref":"Objetivo específico 5","ev":"Api/Admin/RoleController.php, roles/"},{"id":"004","f":0,"t":"Usuarios del personal","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"CRUD, roles, estado, aviso de inicio de sesión y columna idioma, con pruebas de API.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.6","ev":"Api/Admin/UserController.php, usuarios/"},{"id":"005","f":0,"t":"Sesiones por dispositivo","r":"A T","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Listado, cierre remoto y exclusión de sesiones vencidas, con pruebas de API.","m":"Nada: requisito cerrado.","ref":"Manual técnico 3.4","ev":"Services/SesionTokenService.php, SesionesList.jsx"},{"id":"006","f":0,"t":"Bitácora de auditoría","r":"A T","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Eventos en los modelos y consulta en React; se prueba quién hizo cada cambio y que no expone contraseñas.","m":"Nada: requisito cerrado.","ref":"Alcances: seguridad y continuidad","ev":"Api/Admin/AuditarController.php, auditoria/"},{"id":"007","f":0,"t":"Registro de errores","r":"T","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Consulta, resolución y aviso por correo, con pruebas y comprobado en contenedores.","m":"Nada: requisito cerrado.","ref":"Manual técnico 4.2","ev":"Api/Admin/ErrorLogController.php, errores/"},{"id":"008","f":0,"t":"Endurecer la seguridad de la API","r":"T","w":2,"D":null,"L":1,"P":null,"T":1,"h":"Tokens de usuarios inactivos rechazados, inactividad de 2 h o 30 días, tope de 90 días, 5 intentos de login por minuto y CORS limitado.","m":"Nada: requisito cerrado.","ref":"Marco teórico 2.2.4","ev":"config/sanctum.php:47, routes/api.php:27, config/cors.php:22"},{"id":"009","f":0,"t":"Contenedores según el manual","r":"T","w":1,"D":null,"L":1,"P":null,"T":null,"h":"compose.yaml original recuperado: back, web02, base sin puertos, worker y front. Se levantó desde cero.","m":"Nada: requisito cerrado.","ref":"Manual técnico 2.2","ev":"docker-compose.yml"},{"id":"010","f":0,"t":"Base de pruebas y cobertura","r":"T","w":2,"D":null,"L":null,"P":null,"T":1,"h":"108 pruebas sobre una base SQLite propia; phpunit.xml impide usar la base de desarrollo.","m":"Nada: requisito cerrado.","ref":"Alcances: pruebas previas a la entrega","ev":"phpunit.xml:25-26, tests/Feature"},{"id":"011","f":0,"t":"Correo SMTP y cola de trabajos","r":"T","w":1,"D":1,"L":1,"P":null,"T":1,"h":"Recuperación, nuevo dispositivo y errores en cola; el worker los procesó en contenedores.","m":"Nada: requisito cerrado.","ref":"Manual técnico 3.4","ev":"Jobs/SendEmail.php, Mail/"},{"id":"101","f":1,"t":"Tabla de huéspedes","r":"R A T","w":2,"D":1,"L":1,"P":null,"T":1,"h":"Tabla huespedes, datos migrados y ficha creada al registrarse, sin enlazar por correo sin verificar.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.10","ev":"Migración 2026_09_25_000006"},{"id":"102","f":1,"t":"Reservas según el diccionario","r":"T","w":3,"D":1,"L":null,"P":null,"T":1,"h":"Reservas con huesped_id, canal, desglose, anticipo y marcas de tiempo; ensayado sobre una copia de los datos reales.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.11","ev":"Models/Reserva.php"},{"id":"103","f":1,"t":"Noches e historial de la reserva","r":"T","w":2,"D":1,"L":null,"P":null,"T":1,"h":"Tablas reserva_noches y reserva_historial; cada reserva y cambio de estado queda registrado con su autor.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.12 y 3.14","ev":""},{"id":"104","f":1,"t":"Permisos de los módulos nuevos","r":"A T","w":1,"D":1,"L":null,"P":1,"T":null,"h":"40 permisos nuevos asignados por rol; una prueba exige que cada opción del menú use un permiso existente.","m":"Nada: requisito cerrado.","ref":"Manual técnico 4.3","ev":"layouts/menu.js:5,8, PermissionSeeder.php"},{"id":"105","f":1,"t":"Parámetros del sistema","r":"A","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Tabla configuraciones, API y pantalla Configuración con validación y auditoría.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.21","ev":"config/hotel.php"},{"id":"201","f":2,"t":"Tipos de habitación","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Campos bilingües, slug único y orden; API con pruebas y formulario React.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.1; diccionario 3.2","ev":"Api/Admin/TipoHabitacionController.php, tipos/"},{"id":"202","f":2,"t":"Galería por tipo de habitación","r":"A","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Subir, eliminar y marcar foto principal, con pruebas de API.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.4","ev":"Services/TipoHabitacionImagenService.php"},{"id":"203","f":2,"t":"Habitaciones","r":"A R","w":2,"D":1,"L":1,"P":1,"T":1,"h":"API y pantalla React; número único en base de datos; módulo Blade retirado.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.1","ev":"HabitacionesController.php, App.jsx"},{"id":"204","f":2,"t":"Bloqueos de habitación","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Tabla, API y pantalla; rechaza traslapes con otros bloqueos y con reservas vigentes.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.1; diccionario 3.7","ev":""},{"id":"205","f":2,"t":"Temporadas","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Columnas completas, API y pantalla; la prioridad decide entre temporadas traslapadas.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.2; diccionario 3.5","ev":"Models/Temporada.php"},{"id":"206","f":2,"t":"Tarifas por tipo y temporada","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Tabla, API y matriz editable; una casilla vacía usa precio base por multiplicador.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.2; diccionario 3.6","ev":""},{"id":"207","f":2,"t":"Categorías de servicio","r":"A","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Tabla, API y pantalla; no elimina una categoría con servicios activos.","m":"Nada: requisito cerrado.","ref":"Diccionario 3.8","ev":""},{"id":"208","f":2,"t":"Catálogo de servicios","r":"A","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Categoría obligatoria, campos en inglés, imagen, API y pantalla.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.3; diccionario 3.9","ev":"Models/Servicio.php"},{"id":"209","f":2,"t":"Perfil del usuario","r":"H R A","w":1,"D":1,"L":1,"P":1,"T":1,"h":"API y pantalla React: datos, contraseña, sesiones e historial.","m":"Nada: requisito cerrado.","ref":"Menú del panel","ev":"PerfilController.php, App.jsx"},{"id":"301","f":3,"t":"Cálculo de precio por noche","r":"T","w":3,"D":1,"L":1,"P":1,"T":1,"h":"Cada noche usa la tarifa de su temporada o precio base por multiplicador, y queda guardada en reserva_noches.","m":"Nada: requisito cerrado.","ref":"Marco teórico 2.2.2","ev":""},{"id":"302","f":3,"t":"Validación de traslape con bloqueo","r":"T","w":5,"D":1,"L":1,"P":null,"T":1,"h":"Intervalos semiabiertos en una transacción con lockForUpdate; comprobado con procesos y peticiones simultáneas sobre MariaDB.","m":"Nada: requisito cerrado.","ref":"Caso de uso, tabla 3.1; hipótesis 1","ev":""},{"id":"303","f":3,"t":"API de disponibilidad y alternativas","r":"H R","w":3,"D":1,"L":1,"P":1,"T":1,"h":"GET /disponibilidad con filtros y sugerencia de otros tipos y fechas cercanas.","m":"Nada: requisito cerrado.","ref":"Alcances: motor de reservaciones","ev":""},{"id":"304","f":3,"t":"Buscador y pantalla de resultados","r":"H","w":3,"D":null,"L":1,"P":1,"T":1,"h":"Buscador en la página de inicio y pantalla de resultados con filtros, recorridos en Chrome.","m":"Nada: requisito cerrado.","ref":"Figuras 3.8 y 3.9","ev":"Pages/Portal.jsx"},{"id":"305","f":3,"t":"Código de confirmación","r":"H R","w":1,"D":1,"L":1,"P":null,"T":1,"h":"Código aleatorio y único generado al crear la reserva.","m":"Nada: requisito cerrado.","ref":"Objetivo específico 2","ev":"ReservasSeeder.php"},{"id":"401","f":4,"t":"Registro completo del huésped","r":"H","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Nombres, apellidos, teléfono y consentimiento guardado con su fecha; aviso de privacidad publicado.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 2.3","ev":"Api/AuthController.php:57, Register.jsx"},{"id":"402","f":4,"t":"Verificación de correo","r":"H","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Enlace firmado que abre el portal React; reservar exige el correo verificado; se puede pedir otro enlace.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 2.3","ev":"Models/User.php"},{"id":"403","f":4,"t":"Formulario de reserva con resumen","r":"H","w":3,"D":1,"L":1,"P":1,"T":1,"h":"Datos del titular, servicios con cantidad o fecha y resumen de alojamiento, impuestos y anticipo calculado en el servidor.","m":"Nada: requisito cerrado.","ref":"Figura 3.10; manual de usuario 3.3","ev":"Pages/Portal.jsx:73 (botón deshabilitado)"},{"id":"404","f":4,"t":"Mi cuenta: mis reservas","r":"H","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Mis reservas con estado, detalle, noches, servicios e historial; nadie ve reservas de otra cuenta.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 3.5","ev":""},{"id":"405","f":4,"t":"Solicitar cancelación","r":"H","w":1,"D":null,"L":1,"P":1,"T":1,"h":"Cancelación con la política configurada, historial y correo; un correo fallido no la deshace.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 3.5","ev":""},{"id":"501","f":5,"t":"Pago de anticipo en sandbox","r":"H","w":3,"D":1,"L":1,"P":1,"T":1,"h":"Pasarela de pruebas interna con página de pago, notificación firmada y referencia única; la reserva se confirma solo con el pago aprobado y un rechazo permite reintentar.","m":"Nada: requisito cerrado.","ref":"Alcances: pago en línea en modo de pruebas","ev":""},{"id":"502","f":5,"t":"Comprobante PDF","r":"H R","w":2,"D":1,"L":1,"P":1,"T":1,"h":"PDF con detalle, pagos y saldo, guardado en comprobantes con versión; se descarga desde Mi cuenta y se adjunta al correo de confirmación.","m":"Nada: requisito cerrado.","ref":"Alcances: comprobante digital","ev":""},{"id":"503","f":5,"t":"Código QR de verificación","r":"H R","w":2,"D":1,"L":1,"P":1,"T":1,"h":"QR con qr_token que abre la verificación del panel; recepción también busca por código, ve si es válido, anulado o sustituido y marca la verificación.","m":"Nada: requisito cerrado.","ref":"Alcances: comprobante digital","ev":""},{"id":"504","f":5,"t":"Correos de la reserva","r":"H R","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Correos de registro, confirmación, modificación y cancelación en cola, cada uno registrado en notificaciones con intentos y error.","m":"Nada: requisito cerrado.","ref":"Alcances: roles y notificaciones","ev":"Mail/"},{"id":"601","f":6,"t":"Listado y búsqueda de reservas","r":"R A","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Listado paginado con búsqueda por código, documento, correo, nombre, teléfono o QR, y filtros de estado (incluida pendiente vencida), canal y fechas.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 4.3","ev":"App.jsx"},{"id":"602","f":6,"t":"Reserva telefónica o presencial","r":"R A","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Reserva telefónica o presencial con búsqueda o alta del huésped (sin duplicar documentos), habitaciones disponibles, servicios y resumen.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 4.2","ev":""},{"id":"603","f":6,"t":"Confirmar, modificar y cancelar","r":"R A","w":3,"D":null,"L":1,"P":1,"T":1,"h":"Confirmar con el anticipo recibido, modificar revalidando sin contar la propia reserva y cancelar (también no-show); todo queda en reserva_historial y se avisa por correo.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 4.5","ev":""},{"id":"604","f":6,"t":"Registrar entrada (check-in)","r":"R A","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Entrada desde la ficha o buscando por QR: exige reserva confirmada, fecha, habitación disponible y verificación del documento; permite cambiar de habitación.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 4.3","ev":""},{"id":"605","f":6,"t":"Registrar salida (check-out)","r":"R A","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Consumos durante la estadía, cobro del saldo exacto con su forma de pago, reserva finalizada y habitación en limpieza.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 4.4","ev":""},{"id":"606","f":6,"t":"Panel de control operativo","r":"R A","w":2,"D":null,"L":1,"P":1,"T":1,"h":"Ocupación de esta noche, reservas activas, entradas y salidas del día, ingresos del mes, próximas entradas y reservas recientes.","m":"Nada: requisito cerrado.","ref":"Figura 3.11","ev":"admin/Dashboard.jsx"},{"id":"607","f":6,"t":"Calendario de ocupación","r":"R A","w":3,"D":null,"L":1,"P":1,"T":1,"h":"Vista mensual por habitación con estadías por estado, entradas, salidas, bloqueos, estado físico y reservas sin habitación.","m":"Nada: requisito cerrado.","ref":"Alcances: calendario de ocupación","ev":""},{"id":"701","f":7,"t":"Reporte de ocupación e ingresos","r":"A","w":3,"D":null,"L":1,"P":1,"T":1,"h":"Ocupación, noches vendidas, ingreso, ADR y RevPAR por período y tipo, con gráfico diario; los totales se prueban contra un cálculo a mano.","m":"Nada: requisito cerrado.","ref":"Figura 3.12; manual de usuario 5.5","ev":"Services/ReporteService.php, reportes/ReportesPage.jsx"},{"id":"702","f":7,"t":"Servicios y valoraciones en reportes","r":"A","w":1,"D":null,"L":1,"P":1,"T":1,"h":"Top 10 de servicios por cantidad e ingreso y promedio de valoraciones aprobadas del período.","m":"Nada: requisito cerrado.","ref":"Alcances: reportes","ev":"Services/ReporteService.php"},{"id":"703","f":7,"t":"Exportar reporte a PDF","r":"A","w":1,"D":null,"L":1,"P":1,"T":1,"h":"Exportación a PDF con DomPDF, con su propio permiso y prueba.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.5","ev":"Api/Admin/ReporteController.php, views/reportes/ocupacion.blade.php"},{"id":"704","f":7,"t":"Valorar la estadía","r":"H","w":2,"D":0.5,"L":0.5,"P":0.5,"T":0.5,"h":"Tabla valoraciones y pantalla para valorar una estadía finalizada propia, una sola vez, con pruebas.","m":"Valoración por servicio: tabla valoracion_servicios, su lógica y su pantalla.","ref":"Manual de usuario 3.6","ev":"Api/ValoracionController.php, cuenta/ValorarEstadia.jsx"},{"id":"705","f":7,"t":"Moderar y responder valoraciones","r":"A","w":1,"D":null,"L":1,"P":1,"T":1,"h":"Listado por estado, aprobar, rechazar y responder, con permisos propios y pruebas.","m":"Nada: requisito cerrado.","ref":"Manual de usuario 5.4","ev":"Api/Admin/ValoracionController.php, valoraciones/ValoracionesList.jsx"},{"id":"706","f":7,"t":"Publicar valoraciones y promedios","r":"H","w":1,"D":null,"L":1,"P":1,"T":1,"h":"El portal muestra las últimas aprobadas, la respuesta del hotel y el promedio; las pendientes no se publican.","m":"Nada: requisito cerrado.","ref":"Alcances: valoraciones","ev":"GET /api/valoraciones, Pages/Portal.jsx"},{"id":"707","f":7,"t":"Respaldos desde el panel","r":"A T","w":2,"D":1,"L":1,"P":1,"T":1,"h":"Tabla respaldos, volcado .sql sin mysqldump, listado, descarga y tarea diaria a las 02:00, con pruebas.","m":"Nada en el código. Falta ensayar la restauración y dejar corriendo el programador en el servidor (ver 902).","ref":"Manual de usuario 5.7","ev":"Services/RespaldoService.php, respaldos/RespaldosList.jsx"},{"id":"801","f":8,"t":"Catálogo de habitaciones en el portal","r":"H","w":1,"D":1,"L":1,"P":1,"T":1,"h":"Tipos, foto, capacidad y precio en React, con prueba de GET /tipos-habitacion.","m":"Nada: requisito cerrado.","ref":"Alcances: sitio informativo","ev":"Pages/Portal.jsx"},{"id":"802","f":8,"t":"Galería, servicios y contacto","r":"H","w":2,"D":0.5,"L":1,"P":1,"T":1,"h":"Galería, servicios y contacto en React, servidos por GET /api/hotel con prueba.","m":"La galería se lee de config/hotel.php: falta la tabla galeria_imagenes para administrarla desde el panel.","ref":"Alcances: sitio informativo; diccionario 3.20","ev":"Api/HotelController.php, Pages/Portal.jsx"},{"id":"803","f":8,"t":"Portal bilingüe","r":"H","w":3,"D":1,"L":1,"P":0.5,"T":0,"h":"Selector ES/EN recordado en el navegador; portada y buscador traducidos, usando los campos *_en de la API.","m":"Traducir resultados, reserva, registro, inicio de sesión y Mi cuenta; probar el flujo completo en inglés.","ref":"Alcances: portal bilingüe; manual de usuario 2.2","ev":"frontend/src/i18n.jsx"},{"id":"804","f":8,"t":"Diseño responsivo verificado","r":"H R A","w":1,"D":null,"L":null,"P":0.5,"T":0,"h":"Las hojas de estilo traen 22 reglas @media tras el rediseño.","m":"Revisión en teléfono, tableta y computadora, a 400 px de ancho.","ref":"Alcances: aspectos técnicos","ev":"frontend/src/index.css"},{"id":"805","f":8,"t":"Aviso de privacidad y consentimiento","r":"H","w":1,"D":null,"L":1,"P":1,"T":null,"h":"Página de aviso de privacidad y casilla obligatoria al registrarse; se guarda users.privacidad_aceptada_at, con pruebas.","m":"Nada: requisito cerrado.","ref":"Recomendación 4.2.2","ev":"publico/Privacidad.jsx, Register.jsx"},{"id":"901","f":9,"t":"Retirar el panel Blade heredado","r":"T","w":1,"D":null,"L":1,"P":null,"T":null,"h":"Se eliminaron los controladores y vistas del panel y el sitio Blade; /queue_control pasó a Procesos en React. Solo quedan las vistas de correos y PDF.","m":"Nada: requisito cerrado.","ref":"Manual técnico 2.1","ev":"routes/web.php, commit c4970fb"},{"id":"902","f":9,"t":"Producción con HTTPS","r":"T","w":2,"D":null,"L":0.5,"P":null,"T":0,"h":"El front compila y existe la guía de despliegue. La tarea diaria de respaldos ya está programada en el código.","m":"Servir dist con HTTPS, cortafuegos y ejecutar el programador de tareas en el servidor.","ref":"Manual técnico 6.2","ev":"docs/DESPLIEGUE.md"},{"id":"903","f":9,"t":"Actualización de Laravel","r":"T","w":1,"D":null,"L":0,"P":null,"T":null,"h":"La versión instalada es 12.62.0.","m":"Actualizar antes del 24 de febrero de 2027.","ref":"Recomendación 4.2.1","ev":"composer.json"},{"id":"904","f":9,"t":"Pruebas funcionales y de aceptación","r":"H R A T","w":3,"D":null,"L":null,"P":null,"T":0,"h":"","m":"Escenarios críticos y rondas con usuarios reales.","ref":"Alcances: pruebas; recomendación 4.2.1","ev":""},{"id":"905","f":9,"t":"Documentación y script SQL","r":"T","w":2,"D":null,"L":0.5,"P":null,"T":null,"h":"Informe, diagramas y manuales preliminares.","m":"Actualizarlos al sistema final y generar el script SQL.","ref":"Alcances: aspectos técnicos","ev":"Entrega 5 (.docx)"},{"id":"906","f":9,"t":"Capacitación y puesta en marcha","r":"R A","w":1,"D":null,"L":0,"P":null,"T":null,"h":"","m":"Carga inicial, operación en paralelo y capacitación por rol.","ref":"Recomendación 4.2.1","ev":""}],"fases":[{"n":0,"nombre":"Estabilizar la base","dias":4,"dep":"Ninguna","objetivo":"Cerrar los huecos de lo ya construido antes de levantar el resto encima.","tareas":["Rechazar en cada petición los tokens de usuarios inactivos y revocarlos al desactivar la cuenta.","Definir la expiración de los tokens de Sanctum y limitar los intentos de POST /api/login.","Restringir CORS al dominio del portal.","Crear una base exclusiva para pruebas, para que los tests no toquen la base de desarrollo.","Escribir pruebas de API para sesión, usuarios, roles, permisos, sesiones, auditoría, errores, recuperación de contraseña y correos.","Recuperar la configuración de Docker del manual: compose.yaml, web02, base sin puerto publicado y .env.example completo.","Corregir dos fallos de arranque: la espera de la primera instalación y los permisos de caché que causaban un error 500."],"salida":"Pruebas de API en verde sobre una base separada; un usuario desactivado recibe 401; el arranque con Docker coincide con el manual."},{"n":1,"nombre":"Núcleo de datos de reservas","dias":3,"dep":"Fase 0","objetivo":"Dejar el modelo de reservas igual al diccionario de datos, porque casi todos los módulos dependen de él.","tareas":["Crear la tabla huespedes y migrar los campos huesped_* de reservas hacia huesped_id.","Agregar a reservas: canal, subtotales, descuento, impuesto, anticipo, notas, check_in_at, check_out_at, cancelada_at y motivo.","Crear reserva_noches y reserva_historial; completar reserva_servicio.","Registrar los permisos de reservas, servicios, tarifas, valoraciones, reportes y respaldos, también en bases ya instaladas.","Crear la tabla configuraciones con su API y pantalla para anticipo, impuestos y política de cancelación.","Corregir los nombres de estado: En estadía y Finalizada.","Cerrar el agujero de aislamiento de las pruebas: Laravel leía la conexión real desde $_SERVER."],"salida":"migrate:fresh --seed funciona en MariaDB y las tablas coinciden con las secciones 3.10 a 3.14 del diccionario."},{"n":2,"nombre":"Inventario, tarifas y servicios","dias":9,"dep":"Fase 1","objetivo":"Que el administrador pueda configurar todo lo que el motor de reservas necesita leer.","tareas":["Habitaciones: API y pantalla React; retirar su módulo Blade.","Bloqueos de habitación por fechas: tabla, API y pantalla.","Temporadas: completar columnas (nombre_en, prioridad, color), API y pantalla.","Tarifas por tipo y temporada: tabla, API y matriz editable.","Categorías de servicio y catálogo de servicios: tablas, API y pantallas.","Tipos de habitación: agregar nombre_en, descripcion_en, slug y orden.","Perfil del usuario en React: datos, contraseña y sesiones.","Convertir el estado de habitación a los valores del diccionario: disponible, limpieza y mantenimiento."],"salida":"Un administrador carga habitaciones, temporadas, tarifas y servicios solo desde el panel React."},{"n":3,"nombre":"Motor de disponibilidad","dias":7,"dep":"Fase 2","objetivo":"Construir la regla central del proyecto: impedir la sobreventa de forma comprobable.","tareas":["Servicio de precio: calcular cada noche según temporada y tarifa, y guardar el detalle en reserva_noches.","Servicio de disponibilidad con intervalos semiabiertos, considerando reservas activas y bloqueos.","Crear la reserva dentro de una transacción con lockForUpdate sobre las filas consultadas.","Generar el código de confirmación único.","API pública GET /disponibilidad con sugerencia de fechas o tipos alternativos.","Buscador en la página de inicio y pantalla de resultados con filtros.","Prueba de concurrencia real: dos solicitudes simultáneas por la misma habitación, sobre MariaDB.","Serializar también bloqueos y cambios de habitación con la misma fila bloqueada."],"salida":"La prueba de concurrencia confirma una sola reserva creada; salida y entrada el mismo día sí se permiten."},{"n":4,"nombre":"Reserva en línea y Mi cuenta","dias":6,"dep":"Fase 3","objetivo":"Que el huésped complete la reserva y consulte su historial sin ayuda del personal.","tareas":["Registro completo: nombres, apellidos, teléfono y consentimiento.","Verificación de correo por enlace, adaptada al portal React.","Pantalla de reserva con datos del huésped, servicios y resumen de alojamiento, impuestos y anticipo.","Activar el botón Reservar del portal, hoy deshabilitado.","Mi cuenta: historial, estado y detalle de reservas.","Solicitud de cancelación aplicando la política definida."],"salida":"Un huésped crea su cuenta, reserva y cancela de punta a punta; no puede ver reservas de otros."},{"n":5,"nombre":"Pago, comprobante y correos","dias":8,"dep":"Fase 4","objetivo":"Completar el flujo documentado del caso de uso «Reservar en línea» hasta la confirmación.","tareas":["Tabla pagos e integración con la pasarela en ambiente de pruebas, con llaves en .env y config/services.php.","Procesar la respuesta de la pasarela sin duplicar pagos; la reserva se confirma solo si el anticipo se aprueba.","Generar el comprobante PDF y guardarlo en comprobantes.","Código QR con qr_token y verificación en recepción.","Correos en cola al confirmar, modificar y cancelar, registrados en notificaciones."],"salida":"El flujo completo termina con pago de prueba aprobado, reserva confirmada, PDF con QR y correo enviado; un pago rechazado no confirma."},{"n":6,"nombre":"Operación de recepción","dias":9,"dep":"Fase 3 (la Fase 5 solo para el QR)","objetivo":"Sustituir el cuaderno de recepción por el módulo administrativo.","tareas":["Listado y búsqueda de reservas por código, documento o correo.","Reserva telefónica o presencial, con búsqueda o alta del huésped.","Confirmar, modificar y cancelar, revalidando disponibilidad y registrando reserva_historial.","Check-in por código o QR.","Check-out con servicios, saldo y pago recibido.","Panel de control con ocupación, reservas activas, entradas del día e ingresos.","Calendario mensual de ocupación por habitación."],"salida":"El recepcionista atiende un ciclo completo, de la reserva al check-out, sin salir del panel y con permisos verificados en el servidor."},{"n":7,"nombre":"Reportes, valoraciones y respaldos","dias":8,"dep":"Fase 6","objetivo":"Entregar la información gerencial y la continuidad comprometidas en el alcance.","tareas":["Reporte de ocupación e ingresos con ADR y RevPAR, filtrable por período y tipo.","Servicios más solicitados y promedio de valoraciones.","Exportación del reporte a PDF.","Valoración de la estadía por el huésped y por servicio, solo con estadía finalizada.","Moderación y respuesta del hotel; publicación de aprobadas y promedios en el sitio.","Módulo de respaldos: tabla, generación manual, listado y tarea programada diaria."],"salida":"Los totales del reporte cuadran con un juego de datos calculado a mano; un respaldo generado se restaura correctamente."},{"n":8,"nombre":"Sitio público y bilingüe","dias":6,"dep":"Puede avanzar en paralelo desde la Fase 2","objetivo":"Completar el sitio en React y ofrecerlo en español e inglés.","tareas":["Pasar a React la presentación, la galería, los servicios y el contacto que hoy solo existen en Blade.","Crear galeria_imagenes para administrar la galería general.","Internacionalización ES/EN con selector de idioma y contenido desde los campos *_en.","Publicar aviso de privacidad y consentimiento según el Decreto 144.","Revisar el diseño responsivo en teléfono, tableta y computadora."],"salida":"El flujo de reserva completo funciona en ambos idiomas y a 400 px de ancho."},{"n":9,"nombre":"Cierre y puesta en producción","dias":6,"dep":"Todas las anteriores","objetivo":"Desplegar, validar con usuarios y entregar la documentación final.","tareas":["Retirar el panel Blade heredado, Ejemplos incluido, y mover /queue_control si se conserva.","Compilar el front con npm run build, servirlo con HTTPS y programar los respaldos.","Cambiar usuarios de prueba y separar los datos de demostración de los seeders de producción.","Planificar la actualización de Laravel: el soporte de seguridad de la versión 12 termina el 24 de febrero de 2027.","Ejecutar pruebas funcionales y rondas de usabilidad con cinco personas.","Actualizar informe y manuales al estado real; entregar script SQL y capacitación por rol."],"salida":"Portal en producción con HTTPS, pruebas de aceptación firmadas y manuales coherentes con el código."}],"decisiones":[["Anticipo","¿Qué porcentaje se cobra? El informe lo exige, pero no fija el valor.","Aprobado: 30 %, editable en Configuración."],["Impuestos","¿Qué impuestos y tasas se aplican al resumen?","Aprobado: 13 %, editable en Configuración."],["Cancelación","¿Se devuelve el anticipo? ¿Cuándo vence una reserva pendiente? ¿Qué pasa con un no-show?","Aprobado: reembolso total hasta 48 h antes de la hora de entrada, pendiente vence en 24 h y no-show sin reembolso. Cancelar dentro de las 48 h aplica el porcentaje de no-show."],["Pasarela","El informe no nombra ninguna pasarela de pago.","Aplicado por ahora: solo la pasarela de pruebas interna (PASARELA_DRIVER=sandbox). Una pasarela real se conecta agregando un driver cuando el hotel tenga cuenta."],["Precio","El diccionario trae tarifas.precio_noche y temporadas.multiplicador. ¿Cuál manda?","Aplicado: manda la tarifa si existe; si no, precio base por multiplicador."],["Selección","¿El huésped elige una habitación concreta o solo el tipo?","Aplicado: habitación concreta, revalidada en la transacción."],["Fecha y equipo","Falta la fecha límite y cuántas personas pueden trabajar en paralelo.","Con eso se convierte la estimación en calendario."]],"riesgos":[["Media","Tu contenedor back migra al arrancar","El código se monta en la imagen, así que cada reinicio de Docker aplica las migraciones nuevas a la base de desarrollo.","docker/entrypoint.sh"],["Media","Datos de prueba en el arranque","Con la base vacía, el arranque ejecuta todos los seeders: usuarios con contraseña conocida y el hotel de demostración, también en producción.","docker/entrypoint.sh:79"],["Media","Fin de soporte de Laravel 12","Los parches de seguridad terminan el 24 de febrero de 2027, en poco más de 3 meses.","Informe, recomendación 4.2.1"],["Baja","Respaldos sin programador activo","La tarea diaria existe, pero ningún contenedor ejecuta schedule:work, así que hoy solo hay respaldos manuales.","app/Console/Kernel.php, compose.yaml"]],"discrepancias":[["Las conclusiones ya pueden sostenerse","El capítulo 4 presentaba como logrados el control de concurrencia, los reportes y el PDF con QR cuando aún no existían. Hoy están construidos; conviene revisar la redacción junto con la documentación final (905).","Informe, sección 4.1"],["Conteo de entidades","El texto de 3.2.2 habla de 22 entidades; el diccionario detalla 21 tablas de dominio. El total de 39 tablas sí cuadra (21 + 18).","Informe, secciones 3.2.2 y 3.2.4"],["Formas de cobro más detalladas","El diccionario pone como ejemplo por unidad, por noche y por estadía. El código conserva por persona y noche, por persona, por noche y precio fijo, porque la alimentación se cobra por persona.","Models/Servicio.php"],["Tipo de estado_habitacion","El diccionario lo define como text. Se usa varchar(20) con los mismos tres valores, para poder filtrarlo e indexarlo.","2026_11_04_000002"],["Consentimiento en users","El diccionario no tiene dónde guardar el consentimiento. Se agregó users.privacidad_aceptada_at, que la ley pide para poder demostrarlo.","2026_11_07_000001"],["Galería en configuración","El diccionario define galeria_imagenes. La galería se sirve desde config/hotel.php, así que solo se cambia editando archivos.","config/hotel.php"]]};
+const PESO = {D:20,L:35,P:30,T:15}, CAPA = {D:'Datos',L:'Lógica',P:'Pantalla',T:'Pruebas'};
+const ROL = {H:'Huésped',R:'Recepción',A:'Administrador',T:'Técnica'};
+const EST = {hecho:'Desarrollado',parcial:'Parcial',falta:'Falta'};
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = v => Math.round(v * 100);
+const score = r => { let t=0,s=0; for (const k in PESO) if (r[k]!==null) { t+=PESO[k]; s+=PESO[k]*r[k]; } return t? s/t : 0; };
+const status = r => { const f=['D','L','P'].map(k=>r[k]).filter(v=>v!==null);
+  if (f.length && f.every(v=>v===1)) return 'hecho'; if (!f.length && r.T===1) return 'hecho'; return score(r)>0?'parcial':'falta'; };
+const avg = rs => { const w=rs.reduce((a,r)=>a+r.w,0); return w? rs.reduce((a,r)=>a+r.w*score(r),0)/w : 0; };
+const items = DATA.items.map(r => ({...r, s:score(r), st:status(r)}));
+const byPhase = n => items.filter(r => r.f===n);
+let sel = '704', fEst='', fRol='';
+
+function resumen(){
+  $('#big').innerHTML = pct(avg(items)) + '<small>%</small>';
+  const n = {hecho:0,parcial:0,falta:0}; items.forEach(r=>n[r.st]++);
+  $('#tally').innerHTML = [['hecho',100,'desarrollados'],['parcial',50,'parciales'],['falta',0,'sin empezar']]
+    .map(([k,p,t])=>`<li><span class="mini" style="--p:${p}%"></span><b>${n[k]}</b> ${t}</li>`).join('');
+  $('#mN').textContent = items.length;
+  const actual = DATA.fases.find(f => avg(byPhase(f.n)) < .999);
+  const listas = DATA.fases.filter(f => avg(byPhase(f.n)) >= .999).map(f => f.n);
+  if (!actual) { $('#hereTag').textContent = 'Obra terminada'; $('#hereTxt').textContent = ' Todas las fases están al 100 %.'; }
+  else { $('#hereTag').textContent = 'Estamos aquí: Fase ' + actual.n;
+    $('#hereTxt').textContent = actual.nombre + '. ' + (listas.length ? 'Terminadas: fases ' + listas.join(', ') + '.' : ''); }
+  const bar = (l,v)=>`<div class="bar"><span>${l}</span><div class="track"><i style="width:${pct(v)}%"></i></div><span>${pct(v)}%</span></div>`;
+  $('#barCapa').innerHTML = Object.keys(CAPA).map(k=>{ const a=items.filter(r=>r[k]!==null);
+    return bar(CAPA[k], a.reduce((x,r)=>x+r.w*r[k],0)/a.reduce((x,r)=>x+r.w,0)); }).join('');
+  $('#barRol').innerHTML = Object.keys(ROL).map(k=>bar(ROL[k], avg(items.filter(r=>r.r.includes(k))))).join('');
+}
+
+function chips(){
+  const c=(attr,v,l)=>`<button class="chip" data-${attr}="${v}" aria-pressed="false">${l}</button>`;
+  $('#chips').innerHTML = c('e','','Todos')+c('e','hecho','Desarrollado')+c('e','parcial','Parcial')+c('e','falta','Falta')
+    +'<span class="chip-gap"></span>'+c('o','','Todos los usuarios')+Object.keys(ROL).map(k=>c('o',k,ROL[k])).join('');
+  $('#chips').addEventListener('click', e=>{ const b=e.target.closest('.chip'); if(!b) return;
+    if (b.dataset.e!==undefined) fEst=b.dataset.e; else fRol=b.dataset.o; pintaChips(); pintaEdificio(); });
+  pintaChips();
+}
+function pintaChips(){ document.querySelectorAll('.chip').forEach(b=>{
+  b.setAttribute('aria-pressed', b.dataset.e!==undefined ? b.dataset.e===fEst : b.dataset.o===fRol); }); }
+
+function pintaEdificio(){
+  const actual = DATA.fases.find(f => avg(byPhase(f.n)) < .999)?.n;
+  $('#floors').innerHTML = [...DATA.fases].reverse().map(f=>{
+    const rs = byPhase(f.n);
+    const rooms = rs.map(r=>{ const dim=(fEst&&r.st!==fEst)||(fRol&&!r.r.includes(fRol));
+      return `<button class="room${dim?' dim':''}" data-id="${r.id}" aria-pressed="${r.id===sel}" title="${esc(r.t)} · ${pct(r.s)}%" aria-label="${r.id}: ${esc(r.t)}, ${EST[r.st]}, ${pct(r.s)} por ciento"><span class="window" style="--p:${pct(r.s)}%"></span><span class="num">${r.id}</span></button>`; }).join('');
+    return `<div class="floor${f.n===actual?' now':''}"><div class="shaft">F${f.n}</div><div class="room-area"><div class="fl-head"><h3>${esc(f.nombre)}${f.n===actual?'<span class="here-tag">◀ aquí</span>':''}</h3><span class="pct">${pct(avg(rs))}%</span></div><div class="rooms">${rooms}</div></div></div>`;
+  }).join('');
+  pintaDetalle();
+}
+function pintaDetalle(){
+  const r = items.find(x=>x.id===sel), f = DATA.fases.find(x=>x.n===r.f);
+  const capa = Object.keys(CAPA).map(k=> r[k]===null
+    ? `<div class="layer na"><span>${CAPA[k]}</span><span></span><span>no aplica</span></div>`
+    : `<div class="layer"><span>${CAPA[k]}</span><div class="track"><i style="width:${r[k]*100}%"></i></div><span>${r[k]*100}%</span></div>`).join('');
+  $('#detail').innerHTML = `<div><p class="eyebrow">Ventana ${r.id} · Fase ${r.f} · ${esc(f.nombre)}</p><h3>${esc(r.t)}</h3></div>
+    <p><span class="status s-${r.st}">${EST[r.st]}</span> <span class="mono">${pct(r.s)}% · peso ${r.w}</span></p>
+    <div class="layers">${capa}</div>
+    <dl>${r.h?`<div><dt>Ya existe</dt><dd>${esc(r.h)}</dd></div>`:''}
+    <div><dt>Falta</dt><dd>${esc(r.m)}</dd></div>
+    <div><dt>Usuarios</dt><dd>${r.r.split(' ').map(k=>ROL[k]).join(', ')}</dd></div>
+    <div><dt>Lo pide</dt><dd>${esc(r.ref)}</dd></div>
+    ${r.ev?`<div><dt>Dónde mirar</dt><dd><code>${esc(r.ev)}</code></dd></div>`:''}</dl>`;
+}
+function tabla(){
+  const q=$('#q').value.trim().toLowerCase(), ff=$('#fFase').value, fe=$('#fEst').value;
+  const rs=items.filter(r=>(!ff||r.f==ff)&&(!fe||r.st===fe)&&(!q||[r.id,r.t,r.h,r.m,r.ref,r.ev].join(' ').toLowerCase().includes(q)));
+  $('#count').textContent = rs.length+' de '+items.length;
+  const cel=v=> v===null?'<span class="cell na" title="No aplica"></span>':`<span class="cell" style="--p:${v*100}%" title="${v*100}%"></span>`;
+  $('#tb').innerHTML = rs.length? rs.map(r=>`<tr data-id="${r.id}" tabindex="0"><td class="num-col">${r.id}</td><td>${esc(r.t)}</td><td class="num-col">F${r.f}</td><td><span class="status s-${r.st}">${EST[r.st]}</span></td><td>${cel(r.D)}</td><td>${cel(r.L)}</td><td>${cel(r.P)}</td><td>${cel(r.T)}</td><td class="num-col">${r.w}</td><td class="num-col">${pct(r.s)}%</td></tr>`).join('')
+    : '<tr><td colspan="10">Ningún requisito coincide con esos filtros. Prueba con otra palabra o quita un filtro.</td></tr>';
+}
+function plan(){
+  const actual = DATA.fases.find(f => avg(byPhase(f.n)) < .999)?.n;
+  $('#phases').innerHTML = DATA.fases.map(f=>{ const p=pct(avg(byPhase(f.n)));
+    const lista=byPhase(f.n).map(r=>`<span class="mini" style="--p:${pct(r.s)}%;display:inline-block;vertical-align:-3px" title="${pct(r.s)}%"></span> ${r.id} ${esc(r.t)}`).join('<br>');
+    return `<details class="phase"${f.n===actual?' open':''}><summary><span class="ph-n">F${f.n}</span><span class="ph-t">${esc(f.nombre)}</span><span class="ph-d">~${f.dias} días</span><span class="ph-p">${p}%</span></summary>
+    <div class="ph-track"><i style="width:${p}%"></i></div>
+    <div class="ph-body"><div><p style="margin-bottom:10px">${esc(f.objetivo)}</p><h4>Tareas</h4><ul>${f.tareas.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+    <div class="ph-side"><div><h4>Terminada cuando</h4><p>${esc(f.salida)}</p></div><div><h4>Depende de</h4><p>${esc(f.dep)}</p></div><div><h4>Requisitos</h4><p style="font-size:13.5px">${lista}</p></div></div></div></details>`; }).join('');
+  const tot=DATA.fases.reduce((a,f)=>a+f.dias,0);
+  $('#planNote').textContent = `Total estimado: unos ${tot} días-persona para una persona a tiempo completo; es una primera estimación, sin margen para imprevistos. Las fases 6, 7 y 8 pueden avanzar en paralelo una vez terminada la Fase 3.`;
+}
+function hallazgos(){
+  $('#dDec').innerHTML = DATA.decisiones.map(d=>`<div class="find dec"><b>${esc(d[0])}</b><div><h3>${esc(d[1])}</h3><p class="rec">Sugerencia: ${esc(d[2])}</p></div></div>`).join('');
+  $('#dRie').innerHTML = DATA.riesgos.map(d=>`<div class="find"><span class="sev sev-${d[0]}">${d[0]}</span><div><h3>${esc(d[1])}</h3><p>${esc(d[2])}</p><code>${esc(d[3])}</code></div></div>`).join('');
+  $('#dDis').innerHTML = DATA.discrepancias.map((d,i)=>`<div class="find"><span class="mono">${i+1}</span><div><h3>${esc(d[0])}</h3><p>${esc(d[1])}</p><code>${esc(d[2])}</code></div></div>`).join('');
+}
+function vista(v){
+  const ok=['edificio','requisitos','plan','hallazgos'];
+  if(!ok.includes(v)) v='edificio';
+  ok.forEach(x=>{ $('#v-'+x).hidden = x!==v; $('#t-'+x).setAttribute('aria-selected', x===v); });
+}
+function irA(id){ sel=id; fEst=''; fRol=''; pintaChips(); pintaEdificio(); location.hash='edificio'; vista('edificio'); }
+
+resumen(); chips(); pintaEdificio(); plan(); hallazgos();
+$('#fFase').innerHTML='<option value="">Todas las fases</option>'+DATA.fases.map(f=>`<option value="${f.n}">Fase ${f.n}: ${esc(f.nombre)}</option>`).join('');
+tabla();
+['q','fFase','fEst'].forEach(i=>$('#'+i).addEventListener('input',tabla));
+$('#floors').addEventListener('click',e=>{ const b=e.target.closest('.room'); if(!b) return; sel=b.dataset.id;
+  document.querySelectorAll('.room').forEach(x=>x.setAttribute('aria-pressed',x.dataset.id===sel)); pintaDetalle();
+  if (window.innerWidth<=860) $('#detail').scrollIntoView({behavior:'smooth',block:'nearest'}); });
+$('#tb').addEventListener('click',e=>{ const t=e.target.closest('tr[data-id]'); if(t) irA(t.dataset.id); });
+$('#tb').addEventListener('keydown',e=>{ const t=e.target.closest('tr[data-id]'); if(t&&e.key==='Enter') irA(t.dataset.id); });
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ location.hash=b.dataset.v; vista(b.dataset.v); }));
+window.addEventListener('hashchange',()=>vista(location.hash.slice(1)));
+vista(location.hash.slice(1));
+</script>
+</body>
+</html>

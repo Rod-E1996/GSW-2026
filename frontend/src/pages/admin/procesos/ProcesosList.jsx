@@ -217,7 +217,7 @@ export default function ProcesosList() {
                 <div className="pr-proceso__titulo">
                   <strong>{p.titulo}</strong>
                   <small>
-                    #{p.id} · {p.usuario || 'Sistema'} · inició {fechaHora(p.fecha_inicio)}
+                    #{p.id} · {p.usuario || 'Sistema'} · inició <span className="dato-junto">{fechaHora(p.fecha_inicio)}</span>
                   </small>
                 </div>
                 <span className={`badge ${s.badge}`}>{s.nombre}</span>
@@ -231,7 +231,7 @@ export default function ProcesosList() {
                 <span><strong>{p.porcentaje}%</strong> · {p.progreso} de {p.total} {p.total === 1 ? 'tarea' : 'tareas'}</span>
                 <span>
                   {p.situacion === 'terminado'
-                    ? <>Terminó {fechaHora(p.fecha_fin)} · duró {duracion(p.duracion_segundos)}</>
+                    ? <>Terminó <span className="dato-junto">{fechaHora(p.fecha_fin)}</span> · duró {duracion(p.duracion_segundos)}</>
                     : <>Lleva {duracion(p.duracion_segundos)} · último avance {haceCuanto(p.ultimo_avance)}</>}
                 </span>
               </div>

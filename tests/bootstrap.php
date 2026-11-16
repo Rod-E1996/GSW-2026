@@ -42,6 +42,8 @@ touch($base);
 
 // Los seeders guardan fotos: se desvian a un disco de prueba para no tocar storage/app/public.
 Storage::fake(TipoHabitacionImagen::DISCO);
+// RespaldosSeeder escribe el respaldo inicial en el disco local: tambien se desvia.
+Storage::fake('local');
 
 if (Artisan::call('migrate', ['--seed' => true, '--force' => true]) !== 0) {
     fwrite(STDERR, Artisan::output());

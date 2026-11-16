@@ -48,12 +48,12 @@ class RolesHotelTest extends TestCase
     public function test_login_por_api_expone_acceso_panel_segun_rol()
     {
         // Staff (Super Administrador) -> acceso al panel
-        $this->postJson('/api/login', ['email' => 'admin@gmail.com', 'password' => '12345678'])
+        $this->postJson('/api/login', ['email' => 'admin@gmail.com', 'password' => \Database\Seeders\ContrasenasDemo::ADMIN])
             ->assertOk()
             ->assertJsonPath('user.acceso_panel', true);
 
         // Externo (Huésped) -> sin acceso al panel
-        $this->postJson('/api/login', ['email' => 'huesped@hotellink.com', 'password' => '12345678'])
+        $this->postJson('/api/login', ['email' => 'huesped@hotellink.com', 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])
             ->assertOk()
             ->assertJsonPath('user.acceso_panel', false);
     }

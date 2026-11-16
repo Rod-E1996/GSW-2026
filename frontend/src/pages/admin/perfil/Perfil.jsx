@@ -271,7 +271,7 @@ export default function Perfil() {
                   <li key={h.id} className={h.estado === 1 ? 'is-activa' : ''}>
                     <div>
                       <strong>{h.browser || 'Navegador desconocido'}</strong>
-                      <small>{[h.device_type_es, h.platform].filter((x) => x && x !== 'Desconocido').join(' · ')} · {h.ip_address}</small>
+                      <small>{[h.device_type_es, h.platform].filter((x) => x && x !== 'Desconocido').concat(h.ip_address || []).join(' · ')}</small>
                     </div>
                     <div className="ac-linea__fecha">
                       <span>{fechaHora(h.fecha)}</span>

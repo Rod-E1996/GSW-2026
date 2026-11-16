@@ -306,20 +306,40 @@ tr:hover .ac-ver {
 .ac-lista {
   list-style: none;
 }
+/* Rejilla de 3 columnas (dispositivo | IP y actividad | accion) para que todas las
+   filas queden alineadas aunque la accion sea un boton "Cerrar" o la etiqueta
+   "Esta sesion". Si la lista es estrecha, IP y accion bajan juntas a una 2a fila. */
+.ac-lista {
+  container-type: inline-size;
+}
 .ac-lista li {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 6.5rem;
   align-items: center;
   gap: 0.6rem 1rem;
   padding: 0.75rem 0;
   border-top: 1px solid var(--linea);
+}
+.ac-lista li > :last-child:not(.ac-lista__meta) {
+  justify-self: end;
+}
+@container (max-width: 460px) {
+  .ac-lista li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ac-lista li > .celda-entidad {
+    grid-column: 1 / -1;
+  }
+  .ac-lista li .ac-lista__meta {
+    align-items: flex-start;
+  }
 }
 .ac-lista li:first-child {
   border-top: none;
   padding-top: 0.25rem;
 }
 .ac-lista li > .celda-entidad {
-  flex: 1 1 200px;
+  min-width: 0;
 }
 .ac-lista__meta {
   display: flex;
@@ -790,8 +810,13 @@ tr:hover .ac-ver {
   border-radius: var(--radio-sm);
   transition: background var(--rapido);
 }
+/* La fila se extiende 1rem a cada lado (para el resaltado de "cambiado"), pero la
+   linea separadora respeta el margen del contenido */
 .ac-parametro + .ac-parametro {
-  border-top: 1px solid var(--linea);
+  background-image: linear-gradient(var(--linea), var(--linea));
+  background-position: center top;
+  background-size: calc(100% - 2rem) 1px;
+  background-repeat: no-repeat;
 }
 .ac-parametro.is-cambiado {
   background: var(--mango-suave);
@@ -900,5 +925,16 @@ tr:hover .ac-ver {
   }
   .ac-cabecera__accion {
     width: 100%;
+  }
+}
+
+/* "Activar" y "Desactivar" con el mismo ancho: "Editar" queda alineado en todas las filas */
+.ac-btn-estado {
+  min-width: 6.6rem;
+  justify-content: center;
+}
+@media (max-width: 600px) {
+  .ac-btn-estado {
+    min-width: 0;
   }
 }

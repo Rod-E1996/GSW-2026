@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../../api'
 import { useAuth } from '../../../auth/AuthContext'
+import { EstadoVacio } from '../../../components/ui'
 
 const ESTADOS = { pendiente: 'Pendiente', aprobada: 'Aprobada', rechazada: 'Rechazada' }
 const COLOR = { pendiente: 'badge--aviso', aprobada: 'badge--ok', rechazada: 'badge--danger' }
@@ -50,7 +51,11 @@ export default function ValoracionesList() {
 
       {error && <div className="alerta alerta--error">{error}</div>}
       {valoraciones === null && <p className="estado">Cargando…</p>}
-      {valoraciones?.length === 0 && <p className="estado estado--vacio">No hay valoraciones {estado ? ESTADOS[estado].toLowerCase() + 's' : ''}.</p>}
+      {valoraciones?.length === 0 && (
+        <div className="tarjeta-simple">
+          <EstadoVacio icono="check" titulo={`No hay valoraciones ${estado ? ESTADOS[estado].toLowerCase() + 's' : ''}`.trim()} />
+        </div>
+      )}
 
       <div className="valoraciones-lista">
         {valoraciones?.map((v) => (

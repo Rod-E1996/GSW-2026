@@ -68,7 +68,7 @@ function LineaDeTiempo({ temporadas, anio, hoy }) {
           <div key={t.id} className="linea-tiempo__fila">
             <span className="linea-tiempo__etiqueta" title={t.nombre}>
               <i style={{ background: color }} />
-              {t.nombre}
+              <span className="linea-tiempo__nombre">{t.nombre}</span>
             </span>
             <div className="linea-tiempo__pista">
               {MESES.map((m, i) => (
@@ -388,7 +388,7 @@ export default function TarifasPage() {
         ) : (
           <form onSubmit={guardarTarifas}>
             <div className="tabla-wrap">
-              <table className="tabla matriz-precios">
+              <table className="tabla tabla--fija matriz-precios">
                 <thead>
                   <tr>
                     <th>Tipo de habitación</th>

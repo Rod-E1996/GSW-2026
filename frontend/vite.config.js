@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Proxy: /api y /storage van a Laravel, asi el navegador solo habla con el front y no hay problemas de CORS.
+// Proxy: /api, /storage e /img van a Laravel, asi el navegador solo habla con el front y no hay problemas de CORS.
 // Por defecto apunta al contenedor "back" (Docker). Fuera de Docker (Herd, XAMPP) se define
 // API_PROXY_TARGET en frontend/.env.local, por ejemplo: API_PROXY_TARGET=http://gsw-2026.test
 export default defineConfig(({ mode }) => {
@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': { target, changeOrigin: true },
         '/storage': { target, changeOrigin: true },
+        '/img': { target, changeOrigin: true },
       },
     },
   }

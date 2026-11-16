@@ -159,8 +159,8 @@ export default function Portal() {
             </div>
             <div className="galeria-grid">
               {hotel.galeria.map((foto) => (
-                <a key={foto.url} className="galeria-item" href={foto.url} target="_blank" rel="noopener noreferrer">
-                  <img src={foto.url} alt={foto.titulo} loading="lazy" />
+                <a key={foto.url} className="galeria-item" href={rutaImagen(foto.url)} target="_blank" rel="noopener noreferrer">
+                  <img src={rutaImagen(foto.url)} alt={foto.titulo} loading="lazy" />
                   <span>{foto.titulo}</span>
                 </a>
               ))}

@@ -521,13 +521,13 @@
 
 /* Linea de tiempo anual */
 .linea-tiempo {
-  --etiqueta: 200px;
+  --etiqueta: 180px;
   overflow-x: auto;
 }
 .linea-tiempo__meses,
 .linea-tiempo__fila {
   display: grid;
-  grid-template-columns: var(--etiqueta) minmax(560px, 1fr);
+  grid-template-columns: var(--etiqueta) minmax(460px, 1fr);
   align-items: center;
 }
 .linea-tiempo__meses {
@@ -552,6 +552,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.linea-tiempo__nombre {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis; /* nombres largos: "Puente de Independ…" (completo en el title) */
+}
+/* La columna de nombres queda fija al desplazar la linea de tiempo de lado */
+.linea-tiempo__etiqueta {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  align-self: stretch;
+  background: var(--superficie);
+}
 .linea-tiempo__etiqueta i {
   width: 10px;
   height: 10px;
@@ -562,6 +575,7 @@
   position: relative;
   height: 100%;
   min-height: inherit;
+  margin-right: 1.75rem; /* aire para la etiqueta "Dic" y la barra que acaba en diciembre */
 }
 .linea-tiempo__meses .linea-tiempo__pista span {
   position: absolute;
@@ -588,6 +602,15 @@
   background: color-mix(in srgb, var(--color) 22%, white);
   border: 1px solid color-mix(in srgb, var(--color) 55%, white);
   border-left: 3px solid var(--color);
+}
+.linea-tiempo__barra {
+  container-type: inline-size;
+}
+/* En una barra muy corta no cabe "×1.45": se oculta (sigue en el title de la barra) */
+@container (max-width: 46px) {
+  .linea-tiempo__barra span {
+    display: none;
+  }
 }
 .linea-tiempo__barra span {
   font-size: 0.72rem;
@@ -727,6 +750,27 @@
 }
 .matriz-precios__celda {
   min-width: 170px;
+}
+/* La columna del tipo de habitacion queda fija al desplazar la matriz de lado */
+.matriz-precios tbody th,
+.matriz-precios thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--superficie);
+  box-shadow: inset -1px 0 0 var(--linea);
+}
+.matriz-precios tbody th {
+  z-index: 1;
+  background: #fbfcfc;
+}
+.matriz-precios thead th:first-child {
+  z-index: 3;
+  background: #f8fafa;
+}
+@media (max-width: 600px) {
+  .matriz-precios tbody th {
+    min-width: 120px;
+  }
 }
 .matriz-precios__celda small {
   display: block;

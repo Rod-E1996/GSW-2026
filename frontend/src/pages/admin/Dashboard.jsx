@@ -21,8 +21,8 @@ function Lista({ titulo, icono, filas, vacio, detalle }) {
           {filas.map((r) => (
             <li key={r.codigo}>
               <Link to={`/panel/reservas/${r.codigo}`}>
-                <strong>{r.codigo}</strong> · {r.titular}
-                <span className="form-nota"> · {detalle(r)}</span>
+                <span className="panel-lista__linea"><strong>{r.codigo}</strong> · {r.titular}</span>
+                <span className="form-nota panel-lista__detalle">{detalle(r)}</span>
               </Link>
               <span className={`badge ${COLOR_RESERVA[r.estado] || ''}`}>{r.estado_nombre}</span>
             </li>

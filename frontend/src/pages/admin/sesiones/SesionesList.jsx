@@ -123,9 +123,9 @@ export default function SesionesList() {
                     </div>
                   </td>
                   <td><Dispositivo s={s} /></td>
-                  <td className="ac-mono">{s.ip_address}</td>
-                  <td>{fechaHora(s.inicio)}</td>
-                  <td title={fechaHora(s.ultima_actividad)}>{haceCuanto(s.ultima_actividad)}</td>
+                  <td className="ac-mono celda-sin-corte">{s.ip_address}</td>
+                  <td className="celda-sin-corte">{fechaHora(s.inicio)}</td>
+                  <td className="celda-sin-corte" title={fechaHora(s.ultima_actividad)}>{haceCuanto(s.ultima_actividad)}</td>
                   <td className="tabla__acciones">
                     {s.es_actual ? (
                       <span className="badge badge--info">Esta sesión</span>

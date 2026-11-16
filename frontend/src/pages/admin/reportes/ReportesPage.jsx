@@ -98,7 +98,7 @@ export default function ReportesPage() {
             </div>
           </div>
 
-          <p className="form-nota">
+          <p className="form-nota reportes__nota">
             Valoración promedio del período: {r.valoraciones ? `★ ${r.valoracion_promedio} de 5 (${r.valoraciones} aprobadas)` : 'sin valoraciones aprobadas'}.
           </p>
 

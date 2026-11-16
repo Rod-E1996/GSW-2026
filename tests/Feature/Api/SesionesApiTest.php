@@ -24,7 +24,7 @@ class SesionesApiTest extends ApiTestCase
     public function test_vista_global_marca_la_sesion_actual_y_muestra_el_dispositivo()
     {
         $admin = $this->admin();
-        $login = $this->postJson('/api/login', ['email' => $admin->email, 'password' => '12345678'])->json('token');
+        $login = $this->postJson('/api/login', ['email' => $admin->email, 'password' => \Database\Seeders\ContrasenasDemo::ADMIN])->json('token');
 
         $res = $this->conToken($login)->getJson('/api/admin/sesiones')->assertOk();
 
@@ -72,7 +72,7 @@ class SesionesApiTest extends ApiTestCase
     public function test_sesiones_e_historial_de_un_usuario()
     {
         $huesped = $this->huesped();
-        $token = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->json('token');
+        $token = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])->json('token');
 
         $res = $this->como($this->admin())->getJson("/api/admin/usuarios/{$huesped->id}/sesiones")->assertOk();
 
@@ -134,7 +134,7 @@ class SesionesApiTest extends ApiTestCase
     public function test_cerrar_una_sesion_actualiza_su_registro()
     {
         $huesped = $this->huesped();
-        $token = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->json('token');
+        $token = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])->json('token');
 
         $this->como($this->admin())->deleteJson('/api/admin/sesiones/' . $this->idDe($token))->assertOk();
 

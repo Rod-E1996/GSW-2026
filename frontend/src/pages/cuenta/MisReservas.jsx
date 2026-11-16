@@ -45,10 +45,10 @@ export default function MisReservas() {
         <tbody>
           {reservas.map((r) => (
             <tr key={r.codigo}>
-              <td><strong>{r.codigo}</strong></td>
-              <td>{r.tipo}{r.habitacion ? ` · ${r.habitacion}` : ''}</td>
-              <td>{fechaCorta(r.fecha_llegada)}</td>
-              <td>{fechaCorta(r.fecha_salida)}</td>
+              <td><strong className="dato-junto">{r.codigo}</strong></td>
+              <td className="celda-sin-corte">{r.tipo}{r.habitacion ? ` · ${r.habitacion}` : ''}</td>
+              <td className="celda-sin-corte">{fechaCorta(r.fecha_llegada)}</td>
+              <td className="celda-sin-corte">{fechaCorta(r.fecha_salida)}</td>
               <td>{formatoUSD(r.total)}</td>
               <td>
                 <span className={`badge ${r.vencida ? '' : COLOR_ESTADO[r.estado] || ''}`}>{r.estado_nombre}</span>

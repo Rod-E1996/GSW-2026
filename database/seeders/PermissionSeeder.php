@@ -21,7 +21,7 @@ class PermissionSeeder extends Seeder
         $user = User::create([
             'name' => 'Super Administrador',
             'email' => 'admin@gmail.com',
-            'password' => Hash::make('12345678'),
+            'password' => Hash::make(ContrasenasDemo::ADMIN),
         ]);
         $user->markEmailAsVerified();
 

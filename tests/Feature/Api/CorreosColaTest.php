@@ -44,7 +44,7 @@ class CorreosColaTest extends ApiTestCase
         $huesped->update(['login_notificacion' => 1]);
         $this->dispositivoAnterior($huesped->id);
 
-        $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->assertOk();
+        $this->postJson('/api/login', ['email' => $huesped->email, 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])->assertOk();
 
         Bus::assertDispatched(SendEmailNuevoDispositivo::class);
     }
@@ -55,14 +55,14 @@ class CorreosColaTest extends ApiTestCase
         $huesped = $this->huesped();
         $huesped->update(['login_notificacion' => 1]);
 
-        $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->assertOk();
+        $this->postJson('/api/login', ['email' => $huesped->email, 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])->assertOk();
         Bus::assertNotDispatched(SendEmailNuevoDispositivo::class);
 
         $recepcion = $this->recepcion();
         $recepcion->update(['login_notificacion' => 0]);
         $this->dispositivoAnterior($recepcion->id);
 
-        $this->postJson('/api/login', ['email' => $recepcion->email, 'password' => '12345678'])->assertOk();
+        $this->postJson('/api/login', ['email' => $recepcion->email, 'password' => \Database\Seeders\ContrasenasDemo::RECEPCION])->assertOk();
         Bus::assertNotDispatched(SendEmailNuevoDispositivo::class);
     }
 
@@ -73,7 +73,7 @@ class CorreosColaTest extends ApiTestCase
         $huesped->update(['login_notificacion' => 1]);
         $this->dispositivoAnterior($huesped->id);
 
-        $res = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => '12345678'])->assertOk();
+        $res = $this->postJson('/api/login', ['email' => $huesped->email, 'password' => \Database\Seeders\ContrasenasDemo::HUESPED])->assertOk();
 
         $this->assertNotNull(json_decode($res->getContent()));
         Mail::assertSent(NuevoDispositivoEmail::class);

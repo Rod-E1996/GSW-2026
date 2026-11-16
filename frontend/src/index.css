@@ -609,7 +609,9 @@ a.admin__user:hover {
   padding: 1.75rem 2rem 2.5rem;
 }
 
-@media (max-width: 900px) {
+/* Hasta 1100px la barra lateral pasa a menu desplegable: con ella fija, a 1024px
+   el contenido quedaba en ~700px y tablas y formularios de 3 columnas se aplastaban. */
+@media (max-width: 1100px) {
   .admin__burger,
   .admin__cerrar {
     display: inline-flex;
@@ -620,11 +622,12 @@ a.admin__user:hover {
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    transition: transform 0.22s ease;
-    box-shadow: var(--sombra-3);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    box-shadow: none; /* cerrada no debe asomar su sombra en el borde izquierdo */
   }
   .admin--menu-abierto .admin__sidebar {
     transform: translateX(0);
+    box-shadow: var(--sombra-3);
   }
   .admin__overlay {
     display: block;
@@ -804,8 +807,17 @@ a.admin__user:hover {
 /* ===== Panel de control ===== */
 .panel-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 1rem;
+  align-items: start; /* una lista corta no se estira a la altura de su vecina */
+}
+.panel-lista__linea,
+.panel-lista__detalle {
+  display: block;
+}
+.panel-lista__detalle {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
 }
 .panel-lista {
   margin-bottom: 0;
@@ -1231,6 +1243,23 @@ a.admin__user:hover {
   color: var(--tinta-2);
   white-space: nowrap;
 }
+@media (max-width: 600px) {
+  /* "Llegada del [fecha]" y "al [fecha]": cada una en su fila, con la etiqueta
+     del mismo ancho para que las dos fechas empiecen a la misma altura */
+  .filtros__fecha {
+    flex: 1 1 100%;
+  }
+  .filtros__fecha > input[type="date"] {
+    flex: 1 1 auto;
+  }
+  .filtros__fecha:has(> input[type="date"]) {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+  .filtros > .btn {
+    flex: 1 1 auto;
+  }
+}
 .filtros__check {
   display: flex;
   align-items: center;
@@ -1310,6 +1339,23 @@ a.admin__user:hover {
   text-align: right;
   white-space: nowrap;
 }
+/* Celdas cortas (fechas, "Tipo · numero") que no deben partirse en varias lineas */
+.tabla td.celda-sin-corte {
+  white-space: nowrap;
+}
+/* Cuando la tabla no cabe y se desplaza de lado, las acciones quedan fijas a la
+   derecha (con una sombra que indica que hay mas columnas debajo). */
+.tabla td.tabla__acciones,
+.tabla:has(td.tabla__acciones) thead th:last-child {
+  position: sticky;
+  right: 0;
+  background: var(--superficie);
+  box-shadow: inset 1px 0 0 var(--linea);
+}
+.tabla:has(td.tabla__acciones) thead th:last-child {
+  z-index: 2;
+  background: #f8fafa;
+}
 .tabla__acciones > * + * {
   margin-left: 0.35rem;
 }
@@ -1380,6 +1426,20 @@ a.admin__user:hover {
 .paginacion .btn {
   min-height: 2.1rem;
   font-size: 0.85rem;
+}
+@media (max-width: 600px) {
+  /* El texto "Pagina X de Y" sube a su propia fila; los botones quedan debajo */
+  .paginacion {
+    flex-wrap: wrap;
+  }
+  .paginacion > span {
+    order: -1;
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .paginacion > .btn {
+    flex: 1 1 0;
+  }
 }
 
 /* =====================================================================
@@ -2477,6 +2537,11 @@ fieldset {
   font-size: 1.05rem;
   color: var(--tinta) !important;
 }
+/* La linea sobre "Total" cruza el hueco entre columnas para verse continua */
+.importes dt.importes__total {
+  margin-right: -1rem;
+  padding-right: 1rem;
+}
 .importes__anticipo {
   color: var(--mango-oscuro) !important;
   font-weight: 700;
@@ -2760,10 +2825,22 @@ fieldset {
   border-radius: var(--radio);
   background: var(--ola-suave);
 }
-.huesped-elegido > div {
-  display: flex;
-  flex-direction: column;
+/* Solo la columna de texto (nombre + datos), no la fila avatar + texto */
+.huesped-elegido .celda-entidad > div {
   gap: 0.15rem;
+}
+/* Documento, correo y telefono pueden partirse en varias lineas en vez de salirse */
+.huesped-elegido .celda-entidad small {
+  white-space: normal;
+  overflow-wrap: break-word; /* parte entre datos, no a mitad de un numero */
+}
+.dato-junto {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  white-space: nowrap; /* documento, correo o telefono no se parten por dentro */
+  overflow: hidden;
+  text-overflow: ellipsis; /* un correo larguisimo se recorta en vez de salirse */
 }
 .enlace-quitar {
   margin-left: 0.5rem;
@@ -2937,7 +3014,8 @@ fieldset {
   }
   .reserva,
   .cuenta {
-    padding: 1.25rem 1rem 2.5rem;
+    /* mismo margen lateral que la barra superior (1.5rem; 1rem desde 520px) */
+    padding: 1.25rem 1.5rem 2.5rem;
   }
 }
 @media (max-width: 768px) {
@@ -2973,6 +3051,11 @@ fieldset {
   }
 }
 @media (max-width: 520px) {
+  .reserva,
+  .cuenta {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
   .login__fila {
     grid-template-columns: 1fr;
   }
@@ -3239,4 +3322,134 @@ fieldset {
 .selector-idioma button.is-activo {
   color: var(--pacifico);
   background: #fff;
+}
+
+/* =====================================================================
+   Tablas apiladas (moviles)
+   En pantallas estrechas cada fila de .tabla pasa a ser una tarjeta: la primera
+   celda hace de titulo y el resto muestra "ETIQUETA  valor". Las etiquetas salen
+   del data-label que pone tablasResponsivas.js. Las tablas .tabla--fija (matrices)
+   siguen como tabla con desplazamiento lateral.
+   ===================================================================== */
+@media (max-width: 600px) {
+  .tabla:not(.tabla--fija),
+  .tabla:not(.tabla--fija) tbody,
+  .tabla:not(.tabla--fija) tr,
+  .tabla:not(.tabla--fija) td {
+    display: block;
+    width: 100%;
+  }
+  .tabla:not(.tabla--fija) thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .tabla:not(.tabla--fija) tbody tr {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--linea);
+  }
+  .tabla:not(.tabla--fija) tbody tr:last-child {
+    border-bottom: none;
+  }
+  .tabla:not(.tabla--fija) td {
+    position: relative;
+    padding: 0.3rem 0 0.3rem 40%;
+    border-bottom: none;
+    text-align: left !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-height: 1.6rem;
+  }
+  .tabla:not(.tabla--fija) td::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 0.4rem;
+    left: 0;
+    width: calc(40% - 0.75rem);
+    color: var(--tinta-3);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.35;
+  }
+  /* Primera celda: titulo de la tarjeta, sin etiqueta */
+  .tabla:not(.tabla--fija) td:first-child {
+    padding: 0 0 0.45rem;
+    min-height: 0;
+  }
+  .tabla:not(.tabla--fija) td:first-child::before,
+  .tabla:not(.tabla--fija) td[data-label=""]::before {
+    display: none;
+  }
+  .tabla:not(.tabla--fija) td[data-label=""] {
+    padding-left: 0;
+  }
+  /* Acciones: al pie de la tarjeta, a lo ancho */
+  .tabla:not(.tabla--fija) td.tabla__acciones {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    padding: 0.6rem 0 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  .tabla:not(.tabla--fija) td.tabla__acciones::before {
+    display: none;
+  }
+  .tabla:not(.tabla--fija) .tabla__acciones > * + * {
+    margin-left: 0;
+  }
+  .tabla:not(.tabla--fija) td.tabla__vacio {
+    padding: 2rem 0 !important;
+    text-align: center !important;
+  }
+  .tabla:not(.tabla--fija) td.tabla__vacio::before {
+    display: none;
+  }
+}
+
+/* =====================================================================
+   Rejillas de indicadores equilibradas
+   Con auto-fit, 4 tarjetas quedaban en 3 + 1 (la ultima sola en otra fila).
+   Aqui las columnas dependen de cuantas tarjetas hay: 4 -> 4 / 2 / 2,
+   3 -> 3 / 3 / 1, y en movil una tarjeta impar al final ocupa toda la fila.
+   ===================================================================== */
+.indicadores:has(> :nth-child(4):last-child),
+.cards-info:has(> :nth-child(4):last-child) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.indicadores:has(> :nth-child(3):last-child),
+.cards-info:has(> :nth-child(3):last-child) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.indicadores:has(> :nth-child(2):last-child),
+.cards-info:has(> :nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 900px) {
+  .indicadores:has(> :nth-child(4):last-child),
+  .cards-info:has(> :nth-child(4):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .indicadores:has(> :nth-child(3):last-child),
+  .cards-info:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .indicadores > :last-child:nth-child(odd),
+  .cards-info > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Reportes: la nota de valoracion promedio separada de la tarjeta siguiente */
+.reportes__nota {
+  margin: 0.25rem 0 1.25rem;
 }

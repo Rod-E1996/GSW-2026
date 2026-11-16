@@ -28,7 +28,8 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .form-row--4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Las fechas necesitan ~140px para mostrarse completas (dd/mm/aaaa + icono) */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 .tarjeta-simple > h3 {
   font-size: 1rem;
@@ -472,7 +473,7 @@
   max-width: none;
 }
 .rf .form-row.form-row--4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 .rf-principal {
   gap: 0;
@@ -490,7 +491,8 @@
   flex-wrap: wrap;
 }
 .rf .huesped-elegido > .celda-entidad {
-  flex: 1;
+  flex: 1 1 240px;
+  min-width: 0;
 }
 .rf .lista-huespedes li:first-child {
   border-top: none;
@@ -537,7 +539,7 @@
 }
 .rf-servicios .servicios-elegibles__detalle label {
   min-width: 0;
-  flex: 1 1 110px;
+  flex: 1 1 150px; /* ancho minimo para que la fecha dd/mm/aaaa no se corte */
 }
 .rf-extra {
   max-width: 560px;
@@ -710,7 +712,7 @@
   }
   .form-row--4,
   .rf .form-row.form-row--4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 }
 @media (max-width: 860px) {
@@ -725,14 +727,14 @@
   }
 }
 @media (max-width: 640px) {
+  /* Las pestanas se reparten en filas (antes se desplazaban de lado con la
+     barra oculta y "Confirmadas", "En estadia"... quedaban fuera sin aviso). */
   .reservas-lista .pestanas {
-    flex-wrap: nowrap;
     width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
   }
   .reservas-lista .pestanas button {
-    flex: none;
+    flex: 1 1 auto;
+    justify-content: center;
   }
   .ra-cabecera__acciones {
     width: 100%;

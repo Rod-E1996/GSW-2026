@@ -152,7 +152,8 @@ class ModeloReservasTest extends TestCase
                 $reserva->codigo
             );
             $this->assertEquals(
-                round($reserva->total * 0.30, 2),
+                //Igual que CotizacionService: "* 0.30" da 55.93 con 186.45 por error de coma flotante
+                round($reserva->total * 30 / 100, 2),
                 (float) $reserva->anticipo_requerido,
                 $reserva->codigo
             );

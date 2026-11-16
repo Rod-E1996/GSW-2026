@@ -75,7 +75,7 @@ function LineaDeTiempo({ temporadas, anio, hoy }) {
                 <span key={m} className="linea-tiempo__guia" style={{ left: `${pos(`${anio}-${String(i + 1).padStart(2, '0')}-01`)}%` }} />
               ))}
               <div
-                className="linea-tiempo__barra"
+                className={`linea-tiempo__barra${izquierda + ancho > 90 ? ' linea-tiempo__barra--final' : ''}`}
                 style={{ left: `${izquierda}%`, width: `${ancho}%`, '--color': color }}
                 title={`${t.nombre}: ${fechaCorta(t.fecha_inicio)} → ${fechaCorta(t.fecha_fin)} · ×${Number(t.multiplicador).toFixed(2)}`}
               >

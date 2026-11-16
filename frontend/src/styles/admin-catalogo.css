@@ -597,7 +597,6 @@
   align-items: center;
   min-width: 6px;
   padding: 0 0.45rem;
-  overflow: hidden;
   border-radius: 6px;
   background: color-mix(in srgb, var(--color) 22%, white);
   border: 1px solid color-mix(in srgb, var(--color) 55%, white);
@@ -606,10 +605,18 @@
 .linea-tiempo__barra {
   container-type: inline-size;
 }
-/* En una barra muy corta no cabe "×1.45": se oculta (sigue en el title de la barra) */
+/* En una barra muy corta no cabe "×1.45": se muestra afuera, junto a la barra
+   (a la derecha; a la izquierda si la barra termina cerca de diciembre) */
 @container (max-width: 46px) {
   .linea-tiempo__barra span {
-    display: none;
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 0.35rem);
+    transform: translateY(-50%);
+  }
+  .linea-tiempo__barra--final span {
+    left: auto;
+    right: calc(100% + 0.35rem);
   }
 }
 .linea-tiempo__barra span {
